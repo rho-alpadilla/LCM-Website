@@ -1,0 +1,209 @@
+# Lifechangers Ministry Incorporated Website
+
+## Project Status
+
+Planning in progress. The free-first Cloudflare technology stack has been approved. Domain, payment gateway, and detailed operational policies remain to be confirmed.
+
+The initial system architecture is documented in `docs/ARCHITECTURE.md`.
+
+The initial database design and role-permission matrix are documented in `docs/DATABASE_SCHEMA.md` and `docs/PERMISSION_MATRIX.md`.
+
+## Confirmed Purpose
+
+Build an online outreach platform for Lifechangers Ministry Incorporated serving new visitors, existing members, and the local community.
+
+## Confirmed Public Actions
+
+- Watch a sermon
+- View daily church activities
+- Request prayer
+- Contact the church
+- Join a ministry
+- Support the ministry through online giving
+
+`Plan a Visit` is not currently included.
+
+## Confirmed Public Information
+
+- Church name: Lifechangers Ministry Incorporated
+- Address: #3 Johnbee Village, Bokawkan Road, Baguio City, Philippines
+- Phone: 0916 665 2531
+- Email: agentofchangelcm@gmail.com
+- Facebook: https://www.facebook.com/LCMAGENTSofCHANGE
+- Tagline shown on Facebook: Your Home church in the City.
+- Hashtag shown on Facebook: #ChurchWithoutWalls
+- Official service schedules: To be confirmed by the church
+
+## Confirmed Administration Requirements
+
+- The public website does not require member accounts.
+- The administration area requires individual staff accounts with role-based access control.
+- Shared access keys or shared credentials must not be used.
+- Estimated staffing is approximately 2-3 accounts per role, subject to confirmation.
+- Public content requires an approval workflow before publication.
+- Significant actions must be recorded in an audit log.
+
+### Planned Roles
+
+- System Administrator
+- Senior Pastor
+- Associate Pastor
+- Leader
+- Core Leader
+- Multimedia Head
+- Multimedia Team
+- Bulletin Head
+- Bulletin Team
+- Treasurer
+- Prayer Warriors
+
+Multimedia and Bulletin Heads may approve and publish content only within the content areas their teams are permitted to manage, including their own work. Leaders receive the shared day-to-day access of the pastoral roles so operations do not depend on pastors regularly using the dashboard. A System Administrator may assign the separate Core Leader role to selected trusted Leaders who require Senior-Pastor-equivalent authority, including sensitive financial approval permissions.
+
+### Prayer Request Access
+
+- Senior Pastor and Associate Pastor may access confidential prayer requests.
+- Leaders receive the same operational prayer access as the Associate Pastor.
+- Core Leaders receive the same access as the Senior Pastor.
+- Prayer Warriors may access prayer requests that are permitted for the prayer team.
+- A pastoral-only privacy option is recommended and remains to be confirmed.
+
+## Confirmed Content Requirements
+
+- Sermons
+- Sermon series and speakers
+- Events
+- Announcements
+- Ministries
+- Bulletins
+- Daily and recurring church activities
+- Church pages and media
+
+Daily activities and special events should use a shared schedule system with activity types to avoid duplicate implementations.
+
+## Confirmed Giving Requirements
+
+- Support online giving at launch without recurring payments.
+- Record offline cash and bank giving.
+- Support giving categories, receipt handling, corrections, and refunds.
+- Exact categories, receipt fields, refund rules, and approval authorities remain to be confirmed.
+- Online transaction amounts must come from verified payment-provider records and must not be silently overwritten.
+- Financial corrections must preserve the original record and create an auditable adjustment.
+
+## Existing Website and Domain
+
+- The previous website was created and managed by IOL Inc. Baguio.
+- The church stopped paying the previous provider because of cost.
+- The church does not currently control a domain, hosting account, previous source code, or previous website database.
+- The new project must be independent of the old website and infrastructure.
+- A new church-owned domain and church-controlled service accounts are required.
+
+## Cost Strategy
+
+### Approved Decision
+
+Operate with no recurring platform subscription during development and the initial release. The only expected unavoidable costs are the annually renewed domain and any approved legal/IP filings. Payment-provider transaction fees are separate from platform operating costs.
+
+### Architecture Requirement
+
+- Stay on hard-limited free plans where practical so exceeding a limit fails safely instead of creating an unexpected bill.
+- Keep deployment configuration environment-based.
+- Avoid provider-specific shortcuts that would make upgrading or migrating unnecessarily difficult.
+- Keep database migrations, seed data, and deployment steps reproducible.
+- Implement storage, authentication, email, monitoring, and payment integrations behind clear application boundaries.
+- Configure usage alerts, upload quotas, request throttling, and limits where providers support them.
+- Document the steps and expected effect of moving to paid production services.
+- The upgrade to paid Cloudflare capacity should primarily be an account billing or configuration change, not an application rewrite.
+
+## Selected Technology Stack
+
+### Application
+
+- Next.js using the App Router
+- React
+- TypeScript with strict type checking
+- Tailwind CSS with reusable design tokens
+- Accessible reusable UI primitives; add component dependencies only as needed
+- Zod for trusted-boundary validation
+- React Hook Form for complex accessible forms when needed
+
+### Data and Backend Services
+
+- Cloudflare D1 as the relational system of record using SQLite-compatible SQL
+- Cloudflare Access for staff identity and protection of the administration area
+- Application roles and granular permissions stored in D1
+- Authorization enforced inside trusted Worker/server code for every protected operation
+- Cloudflare R2 Standard storage for approved files, with application quotas that remain below the free allowance
+- SQL migrations stored in version control and tested against a local D1 database
+- Cloudflare Workers or protected Next.js Route Handlers for payment webhooks and privileged operations
+
+### Hosting and Domain Infrastructure
+
+- Cloudflare Workers using the supported OpenNext adapter for the Next.js application
+- Cloudflare DNS and security controls
+- A church-owned registrar account; Cloudflare Registrar is the initial preference subject to domain availability, extension support, and final pricing
+
+### Supporting Services
+
+- Cloudflare Turnstile for privacy-conscious bot protection on public forms
+- Cloudflare Web Analytics if analytics is enabled
+- Dashboard-based notifications at first; outbound transactional email remains optional until a no-cost provider and its limits are approved
+- Facebook and/or YouTube embeds for sermon video delivery
+- Payment provider to be selected after comparing church eligibility, fees, settlement, webhook support, refunds, and receipt requirements
+
+### Development and Quality
+
+- pnpm for dependency management
+- ESLint and consistent formatting
+- Vitest and React Testing Library for unit and component tests
+- Playwright for end-to-end and responsive-flow testing
+- GitHub Actions for automated checks when the repository is connected to GitHub
+
+### Application Structure
+
+- Public routes and admin routes remain clearly separated.
+- Reusable UI stays separate from feature-specific components.
+- Business rules stay in feature/service modules rather than page components.
+- Database access stays behind dedicated repositories or server-side data modules.
+- Payment, email, storage, and analytics providers stay behind integration boundaries.
+- Database access stays server-only. Authorization must be enforced before each D1 operation and covered by permission tests.
+
+### Free-to-Paid Upgrade Path
+
+- Start with Cloudflare Workers Free, D1 Free, Cloudflare Access Free, Turnstile, and carefully limited R2 Standard usage.
+- Keep public pages cache-friendly and minimize dynamic server execution.
+- Configure alerts and document free-tier limits.
+- Upgrade Cloudflare Workers without changing the application architecture when runtime limits require it.
+- Upgrade Cloudflare capacity only after church approval when traffic or storage justifies it.
+- Keep repository and service boundaries portable enough to support a future managed PostgreSQL migration if D1 no longer fits.
+
+### Technology Decisions Explicitly Avoided
+
+- Do not use shared WordPress hosting as the default architecture for this project.
+- Do not use a document database as the primary store for financial, permission, and audit data.
+- Do not use a hosting free tier whose terms do not clearly fit an incorporated church.
+- Do not build custom password storage or expose D1 directly to browsers.
+- Do not introduce a separate custom backend server until the selected services cannot meet a confirmed requirement.
+
+### Upgrade Triggers
+
+Review the move to paid production services before or when any of the following occurs:
+
+- Real online or offline giving records become operationally important.
+- Confidential prayer requests are stored regularly.
+- Free-tier capacity or availability affects staff or visitors.
+- Reliable automatic backups and recovery become necessary.
+- Storage, email, bandwidth, or database quotas approach their limits.
+- The church requires provider support or stronger operational guarantees.
+
+## Outstanding Decisions
+
+- Official service schedule and weekly recurring activities
+- Domain name and registrar
+- Exact giving categories
+- Receipt information and workflow
+- Refund and correction approval process
+- Pastoral-only prayer-request option
+- Content approval authorities and emergency publishing permissions
+- Number of Leader, Core Leader, Multimedia Head and Bulletin Head accounts
+- Payment gateway
+- Existing content and media inventory
