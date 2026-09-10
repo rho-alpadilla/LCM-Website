@@ -9,10 +9,10 @@ authorization.
 ## Current State
 
 - Next.js, React, TypeScript, Tailwind CSS, OpenNext, and Wrangler are present.
+- Phase 1 platform bindings and the Phase 2 D1 access-control foundation are
+  implemented and verified locally.
 - Supabase Auth helpers, staff screens, MFA flows, and PostgreSQL migrations are
   present but have not been approved as the production backend.
-- All current repository files are uncommitted, so a reviewable baseline commit
-  should be created before migration code begins.
 - No production data migration is currently required because no production
   Supabase database has been identified.
 
@@ -50,6 +50,9 @@ Exit criteria: a local health check can verify application, D1, and optional R2
 availability without returning sensitive details.
 
 ## Phase 2: D1 Schema and Repositories
+
+Status: access-control scope complete locally. Content, prayer, and giving tables
+remain assigned to their later phases below.
 
 1. Convert the approved logical data model to SQLite-compatible migrations.
 2. Preserve foreign keys, uniqueness rules, status constraints, indexes, audit
@@ -128,4 +131,3 @@ deployed architecture, and a rollback/recovery procedure has been tested.
 - Whether outbound email notifications are required for the first launch.
 - R2 application storage ceiling below the provider's free allowance.
 - Backup export frequency and responsible person.
-

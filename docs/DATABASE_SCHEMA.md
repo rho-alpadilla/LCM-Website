@@ -1,11 +1,10 @@
 # Database Schema and Security Design
 
-> **Migration status:** This document describes the preserved Supabase/PostgreSQL
-> prototype. Cloudflare D1 is now the approved production database. Domain names,
-> permissions, audit requirements, privacy rules, and append-only finance behavior
-> remain authoritative; PostgreSQL functions, triggers, `auth.users`, and Row Level
-> Security policies require a SQLite/D1 redesign before production use. See
-> `CLOUDFLARE_MIGRATION_PLAN.md`.
+> **Migration status:** The access-control foundation has been converted to
+> Cloudflare D1 in `migrations/d1`. The remaining sections describe the preserved
+> Supabase/PostgreSQL prototype and approved logical requirements; provider-specific
+> functions, `auth.users`, and Row Level Security policies are not the production
+> implementation. See `CLOUDFLARE_MIGRATION_PLAN.md`.
 
 ## Status
 
@@ -22,7 +21,8 @@ Related documents:
 
 ## Database Standards
 
-- PostgreSQL is the system of record.
+- Cloudflare D1 is the approved production system of record. PostgreSQL remains
+  only in the preserved prototype until each feature is replaced and verified.
 - UUIDs are used for externally referenced primary keys.
 - All timestamps use `timestamptz` and are stored in UTC.
 - Philippine display times use the `Asia/Manila` time zone at the application boundary.
@@ -708,11 +708,19 @@ The following operations must complete atomically:
 
 ## Migration Progress
 
-Implemented:
+Implemented in the preserved Supabase prototype:
 
 1. Access control, seeded roles and permissions, audit foundation, and RLS helpers
 2. Media metadata, core content records, revisions, reviewed publishing functions, and scoped read policies
 3. MFA-protected administrator bootstrap, staff invitation registration, account activation, role changes, suspension, and final-administrator safeguards
+
+Implemented for Cloudflare D1:
+
+1. Staff profiles and exact Cloudflare Access subject mapping
+2. Eleven approved roles, 64 permissions, and the approved role grants
+3. Role assignments, append-only audit records, first-administrator bootstrap,
+   Core Leader eligibility, and final-System-Administrator safeguards
+4. Bound-query repository methods and a validated access-control service
 
 Planned next:
 

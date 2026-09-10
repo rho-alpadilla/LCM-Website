@@ -4,11 +4,11 @@ Zero-subscription-first, upgrade-ready church outreach platform built with Next.
 
 ## Current Status
 
-The application foundation and a Supabase-based authentication/authorization
-prototype are implemented. Cloudflare Workers, D1, Access, and R2 are now the
-approved production architecture. The Supabase prototype is preserved only as a
-reference until its behavior is migrated and verified. Public content, giving,
-and prayer workflows are not production-ready.
+The application foundation, Cloudflare bindings, and D1 access-control layer are
+implemented. Cloudflare Workers, D1, Access, and R2 are the approved production
+architecture. The Supabase authentication/authorization prototype is preserved
+only as a reference until all of its behavior is migrated and verified. Public
+content, giving, and prayer workflows are not production-ready.
 
 ## Requirements
 
@@ -37,8 +37,15 @@ pnpm cf:typegen
 The server-only `SUPABASE_SERVICE_ROLE_KEY` is used only by the preserved
 prototype. Never expose it through a `NEXT_PUBLIC_` variable or commit it to Git.
 
-Database migrations live in `supabase/migrations`. Once Docker Desktop is
-running, apply and test them locally with:
+D1 migrations live in `migrations/d1`. Apply them to local Wrangler storage with:
+
+```text
+pnpm d1:migrations:list
+pnpm d1:migrations:apply
+```
+
+Legacy prototype migrations live in `supabase/migrations`. Once Docker Desktop
+is running, apply and test them locally with:
 
 ```text
 pnpm supabase:start
@@ -98,8 +105,8 @@ Preview and production use distinct Worker, D1, and R2 resource names. Deploymen
 scripts select the environment explicitly so local resources cannot be mistaken
 for production resources.
 
-D1 bindings, R2 bindings, and Cloudflare Access validation will be added in the
-migration phases documented in `docs/CLOUDFLARE_MIGRATION_PLAN.md`.
+D1 and R2 bindings are configured. Cloudflare Access identity validation is the
+next migration phase documented in `docs/CLOUDFLARE_MIGRATION_PLAN.md`.
 
 On Windows, run the OpenNext Cloudflare build from WSL because its bundling
 stage creates symbolic links that ordinary Windows sessions commonly block.
