@@ -1,0 +1,278 @@
+import { z } from "zod";
+
+import { ApplicationError } from "@/lib/errors/application-error";
+import type { StaffContext } from "@/server/repositories/access-control-repository";
+import type {
+  ContentEntry,
+  ContentRepositoryPort,
+  ContentType,
+} from "@/server/repositories/content-repository";
+
+const contentTypeSchema = z.enum([
+  "page",
+  "ministry",
+  "sermon",
+  "series",
+  "speaker",
+  "schedule",
+  "announcement",
+  "bulletin",
+]);
+
+const draftSchema = z.object({
+  contentType: contentTypeSchema,
+  slug: z
+    .string()
+    .trim()
+    .min(1)
+    .max(180)
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+  title: z.string().trim().min(1).max(180),
+  summary: z
+    .string()
+    .trim()
+    .max(500)
+    .optional()
+    .transform((value) => value || null),
+  bodyText: z.string().trim().max(50_000).optional().default(""),
+  coverMediaId: z.uuid().nullable().optional().default(null),
+});
+
+const contentIdSchema = z.uuid();
+const changeSummarySchema = z.string().trim().min(10).max(500);
+const optionalReasonSchema = z
+  .string()
+  .trim()
+  .max(500)
+  .optional()
+  .transform((value) => value || null);
+const archiveReasonSchema = z.string().trim().min(10).max(500);
+
+const managementPermission: Record<ContentType, string> = {
+  page: "content.pages.manage",
+  ministry: "content.ministries.manage",
+  sermon: "content.sermons.manage",
+  series: "content.series.manage",
+  speaker: "content.speakers.manage",
+  schedule: "content.schedule.manage",
+  announcement: "content.announcements.manage",
+  bulletin: "content.bulletins.manage",
+};
+
+type Dependencies = { createId?: () => string; now?: () => Date };
+
+export class ContentWorkflowService {
+  private readonly createId: () => string;
+  private readonly now: () => Date;
+
+  constructor(
+    private readonly repository: ContentRepositoryPort,
+    dependencies: Dependencies = {},
+  ) {
+    this.createId = dependencies.createId ?? (() => crypto.randomUUID());
+    this.now = dependencies.now ?? (() => new Date());
+  }
+
+  async createDraft(
+    actor: StaffContext,
+    rawInput: z.input<typeof draftSchema>,
+  ) {
+    const input = draftSchema.parse(rawInput);
+    this.requireContentPermission(
+      actor,
+      input.contentType,
+      managementPermission[input.contentType],
+    );
+    if (await this.repository.slugExists(input.contentType, input.slug)) {
+      throw new ApplicationError(
+        "VALIDATION_FAILED",
+        "That content URL is already in use.",
+      );
+    }
+
+    const contentId = this.createId();
+    await this.repository.createDraft({
+      ...this.mutationIdentity(actor.id),
+      contentId,
+      contentType: input.contentType,
+      slug: input.slug,
+      title: input.title,
+      summary: input.summary,
+      bodyJson: JSON.stringify({ format: "plain_text", text: input.bodyText }),
+      coverMediaId: input.coverMediaId,
+    });
+    return { contentId };
+  }
+
+  async submitForReview(
+    actor: StaffContext,
+    rawContentId: string,
+    rawSummary: string,
+  ) {
+    const content = await this.requireContent(
+      actor,
+      rawContentId,
+      "content.submit",
+    );
+    const changeSummary = changeSummarySchema.parse(rawSummary);
+    if (content.status !== "draft") {
+      throw new ApplicationError(
+        "VALIDATION_FAILED",
+        "Only draft content can be submitted.",
+      );
+    }
+
+    const revisionId = this.createId();
+    await this.repository.submit({
+      ...this.mutationIdentity(actor.id),
+      content,
+      revisionId,
+      reviewEventId: this.createId(),
+      snapshotJson: JSON.stringify(this.snapshot(content)),
+      changeSummary,
+    });
+    return { revisionId };
+  }
+
+  async approve(actor: StaffContext, rawContentId: string, rawReason?: string) {
+    const content = await this.requireContent(
+      actor,
+      rawContentId,
+      "content.approve",
+    );
+    if (content.status !== "pending_review") {
+      throw new ApplicationError(
+        "VALIDATION_FAILED",
+        "Only pending content can be approved.",
+      );
+    }
+    const isSelfApproval = content.submittedBy === actor.id;
+    if (isSelfApproval && !actor.permissions.includes("content.self_approve")) {
+      throw new ApplicationError(
+        "FORBIDDEN",
+        "This account cannot approve its own submission.",
+      );
+    }
+    const revisionId = await this.requireCurrentRevision(content);
+    await this.repository.approve({
+      ...this.mutationIdentity(actor.id),
+      content,
+      revisionId,
+      reviewEventId: this.createId(),
+      reason: optionalReasonSchema.parse(rawReason),
+      isSelfApproval,
+    });
+  }
+
+  async publish(actor: StaffContext, rawContentId: string) {
+    const content = await this.requireContent(
+      actor,
+      rawContentId,
+      "content.publish",
+    );
+    if (content.status !== "approved") {
+      throw new ApplicationError(
+        "VALIDATION_FAILED",
+        "Only approved content can be published.",
+      );
+    }
+    await this.repository.publish({
+      ...this.mutationIdentity(actor.id),
+      content,
+      revisionId: await this.requireCurrentRevision(content),
+      reviewEventId: this.createId(),
+      reason: null,
+    });
+  }
+
+  async archive(actor: StaffContext, rawContentId: string, rawReason: string) {
+    const content = await this.requireContent(
+      actor,
+      rawContentId,
+      "content.archive",
+    );
+    if (content.status === "archived") {
+      throw new ApplicationError(
+        "VALIDATION_FAILED",
+        "This content is already archived.",
+      );
+    }
+    await this.repository.archive({
+      ...this.mutationIdentity(actor.id),
+      content,
+      revisionId: await this.repository.findCurrentRevisionId(
+        content.id,
+        content.version,
+      ),
+      reviewEventId: this.createId(),
+      reason: archiveReasonSchema.parse(rawReason),
+    });
+  }
+
+  private async requireContent(
+    actor: StaffContext,
+    rawContentId: string,
+    actionPermission: string,
+  ) {
+    const contentId = contentIdSchema.parse(rawContentId);
+    const content = await this.repository.findById(contentId);
+    if (!content)
+      throw new ApplicationError(
+        "NOT_FOUND",
+        "The content entry was not found.",
+      );
+    this.requireContentPermission(actor, content.contentType, actionPermission);
+    return content;
+  }
+
+  private requireContentPermission(
+    actor: StaffContext,
+    type: ContentType,
+    actionPermission: string,
+  ) {
+    if (
+      actor.accountStatus !== "active" ||
+      !actor.permissions.includes(actionPermission) ||
+      !actor.permissions.includes(managementPermission[type])
+    ) {
+      throw new ApplicationError(
+        "FORBIDDEN",
+        "This account cannot perform that content action.",
+      );
+    }
+  }
+
+  private async requireCurrentRevision(content: ContentEntry) {
+    const revisionId = await this.repository.findCurrentRevisionId(
+      content.id,
+      content.version,
+    );
+    if (!revisionId) {
+      throw new ApplicationError(
+        "VALIDATION_FAILED",
+        "A submitted revision is required.",
+      );
+    }
+    return revisionId;
+  }
+
+  private mutationIdentity(actorStaffId: string) {
+    return {
+      actorStaffId,
+      auditLogId: this.createId(),
+      correlationId: this.createId(),
+      createdAt: this.now().toISOString(),
+    };
+  }
+
+  private snapshot(content: ContentEntry) {
+    return {
+      contentType: content.contentType,
+      slug: content.slug,
+      title: content.title,
+      summary: content.summary,
+      body: content.body,
+      coverMediaId: content.coverMediaId,
+    };
+  }
+}

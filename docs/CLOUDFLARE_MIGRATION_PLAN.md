@@ -90,6 +90,11 @@ wrong-audience scenarios all have automated tests and audit behavior.
 
 ## Phase 4: Content and File Storage
 
+Status: started. The D1 content schema, R2 metadata schema, immutable revision
+history, workflow guards, scoped permission service, and repository boundary are
+implemented locally. Admin editors, subtype write services, actual R2 uploads,
+public content routes, and cache invalidation remain.
+
 1. Migrate sermons, activities, announcements, bulletins, and publishing
    workflow to D1.
 2. Configure R2 Standard for approved images and documents only.
