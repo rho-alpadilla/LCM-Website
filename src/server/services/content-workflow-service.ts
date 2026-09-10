@@ -123,12 +123,19 @@ export class ContentWorkflowService {
     }
 
     const revisionId = this.createId();
+    const subtype = await this.repository.findSubtypeSnapshot(content);
+    if (content.contentType !== "page" && !subtype) {
+      throw new ApplicationError(
+        "VALIDATION_FAILED",
+        "Complete the type-specific details before submitting this content.",
+      );
+    }
     await this.repository.submit({
       ...this.mutationIdentity(actor.id),
       content,
       revisionId,
       reviewEventId: this.createId(),
-      snapshotJson: JSON.stringify(this.snapshot(content)),
+      snapshotJson: JSON.stringify(this.snapshot(content, subtype)),
       changeSummary,
     });
     return { revisionId };
@@ -265,7 +272,10 @@ export class ContentWorkflowService {
     };
   }
 
-  private snapshot(content: ContentEntry) {
+  private snapshot(
+    content: ContentEntry,
+    subtype: Record<string, unknown> | null,
+  ) {
     return {
       contentType: content.contentType,
       slug: content.slug,
@@ -273,6 +283,7 @@ export class ContentWorkflowService {
       summary: content.summary,
       body: content.body,
       coverMediaId: content.coverMediaId,
+      subtype,
     };
   }
 }

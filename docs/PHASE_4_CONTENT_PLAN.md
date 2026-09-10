@@ -20,6 +20,12 @@ The existing permission matrix and publishing workflow remain authoritative.
   permission and the requested workflow permission
 - Explicit scoped self-approval for authorized Multimedia and Bulletin Heads
 - Bound D1 statements and transactional batches for content mutations
+- Validated subtype services for ministries, series, speakers, sermons,
+  announcements, bulletins, schedules, and schedule exceptions
+- Provider-matched HTTPS sermon links, ready-media checks, and referenced-content
+  checks at the trusted service boundary
+- Versioned subtype edits included in review snapshots and protected by
+  draft-only database guards
 
 ## Temporary Content-Body Assumption
 
@@ -30,17 +36,23 @@ keeps rendering safe and leaves room for a versioned block editor later.
 
 ## Remaining Slices
 
-1. Add subtype validation and write services for sermon links, speakers,
-   ministries, schedules, announcements, and bulletins.
-2. Add the responsive admin content list, editors, review queue, approval,
+1. Add the responsive admin content list, editors, review queue, approval,
    publishing, request-changes, and archive interfaces.
-3. Add R2 upload initiation and completion with file signatures, size limits,
+2. Add R2 upload initiation and completion with file signatures, size limits,
    generated keys, quotas, and authorization checks. Uploads remain disabled
    until this slice is complete.
-4. Add public read repositories and routes that expose only currently published
+3. Add public read repositories and routes that expose only currently published
    content and respect schedule-location privacy.
-5. Add targeted cache invalidation, responsive browser tests, accessibility
+4. Add targeted cache invalidation, responsive browser tests, accessibility
    checks, and preview-environment verification.
+
+## Schedule Recurrence Assumption
+
+Phase 4 accepts a deliberately small recurrence subset: daily, weekly, or
+monthly frequency; an optional interval from 1 to 52; and optional weekday
+selection. The first launch uses `Asia/Manila` as the only supported timezone.
+This covers the church's regular activities without accepting recurrence rules
+that the public calendar cannot reliably render yet.
 
 ## Decisions Still Needed Before Uploads
 

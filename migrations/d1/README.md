@@ -8,6 +8,8 @@ staff invitation and first-login activation workflow, followed by cross-table
 guards that prevent bypassing the approved invitation path. Phase 4 begins with
 publishable content, immutable revision history, subtype records, schedules, and
 R2 object metadata, with workflow and subtype consistency guards.
+Subtype edits are draft-only, while audited schedule exceptions remain available
+for active schedules after publication.
 
 Use the database binding name rather than a production resource identifier:
 

@@ -66,6 +66,9 @@ export interface ContentRepositoryPort {
   slugExists(contentType: ContentType, slug: string): Promise<boolean>;
   createDraft(record: CreateContentDraftRecord): Promise<void>;
   findById(contentId: string): Promise<ContentEntry | null>;
+  findSubtypeSnapshot(
+    content: ContentEntry,
+  ): Promise<Record<string, unknown> | null>;
   findCurrentRevisionId(
     contentId: string,
     version: number,
@@ -173,6 +176,55 @@ export class ContentRepository implements ContentRepositoryPort {
       createdBy: row.created_by,
       submittedBy: row.submitted_by,
     };
+  }
+
+  async findSubtypeSnapshot(content: ContentEntry) {
+    const queryByType: Partial<Record<ContentType, string>> = {
+      ministry: `SELECT short_name AS shortName, contact_email AS contactEmail,
+                        contact_phone AS contactPhone, sort_order AS sortOrder
+                 FROM ministries WHERE content_id = ?1`,
+      series: `SELECT starts_on AS startsOn, ends_on AS endsOn
+               FROM sermon_series WHERE content_id = ?1`,
+      speaker: `SELECT biography, photo_media_id AS photoMediaId,
+                       is_active AS isActive
+                FROM speakers WHERE content_id = ?1`,
+      sermon: `SELECT series_content_id AS seriesContentId,
+                      speaker_content_id AS speakerContentId,
+                      preached_at AS preachedAt,
+                      scripture_reference AS scriptureReference,
+                      video_provider AS videoProvider, video_url AS videoUrl,
+                      duration_seconds AS durationSeconds
+               FROM sermons WHERE content_id = ?1`,
+      announcement: `SELECT visible_from AS visibleFrom,
+                            visible_until AS visibleUntil, priority
+                     FROM announcements WHERE content_id = ?1`,
+      bulletin: `SELECT issue_date AS issueDate, file_media_id AS fileMediaId,
+                        edition_label AS editionLabel
+                 FROM bulletins WHERE content_id = ?1`,
+      schedule: `SELECT activity_type AS activityType,
+                        ministry_content_id AS ministryContentId,
+                        starts_at AS startsAt, ends_at AS endsAt, timezone,
+                        recurrence_rule AS recurrenceRule,
+                        recurrence_until AS recurrenceUntil,
+                        location_name AS locationName,
+                        location_address AS locationAddress,
+                        location_visibility AS locationVisibility,
+                        contact_email AS contactEmail,
+                        contact_phone AS contactPhone,
+                        registration_url AS registrationUrl
+                 FROM schedule_items WHERE content_id = ?1`,
+    };
+    const query = queryByType[content.contentType];
+    if (!query) return null;
+    const row = await this.database
+      .prepare(query)
+      .bind(content.id)
+      .first<Record<string, unknown>>();
+    if (!row) return null;
+    if (content.contentType === "speaker") {
+      return { ...row, isActive: row.isActive === 1 };
+    }
+    return row;
   }
 
   async findCurrentRevisionId(contentId: string, version: number) {

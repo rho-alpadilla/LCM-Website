@@ -46,6 +46,11 @@ function repository(
     slugExists: vi.fn().mockResolvedValue(false),
     createDraft: vi.fn().mockResolvedValue(undefined),
     findById: vi.fn().mockResolvedValue(null),
+    findSubtypeSnapshot: vi.fn().mockResolvedValue({
+      preachedAt: "2026-09-07T01:00:00.000Z",
+      videoProvider: "facebook",
+      videoUrl: "https://www.facebook.com/watch/sermon",
+    }),
     findCurrentRevisionId: vi.fn().mockResolvedValue("revision-id"),
     submit: vi.fn().mockResolvedValue(undefined),
     approve: vi.fn().mockResolvedValue(undefined),
@@ -115,8 +120,25 @@ describe("ContentWorkflowService", () => {
       expect.objectContaining({
         revisionId: "revision-id",
         changeSummary: "Initial sermon submission",
+        snapshotJson: expect.stringContaining('"subtype"'),
       }),
     );
+  });
+
+  it("requires subtype details before submitting non-page content", async () => {
+    const service = new ContentWorkflowService(
+      repository({
+        findById: vi.fn().mockResolvedValue(entry()),
+        findSubtypeSnapshot: vi.fn().mockResolvedValue(null),
+      }),
+    );
+    await expect(
+      service.submitForReview(
+        actor(["content.sermons.manage", "content.submit"]),
+        contentId,
+        "Initial sermon submission",
+      ),
+    ).rejects.toMatchObject({ code: "VALIDATION_FAILED" });
   });
 
   it("allows a Head with explicit self-approval permission to approve their own work", async () => {
