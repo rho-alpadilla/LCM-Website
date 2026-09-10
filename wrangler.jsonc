@@ -2,13 +2,70 @@
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "lifechangers-ministry-web",
   "main": ".open-next/worker.js",
-  "compatibility_date": "2026-07-20",
+  "compatibility_date": "2026-09-10",
   "compatibility_flags": ["nodejs_compat"],
+  "vars": {
+    "APP_ENVIRONMENT": "local",
+  },
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS",
   },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "lifechangers-ministry-local",
+      "migrations_dir": "migrations/d1",
+    },
+  ],
+  "r2_buckets": [
+    {
+      "binding": "WEBSITE_FILES",
+      "bucket_name": "lifechangers-ministry-local-files",
+    },
+  ],
   "observability": {
     "enabled": true,
+    "head_sampling_rate": 1,
+  },
+  "env": {
+    "preview": {
+      "name": "lifechangers-ministry-web-preview",
+      "vars": {
+        "APP_ENVIRONMENT": "preview",
+      },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "lifechangers-ministry-preview",
+          "migrations_dir": "migrations/d1",
+        },
+      ],
+      "r2_buckets": [
+        {
+          "binding": "WEBSITE_FILES",
+          "bucket_name": "lifechangers-ministry-preview-files",
+        },
+      ],
+    },
+    "production": {
+      "name": "lifechangers-ministry-web-production",
+      "vars": {
+        "APP_ENVIRONMENT": "production",
+      },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "lifechangers-ministry-production",
+          "migrations_dir": "migrations/d1",
+        },
+      ],
+      "r2_buckets": [
+        {
+          "binding": "WEBSITE_FILES",
+          "bucket_name": "lifechangers-ministry-production-files",
+        },
+      ],
+    },
   },
 }

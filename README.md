@@ -27,6 +27,13 @@ and prayer workflows are not production-ready.
 4. Start the application with `pnpm dev`.
 5. Open `http://localhost:3000`.
 
+Local development uses Wrangler's local D1 and R2-compatible bindings. Generate
+the binding types whenever `wrangler.jsonc` changes:
+
+```text
+pnpm cf:typegen
+```
+
 The server-only `SUPABASE_SERVICE_ROLE_KEY` is used only by the preserved
 prototype. Never expose it through a `NEXT_PUBLIC_` variable or commit it to Git.
 
@@ -66,6 +73,10 @@ pnpm test
 pnpm build
 ```
 
+`/api/health` verifies that required Cloudflare bindings exist and that D1 can
+answer a minimal query. It returns only a generic status and never exposes
+resource names, account identifiers, or provider error details.
+
 Run browser tests after installing Playwright's Chromium browser:
 
 ```text
@@ -82,6 +93,10 @@ pnpm preview:cf
 ```
 
 Deployment is intentionally not performed during scaffolding.
+
+Preview and production use distinct Worker, D1, and R2 resource names. Deployment
+scripts select the environment explicitly so local resources cannot be mistaken
+for production resources.
 
 D1 bindings, R2 bindings, and Cloudflare Access validation will be added in the
 migration phases documented in `docs/CLOUDFLARE_MIGRATION_PLAN.md`.
