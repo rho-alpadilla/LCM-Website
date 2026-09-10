@@ -2,11 +2,12 @@
 
 ## Status
 
-Cloudflare-first architecture approved on 2026-09-10. The application foundation
-is retained, while the existing Supabase authentication, account administration,
-and PostgreSQL migrations are a legacy prototype awaiting staged replacement.
-They must not be deployed as the production backend. Items marked **To confirm**
-are not approved requirements yet.
+Cloudflare-first architecture approved on 2026-09-10. Staff authentication and
+account administration now use Cloudflare Access and D1. Existing Supabase
+helpers and PostgreSQL migrations are retained only as an inactive rollback
+prototype until final migration cleanup is explicitly approved. They must not be
+deployed as the production backend. Items marked **To confirm** are not approved
+requirements yet.
 
 The detailed database design and role matrix are documented in `DATABASE_SCHEMA.md` and `PERMISSION_MATRIX.md`.
 
@@ -61,15 +62,15 @@ flowchart TB
 
 ### Free-to-Paid Path
 
-| Layer                 | Initial plan                          | Upgrade path                           | Application change expected                               |
-| --------------------- | ------------------------------------- | -------------------------------------- | --------------------------------------------------------- |
-| Application hosting | Cloudflare Workers Free | Workers Paid after approval | None beyond billing and limit configuration |
-| Database | Cloudflare D1 Free | Paid D1 capacity or repository-backed migration | None for paid D1; contained repository change for another SQL database |
-| Staff identity | Cloudflare Access Free | Access paid plan if staff exceed the free seat limit | Policy/configuration change |
-| File storage | R2 Standard within an application-enforced allowance | Paid R2 usage after approval | None beyond quota/configuration changes |
-| Transactional email | Dashboard-only notifications initially | Approved email provider | Integration adapter implementation/configuration |
-| Video | Facebook/YouTube embeds | Same providers or approved alternative | No database redesign |
-| Payment | Provider test mode, then live account | Volume/custom pricing | No ledger redesign; provider fees still apply |
+| Layer               | Initial plan                                         | Upgrade path                                         | Application change expected                                            |
+| ------------------- | ---------------------------------------------------- | ---------------------------------------------------- | ---------------------------------------------------------------------- |
+| Application hosting | Cloudflare Workers Free                              | Workers Paid after approval                          | None beyond billing and limit configuration                            |
+| Database            | Cloudflare D1 Free                                   | Paid D1 capacity or repository-backed migration      | None for paid D1; contained repository change for another SQL database |
+| Staff identity      | Cloudflare Access Free                               | Access paid plan if staff exceed the free seat limit | Policy/configuration change                                            |
+| File storage        | R2 Standard within an application-enforced allowance | Paid R2 usage after approval                         | None beyond quota/configuration changes                                |
+| Transactional email | Dashboard-only notifications initially               | Approved email provider                              | Integration adapter implementation/configuration                       |
+| Video               | Facebook/YouTube embeds                              | Same providers or approved alternative               | No database redesign                                                   |
+| Payment             | Provider test mode, then live account                | Volume/custom pricing                                | No ledger redesign; provider fees still apply                          |
 
 ## Trust Boundaries
 
@@ -222,7 +223,9 @@ Role names are convenient groupings. Authorization decisions use permissions so 
 2. A Cloudflare Access policy allowlists each approved staff email; broad email-domain or `Everyone` rules are prohibited.
 3. Staff authenticate using Cloudflare Access email one-time PIN initially. A church-controlled identity provider may be added later without changing the application role model.
 4. The first System Administrator mapping is created through a documented, single-use bootstrap procedure.
-5. Subsequent staff profiles and role assignments are created by an authorized administrator and matched to the exact Access identity.
+5. An authorized administrator records a pending invitation, then manually adds
+   the same exact email to the Access allowlist. First sign-in creates the D1
+   profile and initial role in one transaction.
 6. Every protected request validates the Access token and active staff context on the server.
 7. Invitations, role changes, Core Leader elevation, revocation, and suspension are permission checked and audited in D1 transactions.
 8. The final active System Administrator cannot be suspended or lose their final administrator role.

@@ -1,72 +1,83 @@
 import "server-only";
 
+import type { Route } from "next";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { z } from "zod";
 
-import { isSupabaseConfigured } from "@/lib/config/env";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { ApplicationError } from "@/lib/errors/application-error";
+import { verifyCloudflareAccessHeaders } from "@/server/auth/cloudflare-access";
+import { requireCloudflareBindings } from "@/server/cloudflare/bindings";
+import {
+  AccessControlRepository,
+  type StaffContext,
+} from "@/server/repositories/access-control-repository";
 
-const staffContextSchema = z.object({
-  id: z.uuid(),
-  display_name: z.string(),
-  account_status: z.enum(["invited", "active", "suspended", "disabled"]),
-  must_enroll_mfa: z.boolean(),
-  roles: z.array(z.string()),
-  permissions: z.array(z.string()),
-});
-
-export type StaffContext = z.infer<typeof staffContextSchema>;
+export type { StaffContext };
 
 export async function getStaffAuthState() {
-  if (!isSupabaseConfigured) return { kind: "unconfigured" as const };
+  const environment = await requireCloudflareBindings();
+  if (
+    !environment.ACCESS_TEAM_DOMAIN.trim() ||
+    !environment.ACCESS_AUD.trim()
+  ) {
+    return { kind: "unconfigured" as const };
+  }
 
-  const supabase = await createServerSupabaseClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  let identity;
+  try {
+    identity = await verifyCloudflareAccessHeaders(
+      await headers(),
+      environment,
+    );
+  } catch (error) {
+    if (
+      error instanceof ApplicationError &&
+      error.code === "AUTHENTICATION_REQUIRED"
+    ) {
+      return { kind: "anonymous" as const };
+    }
+    throw error;
+  }
 
-  if (!user) return { kind: "anonymous" as const, supabase };
-
-  const [{ data: assurance }, { data: context, error: contextError }] =
-    await Promise.all([
-      supabase.auth.mfa.getAuthenticatorAssuranceLevel(),
-      supabase.rpc("get_my_staff_context"),
-    ]);
-
-  const parsedContext = contextError
-    ? null
-    : (staffContextSchema.safeParse(context).data ?? null);
+  const repository = new AccessControlRepository(environment.DB);
+  const context = await repository.findStaffContextByAccessSubject(
+    identity.accessSubject,
+  );
+  if (context && context.email.toLowerCase() !== identity.email) {
+    return { kind: "denied" as const, identity };
+  }
 
   return {
-    kind: "authenticated" as const,
-    supabase,
-    user,
-    context: parsedContext,
-    assuranceLevel: assurance?.currentLevel ?? "aal1",
+    kind: "verified" as const,
+    environment,
+    identity,
+    context,
+    bootstrapAvailable: await repository.isBootstrapAvailable(),
+    pendingInvitation: await repository.findPendingInvitationByEmail(
+      identity.email,
+    ),
   };
 }
 
-export async function requireActiveStaffSession() {
+export async function requireActiveStaffSession(
+  requiredPermission = "admin.access",
+) {
   const state = await getStaffAuthState();
-
-  if (state.kind === "unconfigured") {
+  if (state.kind === "unconfigured")
     redirect("/admin/login?error=configuration");
-  }
   if (state.kind === "anonymous") redirect("/admin/login");
-  const context = state.context;
-  if (!context) redirect("/admin/bootstrap");
-  if (context.account_status === "invited") {
-    redirect("/admin/set-password");
-  }
-  if (context.account_status !== "active") {
-    redirect("/admin/access-denied");
-  }
-  if (state.assuranceLevel !== "aal2" || context.must_enroll_mfa) {
-    redirect("/admin/mfa");
-  }
-  if (!context.permissions.includes("admin.access")) {
+  if (state.kind === "denied") redirect("/admin/access-denied");
+  if (!state.context) {
+    if (state.bootstrapAvailable) redirect("/admin/bootstrap");
+    if (state.pendingInvitation) redirect("/admin/activate" as Route);
     redirect("/admin/access-denied");
   }
 
-  return { ...state, context };
+  if (
+    state.context.accountStatus !== "active" ||
+    !state.context.permissions.includes(requiredPermission)
+  ) {
+    redirect("/admin/access-denied");
+  }
+  return { ...state, context: state.context };
 }

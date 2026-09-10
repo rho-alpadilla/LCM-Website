@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+import type { ReactNode } from "react";
 
 import { AdminHeader } from "@/components/admin/admin-header";
 import { requireActiveStaffSession } from "@/features/auth/staff-context";
@@ -8,54 +8,30 @@ import {
   revokeRoleAction,
   suspendStaffAction,
 } from "@/features/staff/actions";
-import {
-  inviteRoleOptions,
-  roleLabel,
-  roleOptions,
-} from "@/features/staff/roles";
-
-type StaffAssignment = {
-  id: string;
-  revoked_at: string | null;
-  roles:
-    { code: string; name: string } | { code: string; name: string }[] | null;
-};
-
-type StaffRow = {
-  id: string;
-  display_name: string;
-  job_title: string | null;
-  account_status: string;
-  staff_roles: StaffAssignment[];
-};
+import { inviteRoleOptions, roleOptions } from "@/features/staff/roles";
+import { AccessControlRepository } from "@/server/repositories/access-control-repository";
+import { AccessControlService } from "@/server/services/access-control-service";
 
 const messages: Record<string, string> = {
   account_suspended: "The account was suspended.",
-  invitation_sent: "The invitation was sent.",
+  invitation_recorded:
+    "Invitation recorded. Add the exact email to Cloudflare Access, then notify the person.",
   role_assigned: "The role was assigned.",
-  role_revoked: "The role was revoked.",
+  role_revoked: "The role was removed.",
 };
 
-type StaffPageProps = {
+type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-export default async function StaffPage({ searchParams }: StaffPageProps) {
-  const { context, supabase } = await requireActiveStaffSession();
-  if (!context.permissions.includes("staff.read")) {
-    redirect("/admin/access-denied");
-  }
-
-  const [{ data, error }, parameters] = await Promise.all([
-    supabase
-      .from("staff_profiles")
-      .select(
-        "id, display_name, job_title, account_status, staff_roles(id, revoked_at, roles(code, name))",
-      )
-      .order("display_name"),
+export default async function StaffPage({ searchParams }: Props) {
+  const state = await requireActiveStaffSession("staff.read");
+  const [{ staff, invitations }, parameters] = await Promise.all([
+    new AccessControlService(
+      new AccessControlRepository(state.environment.DB),
+    ).listStaffDirectory(),
     searchParams,
   ]);
-  const staff = (data ?? []) as StaffRow[];
   const messageCode =
     typeof parameters.message === "string" ? parameters.message : "";
   const errorCode =
@@ -63,17 +39,18 @@ export default async function StaffPage({ searchParams }: StaffPageProps) {
 
   return (
     <div className="min-h-screen bg-slate-100">
-      <AdminHeader context={context} />
-      <main className="mx-auto max-w-6xl px-6 py-12">
+      <AdminHeader context={state.context} />
+      <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
         <p className="text-sm font-bold tracking-[0.2em] text-blue-800 uppercase">
           System administration
         </p>
-        <h1 className="mt-3 text-4xl font-black text-slate-950">
+        <h1 className="mt-3 text-3xl font-black text-slate-950 sm:text-4xl">
           Staff and roles
         </h1>
         <p className="mt-4 max-w-3xl leading-7 text-slate-600">
-          Invite one account per person. Core Leader access can be added only to
-          an existing Leader and requires a clear reason.
+          D1 controls permissions after Cloudflare Access verifies the person.
+          Core Leader can be added only to an existing Leader and grants highly
+          trusted senior-level access.
         </p>
 
         {messageCode ? (
@@ -84,225 +61,244 @@ export default async function StaffPage({ searchParams }: StaffPageProps) {
             {messages[messageCode] ?? "The staff account was updated."}
           </p>
         ) : null}
-        {errorCode || error ? (
+        {errorCode ? (
           <p
             className="mt-6 rounded-xl bg-red-50 p-4 font-semibold text-red-800"
             role="alert"
           >
-            The requested change could not be completed. Check the role rules
+            The change could not be completed. Check the account, role rules,
             and required reason, then retry.
           </p>
         ) : null}
 
-        {context.permissions.includes("staff.invite") ? (
-          <section className="mt-10 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+        {state.context.permissions.includes("staff.invite") ? (
+          <section className="mt-10 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8">
             <h2 className="text-2xl font-black text-slate-950">
-              Invite staff member
+              Record a staff invitation
             </h2>
+            <p className="mt-2 text-sm leading-6 text-amber-900">
+              This does not send email. After saving, a System Administrator
+              must add the exact email to the Cloudflare Access allowlist and
+              notify the person manually.
+            </p>
             <form
               action={inviteStaffAction}
               className="mt-6 grid gap-5 sm:grid-cols-2"
             >
-              <label className="font-semibold">
-                Email address
+              <Field label="Email address">
                 <input
-                  className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3"
+                  className={inputClass}
                   maxLength={254}
                   name="email"
                   required
                   type="email"
                 />
-              </label>
-              <label className="font-semibold">
-                Display name
+              </Field>
+              <Field label="Display name">
                 <input
-                  className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3"
+                  className={inputClass}
                   maxLength={120}
                   minLength={2}
                   name="displayName"
                   required
                 />
-              </label>
-              <label className="font-semibold">
-                Phone{" "}
-                <span className="font-normal text-slate-500">(optional)</span>
+              </Field>
+              <Field label="Phone (optional)">
                 <input
-                  className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3"
+                  className={inputClass}
                   maxLength={40}
                   name="phone"
                   type="tel"
                 />
-              </label>
-              <label className="font-semibold">
-                Church role or title{" "}
-                <span className="font-normal text-slate-500">(optional)</span>
-                <input
-                  className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3"
-                  maxLength={120}
-                  name="jobTitle"
-                />
-              </label>
-              <label className="font-semibold">
-                Initial access role
-                <select
-                  className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3"
-                  name="roleCode"
-                  required
-                >
+              </Field>
+              <Field label="Church role or title (optional)">
+                <input className={inputClass} maxLength={120} name="jobTitle" />
+              </Field>
+              <Field label="Initial access role">
+                <select className={inputClass} name="roleCode" required>
                   {inviteRoleOptions.map(([code, label]) => (
                     <option key={code} value={code}>
                       {label}
                     </option>
                   ))}
                 </select>
-              </label>
-              <label className="font-semibold">
-                Assignment reason
+              </Field>
+              <Field label="Assignment reason">
                 <input
-                  className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3"
+                  className={inputClass}
                   maxLength={500}
                   name="reason"
                   placeholder="Required for System Administrator"
                 />
-              </label>
+              </Field>
               <button
                 className="rounded-xl bg-blue-800 px-5 py-3 font-bold text-white sm:col-span-2"
                 type="submit"
               >
-                Send secure invitation
+                Record invitation
               </button>
             </form>
           </section>
         ) : null}
 
+        {invitations.length ? (
+          <section className="mt-10">
+            <h2 className="text-2xl font-black text-slate-950">
+              Pending invitations
+            </h2>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              {invitations.map((invitation) => (
+                <article
+                  className="rounded-2xl border border-amber-200 bg-amber-50 p-5"
+                  key={invitation.id}
+                >
+                  <h3 className="font-black text-slate-950">
+                    {invitation.displayName}
+                  </h3>
+                  <p className="mt-1 text-sm break-all text-slate-700">
+                    {invitation.email}
+                  </p>
+                  <p className="mt-3 text-sm font-semibold text-amber-900">
+                    {invitation.initialRoleName} · awaiting first sign-in
+                  </p>
+                </article>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
         <section className="mt-10 space-y-5" aria-label="Staff accounts">
-          {staff.map((person) => {
-            const activeRoles = person.staff_roles
-              .filter((assignment) => !assignment.revoked_at)
-              .flatMap((assignment) => assignment.roles ?? []);
-
-            return (
-              <article
-                className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm"
-                key={person.id}
-              >
-                <div className="flex flex-wrap justify-between gap-3">
-                  <div>
-                    <h2 className="text-xl font-black text-slate-950">
-                      {person.display_name}
-                    </h2>
-                    <p className="text-slate-600">
-                      {person.job_title || "No church title recorded"}
-                    </p>
-                  </div>
-                  <span className="h-fit rounded-full bg-slate-100 px-3 py-1 text-sm font-bold text-slate-700 capitalize">
-                    {person.account_status}
+          <h2 className="text-2xl font-black text-slate-950">
+            Active and retained accounts
+          </h2>
+          {staff.map((person) => (
+            <article
+              className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6"
+              key={person.id}
+            >
+              <div className="flex flex-wrap justify-between gap-3">
+                <div className="min-w-0">
+                  <h3 className="text-xl font-black text-slate-950">
+                    {person.displayName}
+                  </h3>
+                  <p className="text-sm break-all text-slate-600">
+                    {person.email}
+                  </p>
+                  <p className="text-slate-600">
+                    {person.jobTitle || "No church title recorded"}
+                  </p>
+                </div>
+                <span className="h-fit rounded-full bg-slate-100 px-3 py-1 text-sm font-bold text-slate-700 capitalize">
+                  {person.accountStatus}
+                </span>
+              </div>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {person.roles.map((role) => (
+                  <span
+                    className="rounded-full bg-blue-50 px-3 py-1 text-sm font-semibold text-blue-900"
+                    key={role.assignmentId}
+                  >
+                    {role.name}
                   </span>
-                </div>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {activeRoles.map((role) => (
-                    <span
-                      className="rounded-full bg-blue-50 px-3 py-1 text-sm font-semibold text-blue-900"
-                      key={role.code}
-                    >
-                      {role.name}
-                    </span>
-                  ))}
-                </div>
+                ))}
+              </div>
 
-                {context.permissions.includes("staff.roles.manage") ? (
-                  <div className="mt-6 grid gap-5 border-t border-slate-200 pt-6 lg:grid-cols-2">
-                    <form action={assignRoleAction} className="grid gap-3">
+              {state.context.permissions.includes("staff.roles.manage") &&
+              person.accountStatus === "active" ? (
+                <div className="mt-6 grid gap-5 border-t border-slate-200 pt-6 lg:grid-cols-2">
+                  <form action={assignRoleAction} className="grid gap-3">
+                    <input name="staffId" type="hidden" value={person.id} />
+                    <Field label="Add role">
+                      <select className={inputClass} name="roleCode">
+                        {roleOptions.map(([code, label]) => (
+                          <option key={code} value={code}>
+                            {label}
+                          </option>
+                        ))}
+                      </select>
+                    </Field>
+                    <input
+                      className={inputClass}
+                      maxLength={500}
+                      name="reason"
+                      placeholder="Reason (required for elevated roles)"
+                    />
+                    <button
+                      className="rounded-xl border border-blue-800 px-4 py-3 font-bold text-blue-800"
+                      type="submit"
+                    >
+                      Assign role
+                    </button>
+                  </form>
+                  {person.roles.length ? (
+                    <form action={revokeRoleAction} className="grid gap-3">
                       <input name="staffId" type="hidden" value={person.id} />
-                      <label className="font-semibold">
-                        Add role
-                        <select
-                          className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3"
-                          name="roleCode"
-                        >
-                          {roleOptions.map(([code, label]) => (
-                            <option key={code} value={code}>
-                              {label}
+                      <Field label="Remove role">
+                        <select className={inputClass} name="roleCode">
+                          {person.roles.map((role) => (
+                            <option key={role.assignmentId} value={role.code}>
+                              {role.name}
                             </option>
                           ))}
                         </select>
-                      </label>
+                      </Field>
                       <input
-                        className="rounded-xl border border-slate-300 px-4 py-3"
+                        className={inputClass}
                         maxLength={500}
+                        minLength={10}
                         name="reason"
-                        placeholder="Reason (required for elevated roles)"
+                        placeholder="Required reason (at least 10 characters)"
+                        required
                       />
                       <button
-                        className="rounded-xl border border-blue-800 px-4 py-3 font-bold text-blue-800"
+                        className="rounded-xl border border-red-300 px-4 py-3 font-bold text-red-800"
                         type="submit"
                       >
-                        Assign role
+                        Remove role
                       </button>
                     </form>
-                    {activeRoles.length ? (
-                      <form action={revokeRoleAction} className="grid gap-3">
-                        <input name="staffId" type="hidden" value={person.id} />
-                        <label className="font-semibold">
-                          Remove role
-                          <select
-                            className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3"
-                            name="roleCode"
-                          >
-                            {activeRoles.map((role) => (
-                              <option key={role.code} value={role.code}>
-                                {roleLabel.get(role.code) ?? role.name}
-                              </option>
-                            ))}
-                          </select>
-                        </label>
-                        <input
-                          className="rounded-xl border border-slate-300 px-4 py-3"
-                          maxLength={500}
-                          minLength={10}
-                          name="reason"
-                          placeholder="Required reason (at least 10 characters)"
-                          required
-                        />
-                        <button
-                          className="rounded-xl border border-red-300 px-4 py-3 font-bold text-red-800"
-                          type="submit"
-                        >
-                          Remove role
-                        </button>
-                      </form>
-                    ) : null}
-                  </div>
-                ) : null}
+                  ) : null}
+                </div>
+              ) : null}
 
-                {context.permissions.includes("staff.suspend") &&
-                person.account_status !== "suspended" ? (
-                  <form
-                    action={suspendStaffAction}
-                    className="mt-6 flex flex-col gap-3 border-t border-slate-200 pt-6 sm:flex-row"
+              {state.context.permissions.includes("staff.suspend") &&
+              person.accountStatus === "active" ? (
+                <form
+                  action={suspendStaffAction}
+                  className="mt-6 flex flex-col gap-3 border-t border-slate-200 pt-6 sm:flex-row"
+                >
+                  <input name="staffId" type="hidden" value={person.id} />
+                  <input
+                    className={`${inputClass} min-w-0 flex-1`}
+                    maxLength={500}
+                    minLength={10}
+                    name="reason"
+                    placeholder="Suspension reason (at least 10 characters)"
+                    required
+                  />
+                  <button
+                    className="rounded-xl bg-red-800 px-5 py-3 font-bold text-white"
+                    type="submit"
                   >
-                    <input name="staffId" type="hidden" value={person.id} />
-                    <input
-                      className="min-w-0 flex-1 rounded-xl border border-slate-300 px-4 py-3"
-                      maxLength={500}
-                      minLength={10}
-                      name="reason"
-                      placeholder="Suspension reason (at least 10 characters)"
-                      required
-                    />
-                    <button
-                      className="rounded-xl bg-red-800 px-5 py-3 font-bold text-white"
-                      type="submit"
-                    >
-                      Suspend account
-                    </button>
-                  </form>
-                ) : null}
-              </article>
-            );
-          })}
+                    Suspend account
+                  </button>
+                </form>
+              ) : null}
+            </article>
+          ))}
         </section>
       </main>
     </div>
+  );
+}
+
+const inputClass = "mt-2 w-full rounded-xl border border-slate-300 px-4 py-3";
+
+function Field({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <label className="block font-semibold">
+      {label}
+      {children}
+    </label>
   );
 }

@@ -4,13 +4,12 @@ Zero-subscription-first, upgrade-ready church outreach platform built with Next.
 
 ## Current Status
 
-The application foundation, Cloudflare bindings, and D1 access-control layer are
-implemented. The application-side Cloudflare Access verifier and protected
-administrative session/bootstrap endpoints are also implemented; provider
-activation awaits the church domain. Cloudflare Workers, D1, Access, and R2 are
-the approved production architecture. The Supabase authentication/authorization
-prototype is preserved only as a reference until all of its behavior is migrated
-and verified. Public content, giving, and prayer workflows are not production-ready.
+The application foundation, Cloudflare bindings, D1 access control, and the
+application-side Phase 3 staff lifecycle are implemented. Admin pages now use
+Cloudflare Access identity plus D1 invitations, activation, roles, suspension,
+and audit records. Provider activation awaits the church domain. The Supabase
+prototype remains only as inactive rollback/reference code. Public content,
+giving, and prayer workflows are not production-ready.
 
 ## Requirements
 
@@ -22,9 +21,9 @@ and verified. Public content, giving, and prayer workflows are not production-re
 ## Local Setup
 
 1. Copy `.env.example` to `.env.local`.
-2. Leave provider values empty while working on UI-only foundations. The current
-   Supabase variables support the preserved prototype and will be removed only
-   after the Cloudflare migration is complete.
+2. Leave provider values empty while working on public UI foundations. Admin
+   sign-in remains unavailable until the Access application values are set; no
+   insecure local password or header bypass is provided.
 3. Install dependencies with `pnpm install`.
 4. Start the application with `pnpm dev`.
 5. Open `http://localhost:3000`.
@@ -58,20 +57,12 @@ pnpm supabase:test
 The reset command destroys only the local Supabase database. Never run a reset
 against a hosted project.
 
-## Legacy Prototype Setup
+## Preserved Legacy Prototype
 
-The following flow describes the preserved Supabase prototype and is not the
-approved production login flow. Public sign-up is disabled:
-
-1. Create and confirm one authentication user through Supabase Studio or the
-   hosted Supabase dashboard.
-2. Sign in at `/admin/login` with that user's email and password.
-3. Enroll an authenticator app when prompted.
-4. Complete the one-time System Administrator bootstrap form.
-
-After the first administrator exists, the bootstrap transaction closes itself.
-All additional staff accounts must be invited through `/admin/staff`. Local
-invitation email can be opened through Supabase's local Mailpit interface.
+Supabase helpers, migrations, and tests are retained for rollback/reference.
+They are not connected to the active `/admin` routes and must not be deployed as
+the production backend. Their deletion remains a separately approved cleanup
+task after the Cloudflare replacement is verified in preview.
 
 ## Verification
 
@@ -107,8 +98,9 @@ Preview and production use distinct Worker, D1, and R2 resource names. Deploymen
 scripts select the environment explicitly so local resources cannot be mistaken
 for production resources.
 
-D1 and R2 bindings are configured. Cloudflare Access identity validation is the
-next migration phase documented in `docs/CLOUDFLARE_MIGRATION_PLAN.md`.
+D1 and R2 bindings are configured. The Access application, exact-email policy,
+and non-secret audience/team values must be added after the domain exists. See
+`docs/CLOUDFLARE_ACCESS_SETUP.md`.
 
 On Windows, run the OpenNext Cloudflare build from WSL because its bundling
 stage creates symbolic links that ordinary Windows sessions commonly block.

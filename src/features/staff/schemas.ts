@@ -1,18 +1,27 @@
 import { z } from "zod";
 
-import { inviteRoleOptions, roleOptions } from "@/features/staff/roles";
+import {
+  inviteRoleOptions,
+  roleOptions,
+  type RoleCode,
+} from "@/features/staff/roles";
 
-const roleCodes = roleOptions.map(([code]) => code) as [string, ...string[]];
+const roleCodes = roleOptions.map(([code]) => code) as [
+  RoleCode,
+  ...RoleCode[],
+];
 const inviteRoleCodes = inviteRoleOptions.map(([code]) => code) as [
-  string,
-  ...string[],
+  Exclude<RoleCode, "core_leader">,
+  ...Exclude<RoleCode, "core_leader">[],
 ];
 
 export const invitationSchema = z.object({
   email: z
-    .email()
+    .string()
+    .trim()
     .max(254)
-    .transform((value) => value.trim().toLowerCase()),
+    .pipe(z.email())
+    .transform((value) => value.toLowerCase()),
   displayName: z.string().trim().min(2).max(120),
   phone: z.string().trim().max(40).optional().default(""),
   jobTitle: z.string().trim().max(120).optional().default(""),

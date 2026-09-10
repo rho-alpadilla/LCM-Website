@@ -1,37 +1,12 @@
-import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
 
-import { isSupabaseConfigured, publicEnvironment } from "@/lib/config/env";
-
-export async function proxy(request: NextRequest) {
-  if (!isSupabaseConfigured) return NextResponse.next({ request });
-
-  let response = NextResponse.next({ request });
-  const supabase = createServerClient(
-    publicEnvironment.NEXT_PUBLIC_SUPABASE_URL!,
-    publicEnvironment.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
-    {
-      cookies: {
-        getAll: () => request.cookies.getAll(),
-        setAll: (cookiesToSet) => {
-          cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value),
-          );
-          response = NextResponse.next({ request });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            response.cookies.set(name, value, options),
-          );
-        },
-      },
-    },
-  );
-
-  await supabase.auth.getClaims();
+export function proxy(request: NextRequest) {
+  const response = NextResponse.next({ request });
+  response.headers.set("Cache-Control", "private, no-store, max-age=0");
+  response.headers.set("X-Robots-Tag", "noindex, nofollow");
   return response;
 }
 
 export const config = {
-  matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
-  ],
+  matcher: ["/admin/:path*", "/api/admin/:path*"],
 };

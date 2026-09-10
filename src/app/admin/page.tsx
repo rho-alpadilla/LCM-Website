@@ -16,7 +16,7 @@ export default async function AdminPage() {
           Administration
         </p>
         <h1 className="mt-3 text-4xl font-black text-slate-950">
-          Welcome, {context.display_name}
+          Welcome, {context.displayName}
         </h1>
         <p className="mt-4 max-w-2xl leading-7 text-slate-600">
           Your dashboard will show only the ministry areas your role permits.

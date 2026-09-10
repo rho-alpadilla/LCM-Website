@@ -12,7 +12,7 @@ export function AdminHeader({ context }: { context: StaffContext }) {
             Lifechangers Admin
           </Link>
           <p className="text-sm text-slate-600">
-            Signed in as {context.display_name}
+            Signed in as {context.displayName}
           </p>
         </div>
         <nav aria-label="Administration" className="flex items-center gap-4">

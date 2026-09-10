@@ -9,10 +9,12 @@ authorization.
 ## Current State
 
 - Next.js, React, TypeScript, Tailwind CSS, OpenNext, and Wrangler are present.
-- Phase 1 platform bindings and the Phase 2 D1 access-control foundation are
-  implemented and verified locally.
-- Supabase Auth helpers, staff screens, MFA flows, and PostgreSQL migrations are
-  present but have not been approved as the production backend.
+- Phase 1 platform bindings, Phase 2 D1 access control, and the application-side
+  Phase 3 Cloudflare Access staff lifecycle are implemented and verified
+  locally.
+- Supabase helpers and PostgreSQL migrations remain as an inactive rollback
+  prototype. Active admin pages and staff mutations use Cloudflare Access and
+  D1.
 - No production data migration is currently required because no production
   Supabase database has been identified.
 
@@ -67,10 +69,11 @@ and denied operations leave no partial writes.
 
 ## Phase 3: Cloudflare Access Identity
 
-Status: application-side JWT verification, D1 identity authorization, protected
-session/bootstrap endpoints, and local security tests are implemented. Creating
-the Access application and activating route protection remain pending until the
-church owns its domain.
+Status: complete locally. JWT verification, D1 identity authorization,
+bootstrap, invitations, first-login activation, role changes, Core Leader
+elevation rules, suspension, audit writes, and the D1-backed admin interface are
+implemented. Creating the real Access application and activating route
+protection remain pending until the church owns its domain.
 
 1. Protect `/admin` and protected API routes with Cloudflare Access.
 2. Allowlist exact staff email addresses; never allow `Everyone` or an

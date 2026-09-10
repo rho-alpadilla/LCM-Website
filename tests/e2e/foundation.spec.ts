@@ -15,10 +15,11 @@ test("keeps public visitors separate from staff authentication", async ({
   await page.goto("/admin/login");
 
   await expect(
-    page.getByRole("heading", { name: "Welcome back" }),
+    page.getByRole("heading", { name: "Secure sign-in" }),
   ).toBeVisible();
   await expect(
-    page.getByText("Public visitors do not need an account"),
+    page.getByText(/Staff authentication is handled by Cloudflare Access/),
   ).toBeVisible();
-  await expect(page.getByText(/sign up/i)).toHaveCount(0);
+  await expect(page.getByText(/No password fallback is enabled/)).toBeVisible();
+  await expect(page.getByRole("textbox")).toHaveCount(0);
 });

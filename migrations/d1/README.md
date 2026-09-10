@@ -3,7 +3,9 @@
 This directory contains ordered, SQLite-compatible Cloudflare D1 migrations.
 
 The Phase 1 platform health probe uses `SELECT 1`. Phase 2 begins with the
-access-control schema and approved role/permission seed data.
+access-control schema and approved role/permission seed data. Phase 3 adds the
+staff invitation and first-login activation workflow, followed by cross-table
+guards that prevent bypassing the approved invitation path.
 
 Use the database binding name rather than a production resource identifier:
 
