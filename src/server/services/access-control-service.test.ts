@@ -107,6 +107,45 @@ describe("AccessControlService", () => {
     ).resolves.toEqual(activeContext);
   });
 
+  it.each([
+    ["unknown", null],
+    [
+      "suspended",
+      {
+        id: "staff-id",
+        email: "leader@example.com",
+        displayName: "Church Leader",
+        accountStatus: "suspended",
+        roles: ["leader"],
+        permissions: ["admin.access"],
+      } satisfies StaffContext,
+    ],
+    [
+      "disabled",
+      {
+        id: "staff-id",
+        email: "leader@example.com",
+        displayName: "Church Leader",
+        accountStatus: "disabled",
+        roles: ["leader"],
+        permissions: ["admin.access"],
+      } satisfies StaffContext,
+    ],
+  ])("rejects a %s staff identity", async (_label, context) => {
+    const service = new AccessControlService(
+      createRepositoryStub({
+        findStaffContextByAccessSubject: vi.fn().mockResolvedValue(context),
+      }),
+    );
+
+    await expect(
+      service.getActiveStaffContext({
+        accessSubject: "leader-subject",
+        email: "leader@example.com",
+      }),
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+  });
+
   it("rejects a verified email that does not match the staff profile", async () => {
     const service = new AccessControlService(
       createRepositoryStub({

@@ -2,7 +2,12 @@ import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 import { ApplicationError } from "@/lib/errors/application-error";
 
-const requiredBindingNames = ["DB", "WEBSITE_FILES"] as const;
+const requiredBindingNames = [
+  "DB",
+  "WEBSITE_FILES",
+  "ACCESS_TEAM_DOMAIN",
+  "ACCESS_AUD",
+] as const;
 
 type RequiredBindingName = (typeof requiredBindingNames)[number];
 

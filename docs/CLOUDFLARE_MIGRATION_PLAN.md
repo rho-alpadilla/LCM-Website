@@ -67,6 +67,11 @@ and denied operations leave no partial writes.
 
 ## Phase 3: Cloudflare Access Identity
 
+Status: application-side JWT verification, D1 identity authorization, protected
+session/bootstrap endpoints, and local security tests are implemented. Creating
+the Access application and activating route protection remain pending until the
+church owns its domain.
+
 1. Protect `/admin` and protected API routes with Cloudflare Access.
 2. Allowlist exact staff email addresses; never allow `Everyone` or an
    unrestricted one-time-PIN login method.

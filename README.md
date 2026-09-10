@@ -5,10 +5,12 @@ Zero-subscription-first, upgrade-ready church outreach platform built with Next.
 ## Current Status
 
 The application foundation, Cloudflare bindings, and D1 access-control layer are
-implemented. Cloudflare Workers, D1, Access, and R2 are the approved production
-architecture. The Supabase authentication/authorization prototype is preserved
-only as a reference until all of its behavior is migrated and verified. Public
-content, giving, and prayer workflows are not production-ready.
+implemented. The application-side Cloudflare Access verifier and protected
+administrative session/bootstrap endpoints are also implemented; provider
+activation awaits the church domain. Cloudflare Workers, D1, Access, and R2 are
+the approved production architecture. The Supabase authentication/authorization
+prototype is preserved only as a reference until all of its behavior is migrated
+and verified. Public content, giving, and prayer workflows are not production-ready.
 
 ## Requirements
 
@@ -118,4 +120,5 @@ stage creates symbolic links that ordinary Windows sessions commonly block.
 - `docs/DATABASE_SCHEMA.md`
 - `docs/PERMISSION_MATRIX.md`
 - `docs/CLOUDFLARE_MIGRATION_PLAN.md`
+- `docs/CLOUDFLARE_ACCESS_SETUP.md`
 - `docs/decisions/0001-cloudflare-zero-subscription-platform.md`

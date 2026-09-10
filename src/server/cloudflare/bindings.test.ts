@@ -3,11 +3,13 @@ import { describe, expect, it, vi } from "vitest";
 import { checkD1Connection, validateCloudflareBindings } from "./bindings";
 
 describe("Cloudflare bindings", () => {
-  it("accepts the required D1 and R2 bindings", () => {
+  it("accepts the required D1, R2, and Access configuration bindings", () => {
     expect(() =>
       validateCloudflareBindings({
         DB: {},
         WEBSITE_FILES: {},
+        ACCESS_TEAM_DOMAIN: "",
+        ACCESS_AUD: "",
       }),
     ).not.toThrow();
   });

@@ -4,3 +4,6 @@ allowBuilds:
   unrs-resolver: true
   workerd: true
 confirmModulesPurge: false
+overrides:
+  browserslist: 4.28.9
+  baseline-browser-mapping: 2.11.21

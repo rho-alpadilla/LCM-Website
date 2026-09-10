@@ -6,6 +6,8 @@
   "compatibility_flags": ["nodejs_compat"],
   "vars": {
     "APP_ENVIRONMENT": "local",
+    "ACCESS_TEAM_DOMAIN": "",
+    "ACCESS_AUD": "",
   },
   "assets": {
     "directory": ".open-next/assets",
@@ -33,6 +35,8 @@
       "name": "lifechangers-ministry-web-preview",
       "vars": {
         "APP_ENVIRONMENT": "preview",
+        "ACCESS_TEAM_DOMAIN": "",
+        "ACCESS_AUD": "",
       },
       "d1_databases": [
         {
@@ -52,6 +56,8 @@
       "name": "lifechangers-ministry-web-production",
       "vars": {
         "APP_ENVIRONMENT": "production",
+        "ACCESS_TEAM_DOMAIN": "",
+        "ACCESS_AUD": "",
       },
       "d1_databases": [
         {

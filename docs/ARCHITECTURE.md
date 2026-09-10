@@ -231,6 +231,12 @@ Cloudflare account credentials and deployment tokens remain server/deployment
 secrets. D1 and R2 are accessed only through Worker bindings and are never
 exposed directly to browser components.
 
+The origin validates the `Cf-Access-Jwt-Assertion` header using Cloudflare's
+rotating remote JWK set. Validation requires RS256, the configured issuer and
+application audience, expiry and issuance timestamps, an application-token type,
+and verified subject/email claims. Protected API responses are never publicly
+cached.
+
 ### Initial Role Intent
 
 | Role                 | Primary scope                                                                                                                                    |
