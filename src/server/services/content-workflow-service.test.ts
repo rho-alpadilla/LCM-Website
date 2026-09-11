@@ -44,7 +44,9 @@ function repository(
 ): ContentRepositoryPort {
   return {
     slugExists: vi.fn().mockResolvedValue(false),
+    listContent: vi.fn().mockResolvedValue([]),
     createDraft: vi.fn().mockResolvedValue(undefined),
+    updateDraft: vi.fn().mockResolvedValue(2),
     findById: vi.fn().mockResolvedValue(null),
     findSubtypeSnapshot: vi.fn().mockResolvedValue({
       preachedAt: "2026-09-07T01:00:00.000Z",
@@ -54,6 +56,7 @@ function repository(
     findCurrentRevisionId: vi.fn().mockResolvedValue("revision-id"),
     submit: vi.fn().mockResolvedValue(undefined),
     approve: vi.fn().mockResolvedValue(undefined),
+    requestChanges: vi.fn().mockResolvedValue(2),
     publish: vi.fn().mockResolvedValue(undefined),
     archive: vi.fn().mockResolvedValue(undefined),
     ...overrides,
@@ -125,6 +128,33 @@ describe("ContentWorkflowService", () => {
     );
   });
 
+  it("updates only a permitted draft and advances its version", async () => {
+    const updateDraft = vi.fn().mockResolvedValue(2);
+    const service = new ContentWorkflowService(
+      repository({
+        findById: vi.fn().mockResolvedValue(entry()),
+        updateDraft,
+      }),
+    );
+    await expect(
+      service.updateDraft(actor(["content.sermons.manage"]), contentId, {
+        slug: "updated-sermon",
+        title: "Updated Sermon",
+        summary: "A clear summary",
+        bodyText: "Updated notes",
+      }),
+    ).resolves.toEqual({ contentId, version: 2 });
+    expect(updateDraft).toHaveBeenCalledWith(
+      expect.objectContaining({
+        slug: "updated-sermon",
+        bodyJson: JSON.stringify({
+          format: "plain_text",
+          text: "Updated notes",
+        }),
+      }),
+    );
+  });
+
   it("requires subtype details before submitting non-page content", async () => {
     const service = new ContentWorkflowService(
       repository({
@@ -182,6 +212,31 @@ describe("ContentWorkflowService", () => {
         contentId,
       ),
     ).rejects.toMatchObject({ code: "FORBIDDEN" });
+  });
+
+  it("returns pending content to a new draft version with review notes", async () => {
+    const requestChanges = vi.fn().mockResolvedValue(2);
+    const service = new ContentWorkflowService(
+      repository({
+        findById: vi
+          .fn()
+          .mockResolvedValue(entry({ status: "pending_review" })),
+        requestChanges,
+      }),
+    );
+    await expect(
+      service.requestChanges(
+        actor(["content.sermons.manage", "content.approve"]),
+        contentId,
+        "Please verify the sermon date.",
+      ),
+    ).resolves.toBe(2);
+    expect(requestChanges).toHaveBeenCalledWith(
+      expect.objectContaining({
+        reason: "Please verify the sermon date.",
+        revisionId: "revision-id",
+      }),
+    );
   });
 
   it("publishes only approved content", async () => {

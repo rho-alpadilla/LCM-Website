@@ -10,6 +10,8 @@ publishable content, immutable revision history, subtype records, schedules, and
 R2 object metadata, with workflow and subtype consistency guards.
 Subtype edits are draft-only, while audited schedule exceptions remain available
 for active schedules after publication.
+Reviewers can return a pending revision to a new draft version with an immutable
+reasoned review event.
 
 Use the database binding name rather than a production resource identifier:
 

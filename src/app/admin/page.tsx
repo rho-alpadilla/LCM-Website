@@ -1,12 +1,15 @@
 import Link from "next/link";
+import type { Route } from "next";
 
 import { AdminHeader } from "@/components/admin/admin-header";
 import { requireActiveStaffSession } from "@/features/auth/staff-context";
+import { manageableContentTypes } from "@/features/content/content-options";
 
 export const metadata = { title: "Administration" };
 
 export default async function AdminPage() {
   const { context } = await requireActiveStaffSession();
+  const contentTypes = manageableContentTypes(context.permissions);
 
   return (
     <div className="min-h-screen bg-slate-100">
@@ -40,14 +43,19 @@ export default async function AdminPage() {
               </p>
             </Link>
           ) : null}
-          <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-6">
-            <p className="text-xs font-bold tracking-widest text-slate-500 uppercase">
-              Clearly labeled placeholder
-            </p>
-            <h2 className="mt-2 text-xl font-black text-slate-950">
-              Ministry tools coming next
-            </h2>
-          </div>
+          {contentTypes.length ? (
+            <Link
+              className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+              href={"/admin/content" as Route}
+            >
+              <h2 className="text-xl font-black text-slate-950">
+                Content and publishing
+              </h2>
+              <p className="mt-2 leading-6 text-slate-600">
+                Manage drafts, ministry details, reviews, and publishing.
+              </p>
+            </Link>
+          ) : null}
         </section>
       </main>
     </div>

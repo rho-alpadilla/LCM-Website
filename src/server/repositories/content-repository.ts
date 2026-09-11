@@ -30,6 +30,11 @@ export type ContentEntry = {
   submittedBy: string | null;
 };
 
+export type ContentListItem = Pick<
+  ContentEntry,
+  "id" | "contentType" | "slug" | "title" | "status" | "version"
+> & { updatedAt: string };
+
 type MutationIdentity = {
   actorStaffId: string;
   auditLogId: string;
@@ -45,6 +50,14 @@ export type CreateContentDraftRecord = MutationIdentity & {
   summary: string | null;
   bodyJson: string;
   coverMediaId: string | null;
+};
+
+export type UpdateContentDraftRecord = MutationIdentity & {
+  content: ContentEntry;
+  slug: string;
+  title: string;
+  summary: string | null;
+  bodyJson: string;
 };
 
 export type SubmitContentRecord = MutationIdentity & {
@@ -63,8 +76,14 @@ export type ReviewContentRecord = MutationIdentity & {
 };
 
 export interface ContentRepositoryPort {
-  slugExists(contentType: ContentType, slug: string): Promise<boolean>;
+  slugExists(
+    contentType: ContentType,
+    slug: string,
+    excludeContentId?: string,
+  ): Promise<boolean>;
+  listContent(contentTypes: ContentType[]): Promise<ContentListItem[]>;
   createDraft(record: CreateContentDraftRecord): Promise<void>;
+  updateDraft(record: UpdateContentDraftRecord): Promise<number>;
   findById(contentId: string): Promise<ContentEntry | null>;
   findSubtypeSnapshot(
     content: ContentEntry,
@@ -77,6 +96,7 @@ export interface ContentRepositoryPort {
   approve(
     record: ReviewContentRecord & { isSelfApproval: boolean },
   ): Promise<void>;
+  requestChanges(record: ReviewContentRecord): Promise<number>;
   publish(record: ReviewContentRecord): Promise<void>;
   archive(record: ReviewContentRecord): Promise<void>;
 }
@@ -96,6 +116,15 @@ type ContentRow = {
 };
 
 type BooleanRow = { found: number };
+type ContentListRow = {
+  id: string;
+  content_type: ContentType;
+  slug: string;
+  title: string;
+  status: ContentStatus;
+  version: number;
+  updated_at: string;
+};
 
 function parseContentBody(value: string): ContentBody {
   const parsed: unknown = JSON.parse(value);
@@ -115,16 +144,45 @@ function parseContentBody(value: string): ContentBody {
 export class ContentRepository implements ContentRepositoryPort {
   constructor(private readonly database: D1Database) {}
 
-  async slugExists(contentType: ContentType, slug: string) {
+  async slugExists(
+    contentType: ContentType,
+    slug: string,
+    excludeContentId?: string,
+  ) {
     const result = await this.database
       .prepare(
         `SELECT EXISTS (
-           SELECT 1 FROM content_entries WHERE content_type = ?1 AND slug = ?2
+           SELECT 1 FROM content_entries
+           WHERE content_type = ?1 AND slug = ?2 AND id <> ?3
          ) AS found`,
       )
-      .bind(contentType, slug)
+      .bind(contentType, slug, excludeContentId ?? "")
       .first<BooleanRow>();
     return result?.found === 1;
+  }
+
+  async listContent(contentTypes: ContentType[]) {
+    if (contentTypes.length === 0) return [];
+    const placeholders = contentTypes.map((_, index) => `?${index + 1}`);
+    const result = await this.database
+      .prepare(
+        `SELECT id, content_type, slug, title, status, version, updated_at
+         FROM content_entries
+         WHERE content_type IN (${placeholders.join(", ")})
+         ORDER BY updated_at DESC, title COLLATE NOCASE
+         LIMIT 200`,
+      )
+      .bind(...contentTypes)
+      .all<ContentListRow>();
+    return result.results.map((row) => ({
+      id: row.id,
+      contentType: row.content_type,
+      slug: row.slug,
+      title: row.title,
+      status: row.status,
+      version: row.version,
+      updatedAt: row.updated_at,
+    }));
   }
 
   async createDraft(record: CreateContentDraftRecord) {
@@ -151,6 +209,41 @@ export class ContentRepository implements ContentRepositoryPort {
         contentType: record.contentType,
       }),
     ]);
+  }
+
+  async updateDraft(record: UpdateContentDraftRecord) {
+    const [mutation] = await this.database.batch([
+      this.database
+        .prepare(
+          `UPDATE content_entries
+           SET slug = ?2, title = ?3, summary = ?4, body_json = ?5,
+               version = version + 1, updated_by = ?6, updated_at = ?7
+           WHERE id = ?1 AND status = 'draft' AND version = ?8`,
+        )
+        .bind(
+          record.content.id,
+          record.slug,
+          record.title,
+          record.summary,
+          record.bodyJson,
+          record.actorStaffId,
+          record.createdAt,
+          record.content.version,
+        ),
+      this.changedRowAuditStatement(
+        record,
+        "content.draft_updated",
+        record.content.id,
+        {
+          contentType: record.content.contentType,
+          version: record.content.version + 1,
+        },
+      ),
+    ]);
+    if (mutation.meta.changes !== 1) {
+      throw new Error("Content changed before the draft was saved.");
+    }
+    return record.content.version + 1;
   }
 
   async findById(contentId: string) {
@@ -306,6 +399,46 @@ export class ContentRepository implements ContentRepositoryPort {
     ]);
   }
 
+  async requestChanges(record: ReviewContentRecord) {
+    if (!record.revisionId) throw new Error("A revision is required.");
+    const [mutation] = await this.database.batch([
+      this.database
+        .prepare(
+          `UPDATE content_entries
+           SET status = 'draft', version = version + 1,
+               submitted_by = NULL, submitted_at = NULL,
+               approved_by = NULL, approved_at = NULL,
+               updated_by = ?2, updated_at = ?3
+           WHERE id = ?1 AND status = 'pending_review' AND version = ?4`,
+        )
+        .bind(
+          record.content.id,
+          record.actorStaffId,
+          record.createdAt,
+          record.content.version,
+        ),
+      this.changedRowReviewEventStatement(
+        record,
+        "changes_requested",
+        record.revisionId,
+      ),
+      this.changedRowAuditStatement(
+        record,
+        "content.changes_requested",
+        record.content.id,
+        {
+          contentType: record.content.contentType,
+          version: record.content.version,
+          reason: record.reason,
+        },
+      ),
+    ]);
+    if (mutation.meta.changes !== 1) {
+      throw new Error("Content state changed before changes were requested.");
+    }
+    return record.content.version + 1;
+  }
+
   async publish(record: ReviewContentRecord) {
     if (!record.revisionId) throw new Error("Publication requires a revision.");
     await this.database.batch([
@@ -392,7 +525,7 @@ export class ContentRepository implements ContentRepositoryPort {
 
   private changedRowReviewEventStatement(
     record: ReviewContentRecord,
-    action: "archived",
+    action: "archived" | "changes_requested",
     revisionId: string | null,
   ) {
     return this.database

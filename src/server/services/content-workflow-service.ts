@@ -38,6 +38,8 @@ const draftSchema = z.object({
   coverMediaId: z.uuid().nullable().optional().default(null),
 });
 
+const draftUpdateSchema = draftSchema.omit({ contentType: true });
+
 const contentIdSchema = z.uuid();
 const changeSummarySchema = z.string().trim().min(10).max(500);
 const optionalReasonSchema = z
@@ -102,6 +104,72 @@ export class ContentWorkflowService {
       coverMediaId: input.coverMediaId,
     });
     return { contentId };
+  }
+
+  async listForActor(actor: StaffContext) {
+    this.requireActiveActor(actor);
+    return this.repository.listContent(this.managedContentTypes(actor));
+  }
+
+  async getForActor(actor: StaffContext, rawContentId: string) {
+    const contentId = contentIdSchema.parse(rawContentId);
+    const content = await this.repository.findById(contentId);
+    if (!content) {
+      throw new ApplicationError(
+        "NOT_FOUND",
+        "The content entry was not found.",
+      );
+    }
+    this.requireContentPermission(
+      actor,
+      content.contentType,
+      managementPermission[content.contentType],
+    );
+    return {
+      content,
+      subtype: await this.repository.findSubtypeSnapshot(content),
+    };
+  }
+
+  async updateDraft(
+    actor: StaffContext,
+    rawContentId: string,
+    rawInput: z.input<typeof draftUpdateSchema>,
+  ) {
+    const content = await this.requireExistingContent(rawContentId);
+    this.requireContentPermission(
+      actor,
+      content.contentType,
+      managementPermission[content.contentType],
+    );
+    const input = draftUpdateSchema.parse(rawInput);
+    if (content.status !== "draft") {
+      throw new ApplicationError(
+        "VALIDATION_FAILED",
+        "Only draft content can be edited.",
+      );
+    }
+    if (
+      await this.repository.slugExists(
+        content.contentType,
+        input.slug,
+        content.id,
+      )
+    ) {
+      throw new ApplicationError(
+        "VALIDATION_FAILED",
+        "That content URL is already in use.",
+      );
+    }
+    const version = await this.repository.updateDraft({
+      ...this.mutationIdentity(actor.id),
+      content,
+      slug: input.slug,
+      title: input.title,
+      summary: input.summary,
+      bodyJson: JSON.stringify({ format: "plain_text", text: input.bodyText }),
+    });
+    return { contentId: content.id, version };
   }
 
   async submitForReview(
@@ -171,6 +239,32 @@ export class ContentWorkflowService {
     });
   }
 
+  async requestChanges(
+    actor: StaffContext,
+    rawContentId: string,
+    rawReason: string,
+  ) {
+    const content = await this.requireContent(
+      actor,
+      rawContentId,
+      "content.approve",
+    );
+    if (content.status !== "pending_review") {
+      throw new ApplicationError(
+        "VALIDATION_FAILED",
+        "Only pending content can be returned for changes.",
+      );
+    }
+    const reason = archiveReasonSchema.parse(rawReason);
+    return this.repository.requestChanges({
+      ...this.mutationIdentity(actor.id),
+      content,
+      revisionId: await this.requireCurrentRevision(content),
+      reviewEventId: this.createId(),
+      reason,
+    });
+  }
+
   async publish(actor: StaffContext, rawContentId: string) {
     const content = await this.requireContent(
       actor,
@@ -232,6 +326,18 @@ export class ContentWorkflowService {
     return content;
   }
 
+  private async requireExistingContent(rawContentId: string) {
+    const contentId = contentIdSchema.parse(rawContentId);
+    const content = await this.repository.findById(contentId);
+    if (!content) {
+      throw new ApplicationError(
+        "NOT_FOUND",
+        "The content entry was not found.",
+      );
+    }
+    return content;
+  }
+
   private requireContentPermission(
     actor: StaffContext,
     type: ContentType,
@@ -247,6 +353,21 @@ export class ContentWorkflowService {
         "This account cannot perform that content action.",
       );
     }
+  }
+
+  private requireActiveActor(actor: StaffContext) {
+    if (actor.accountStatus !== "active") {
+      throw new ApplicationError(
+        "FORBIDDEN",
+        "This account cannot access content management.",
+      );
+    }
+  }
+
+  private managedContentTypes(actor: StaffContext) {
+    return (Object.keys(managementPermission) as ContentType[]).filter((type) =>
+      actor.permissions.includes(managementPermission[type]),
+    );
   }
 
   private async requireCurrentRevision(content: ContentEntry) {

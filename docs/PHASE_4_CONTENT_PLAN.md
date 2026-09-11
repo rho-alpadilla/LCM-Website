@@ -26,6 +26,10 @@ The existing permission matrix and publishing workflow remain authoritative.
   checks at the trusted service boundary
 - Versioned subtype edits included in review snapshots and protected by
   draft-only database guards
+- Responsive, permission-aware admin content listing and editor
+- Dedicated review queue with submit, approve, request-changes, publish, and
+  confirmed archive actions
+- Operational schedule cancellation and rescheduling form
 
 ## Temporary Content-Body Assumption
 
@@ -36,14 +40,12 @@ keeps rendering safe and leaves room for a versioned block editor later.
 
 ## Remaining Slices
 
-1. Add the responsive admin content list, editors, review queue, approval,
-   publishing, request-changes, and archive interfaces.
-2. Add R2 upload initiation and completion with file signatures, size limits,
+1. Add R2 upload initiation and completion with file signatures, size limits,
    generated keys, quotas, and authorization checks. Uploads remain disabled
    until this slice is complete.
-3. Add public read repositories and routes that expose only currently published
+2. Add public read repositories and routes that expose only currently published
    content and respect schedule-location privacy.
-4. Add targeted cache invalidation, responsive browser tests, accessibility
+3. Add targeted cache invalidation, responsive browser tests, accessibility
    checks, and preview-environment verification.
 
 ## Schedule Recurrence Assumption

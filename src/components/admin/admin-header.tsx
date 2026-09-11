@@ -1,7 +1,9 @@
 import Link from "next/link";
+import type { Route } from "next";
 
 import { logoutAction } from "@/features/auth/actions";
 import type { StaffContext } from "@/features/auth/staff-context";
+import { manageableContentTypes } from "@/features/content/content-options";
 
 export function AdminHeader({ context }: { context: StaffContext }) {
   return (
@@ -19,6 +21,14 @@ export function AdminHeader({ context }: { context: StaffContext }) {
           <Link className="font-semibold text-blue-800" href="/admin">
             Dashboard
           </Link>
+          {manageableContentTypes(context.permissions).length ? (
+            <Link
+              className="font-semibold text-blue-800"
+              href={"/admin/content" as Route}
+            >
+              Content
+            </Link>
+          ) : null}
           {context.permissions.includes("staff.read") ? (
             <Link className="font-semibold text-blue-800" href="/admin/staff">
               Staff
