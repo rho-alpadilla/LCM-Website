@@ -56,6 +56,19 @@ export default async function AdminPage() {
               </p>
             </Link>
           ) : null}
+          {context.permissions.includes("content.media.manage") ? (
+            <Link
+              className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+              href={"/admin/media" as Route}
+            >
+              <h2 className="text-xl font-black text-slate-950">
+                Media library
+              </h2>
+              <p className="mt-2 leading-6 text-slate-600">
+                Upload validated images and bulletin PDFs.
+              </p>
+            </Link>
+          ) : null}
         </section>
       </main>
     </div>

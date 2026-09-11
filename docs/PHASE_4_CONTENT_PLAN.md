@@ -30,6 +30,11 @@ The existing permission matrix and publishing workflow remain authoritative.
 - Dedicated review queue with submit, approve, request-changes, publish, and
   confirmed archive actions
 - Operational schedule cancellation and rescheduling form
+- Private-by-default R2 uploads with server-side size and file-signature checks
+- SHA-256 integrity verification, generated object keys, D1 quota reservation,
+  and audited upload completion or failure cleanup
+- Media library and validated selectors for cover images, speaker photos, and
+  bulletin PDFs
 
 ## Temporary Content-Body Assumption
 
@@ -40,12 +45,9 @@ keeps rendering safe and leaves room for a versioned block editor later.
 
 ## Remaining Slices
 
-1. Add R2 upload initiation and completion with file signatures, size limits,
-   generated keys, quotas, and authorization checks. Uploads remain disabled
-   until this slice is complete.
-2. Add public read repositories and routes that expose only currently published
+1. Add public read repositories and routes that expose only currently published
    content and respect schedule-location privacy.
-3. Add targeted cache invalidation, responsive browser tests, accessibility
+2. Add targeted cache invalidation, responsive browser tests, accessibility
    checks, and preview-environment verification.
 
 ## Schedule Recurrence Assumption
@@ -56,10 +58,16 @@ selection. The first launch uses `Asia/Manila` as the only supported timezone.
 This covers the church's regular activities without accepting recurrence rules
 that the public calendar cannot reliably render yet.
 
-## Decisions Still Needed Before Uploads
+## Provisional Launch Media Policy
 
-- Per-image and per-bulletin file-size limits
-- Total application-controlled R2 storage ceiling
-- Whether old bulletin PDFs stay publicly available after archiving
-- Whether the first editor should remain plain text or use a structured block
-  editor
+- Images: 5 MB maximum; JPEG, PNG, WebP, or AVIF only
+- Bulletin PDFs: 10 MB maximum and download-only when public delivery is added
+- Total application-controlled storage ceiling: 500 MB
+- Uploaded files stay private until referenced by approved published content
+- Archived bulletin files stay private and are retained until a separately
+  approved deletion policy exists
+- Plain text remains the first-launch editor
+
+These are conservative, code-configurable assumptions and require church
+confirmation before production deployment. The zero-cost stack has no malware
+scanner, so bulletin staff must upload only church-created or verified PDFs.

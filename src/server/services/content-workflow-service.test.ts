@@ -45,6 +45,7 @@ function repository(
   return {
     slugExists: vi.fn().mockResolvedValue(false),
     listContent: vi.fn().mockResolvedValue([]),
+    findReadyPublicImage: vi.fn().mockResolvedValue(true),
     createDraft: vi.fn().mockResolvedValue(undefined),
     updateDraft: vi.fn().mockResolvedValue(2),
     findById: vi.fn().mockResolvedValue(null),

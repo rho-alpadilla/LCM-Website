@@ -1,3 +1,5 @@
+import type { Route } from "next";
+import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { saveContentSubtypeAction } from "@/features/content/actions";
@@ -5,11 +7,13 @@ import type {
   ContentEntry,
   ContentListItem,
 } from "@/server/repositories/content-repository";
+import type { MediaAssetListItem } from "@/server/repositories/media-repository";
 
 type Props = {
   content: ContentEntry;
   subtype: Record<string, unknown> | null;
   references: ContentListItem[];
+  mediaAssets: MediaAssetListItem[];
 };
 
 const inputClass = "mt-2 w-full rounded-xl border border-slate-300 px-4 py-3";
@@ -81,7 +85,12 @@ function FormShell({
   );
 }
 
-export function ContentSubtypeEditor({ content, subtype, references }: Props) {
+export function ContentSubtypeEditor({
+  content,
+  subtype,
+  references,
+  mediaAssets,
+}: Props) {
   if (content.contentType === "page") {
     return (
       <p className="mt-5 rounded-xl bg-slate-50 p-4 text-slate-600">
@@ -90,15 +99,27 @@ export function ContentSubtypeEditor({ content, subtype, references }: Props) {
     );
   }
 
-  if (content.contentType === "bulletin" && !subtype) {
+  const bulletinFiles = mediaAssets.filter(
+    (asset) => asset.storageScope === "bulletins",
+  );
+  if (
+    content.contentType === "bulletin" &&
+    !subtype &&
+    bulletinFiles.length === 0
+  ) {
     return (
       <div className="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-4 text-amber-950">
-        <p className="font-bold">Secure PDF upload is not enabled yet.</p>
+        <p className="font-bold">Upload a bulletin PDF first.</p>
         <p className="mt-1 text-sm leading-6">
-          This draft can be prepared now, but bulletin file selection and review
-          will unlock in the R2 media-upload slice. This is incomplete
-          functionality, not a working upload.
+          Bulletin details require a validated PDF from the private media
+          library.
         </p>
+        <Link
+          className="mt-3 inline-block font-bold text-blue-800 underline"
+          href={"/admin/media" as Route}
+        >
+          Go to media uploads
+        </Link>
       </div>
     );
   }
@@ -167,13 +188,11 @@ export function ContentSubtypeEditor({ content, subtype, references }: Props) {
         </FormShell>
       );
     case "speaker":
+      const speakerImages = mediaAssets.filter((asset) =>
+        asset.mimeType.startsWith("image/"),
+      );
       return (
         <FormShell content={content}>
-          <input
-            name="photoMediaId"
-            type="hidden"
-            value={value(subtype, "photoMediaId")}
-          />
           <Field label="Biography (optional)">
             <textarea
               className={`${inputClass} min-h-36`}
@@ -181,6 +200,20 @@ export function ContentSubtypeEditor({ content, subtype, references }: Props) {
               maxLength={5000}
               name="biography"
             />
+          </Field>
+          <Field label="Profile image (optional)">
+            <select
+              className={inputClass}
+              defaultValue={value(subtype, "photoMediaId")}
+              name="photoMediaId"
+            >
+              <option value="">No profile image</option>
+              {speakerImages.map((asset) => (
+                <option key={asset.id} value={asset.id}>
+                  {asset.originalName}
+                </option>
+              ))}
+            </select>
           </Field>
           <label className="flex items-center gap-3 self-end rounded-xl bg-slate-50 p-4 font-semibold text-slate-800">
             <input
@@ -317,11 +350,23 @@ export function ContentSubtypeEditor({ content, subtype, references }: Props) {
     case "bulletin":
       return (
         <FormShell content={content}>
-          <input
-            name="fileMediaId"
-            type="hidden"
-            value={value(subtype, "fileMediaId")}
-          />
+          <Field label="Bulletin PDF">
+            <select
+              className={inputClass}
+              defaultValue={value(subtype, "fileMediaId")}
+              name="fileMediaId"
+              required
+            >
+              <option disabled value="">
+                Select a validated PDF
+              </option>
+              {bulletinFiles.map((asset) => (
+                <option key={asset.id} value={asset.id}>
+                  {asset.originalName}
+                </option>
+              ))}
+            </select>
+          </Field>
           <Field label="Issue date">
             <input
               className={inputClass}
@@ -339,10 +384,12 @@ export function ContentSubtypeEditor({ content, subtype, references }: Props) {
               name="editionLabel"
             />
           </Field>
-          <p className="rounded-xl bg-amber-50 p-4 text-sm text-amber-950 sm:col-span-2">
-            The existing PDF is preserved. Replacing it will be available after
-            secure R2 uploads are enabled.
-          </p>
+          <Link
+            className="self-end rounded-xl border border-blue-200 px-4 py-3 text-center font-bold text-blue-800"
+            href={"/admin/media" as Route}
+          >
+            Upload another PDF
+          </Link>
         </FormShell>
       );
     case "schedule": {

@@ -29,6 +29,14 @@ export function AdminHeader({ context }: { context: StaffContext }) {
               Content
             </Link>
           ) : null}
+          {context.permissions.includes("content.media.manage") ? (
+            <Link
+              className="font-semibold text-blue-800"
+              href={"/admin/media" as Route}
+            >
+              Media
+            </Link>
+          ) : null}
           {context.permissions.includes("staff.read") ? (
             <Link className="font-semibold text-blue-800" href="/admin/staff">
               Staff

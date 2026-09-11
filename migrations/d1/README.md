@@ -12,6 +12,9 @@ Subtype edits are draft-only, while audited schedule exceptions remain available
 for active schedules after publication.
 Reviewers can return a pending revision to a new draft version with an immutable
 reasoned review event.
+Media upload guards keep core metadata immutable, restrict lifecycle
+transitions, and require a SHA-256 checksum before an asset becomes ready.
+Checksums become immutable after the pending upload is completed.
 
 Use the database binding name rather than a production resource identifier:
 

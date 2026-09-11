@@ -161,6 +161,15 @@ export class ContentWorkflowService {
         "That content URL is already in use.",
       );
     }
+    if (
+      input.coverMediaId &&
+      !(await this.repository.findReadyPublicImage(input.coverMediaId))
+    ) {
+      throw new ApplicationError(
+        "VALIDATION_FAILED",
+        "Select a ready image from the media library.",
+      );
+    }
     const version = await this.repository.updateDraft({
       ...this.mutationIdentity(actor.id),
       content,
@@ -168,6 +177,7 @@ export class ContentWorkflowService {
       title: input.title,
       summary: input.summary,
       bodyJson: JSON.stringify({ format: "plain_text", text: input.bodyText }),
+      coverMediaId: input.coverMediaId,
     });
     return { contentId: content.id, version };
   }

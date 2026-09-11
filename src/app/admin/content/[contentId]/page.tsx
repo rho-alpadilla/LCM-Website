@@ -20,6 +20,7 @@ import {
 } from "@/features/content/content-options";
 import { ApplicationError } from "@/lib/errors/application-error";
 import { ContentRepository } from "@/server/repositories/content-repository";
+import { MediaRepository } from "@/server/repositories/media-repository";
 import { ContentWorkflowService } from "@/server/services/content-workflow-service";
 
 const successMessages: Record<string, string> = {
@@ -79,6 +80,9 @@ export default async function ContentEditorPage({
     "series",
     "speaker",
   ]);
+  const mediaAssets = state.context.permissions.includes("content.media.manage")
+    ? await new MediaRepository(state.environment.DB).listReadyAssets()
+    : [];
   const messageCode =
     typeof parameters.message === "string" ? parameters.message : "";
   const errorCode =
@@ -86,6 +90,9 @@ export default async function ContentEditorPage({
   const { content, subtype } = editor;
   const can = (permission: string) =>
     state.context.permissions.includes(permission);
+  const readyImages = mediaAssets.filter((asset) =>
+    asset.mimeType.startsWith("image/"),
+  );
 
   return (
     <div className="min-h-screen bg-slate-100">
@@ -166,6 +173,24 @@ export default async function ContentEditorPage({
                   maxLength={500}
                   name="summary"
                 />
+              </Field>
+              <Field
+                label="Cover image (optional)"
+                hint="Choose a validated image from the media library."
+                wide
+              >
+                <select
+                  className={inputClass}
+                  defaultValue={content.coverMediaId ?? ""}
+                  name="coverMediaId"
+                >
+                  <option value="">No cover image</option>
+                  {readyImages.map((asset) => (
+                    <option key={asset.id} value={asset.id}>
+                      {asset.originalName}
+                    </option>
+                  ))}
+                </select>
               </Field>
               <Field
                 label="Body"
@@ -272,6 +297,7 @@ export default async function ContentEditorPage({
           {content.status === "draft" ? (
             <ContentSubtypeEditor
               content={content}
+              mediaAssets={mediaAssets}
               references={references}
               subtype={subtype}
             />

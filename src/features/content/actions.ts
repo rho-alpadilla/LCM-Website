@@ -99,7 +99,7 @@ export async function updateContentDraftAction(formData: FormData) {
         title: text(formData, "title"),
         summary: text(formData, "summary"),
         bodyText: text(formData, "bodyText"),
-        coverMediaId: null,
+        coverMediaId: nullableText(formData, "coverMediaId"),
       },
     );
     revalidatePath("/admin/content");

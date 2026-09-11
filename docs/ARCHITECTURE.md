@@ -463,6 +463,13 @@ Prayer-request attachments are excluded initially unless the church explicitly r
 
 All uploads require file-size limits, permitted MIME types, generated storage names, authorization checks, and malware-risk handling appropriate to the file type.
 
+Phase 4 provisionally limits images to 5 MB, bulletin PDFs to 10 MB, and total
+application-managed storage to 500 MB. Uploads use the private `WEBSITE_FILES`
+binding, generated keys, signature checks, SHA-256 integrity verification, and
+D1 quota reservation. PDFs remain download-only because the zero-cost platform
+does not include malware scanning. These limits must be confirmed before
+production deployment.
+
 ## API and Server Operations
 
 - Use Next.js Server Actions only for feature-local mutations where their behavior is clear and testable.

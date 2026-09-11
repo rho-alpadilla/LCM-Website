@@ -58,6 +58,7 @@ export type UpdateContentDraftRecord = MutationIdentity & {
   title: string;
   summary: string | null;
   bodyJson: string;
+  coverMediaId: string | null;
 };
 
 export type SubmitContentRecord = MutationIdentity & {
@@ -82,6 +83,7 @@ export interface ContentRepositoryPort {
     excludeContentId?: string,
   ): Promise<boolean>;
   listContent(contentTypes: ContentType[]): Promise<ContentListItem[]>;
+  findReadyPublicImage(mediaId: string): Promise<boolean>;
   createDraft(record: CreateContentDraftRecord): Promise<void>;
   updateDraft(record: UpdateContentDraftRecord): Promise<number>;
   findById(contentId: string): Promise<ContentEntry | null>;
@@ -185,6 +187,20 @@ export class ContentRepository implements ContentRepositoryPort {
     }));
   }
 
+  async findReadyPublicImage(mediaId: string) {
+    const row = await this.database
+      .prepare(
+        `SELECT EXISTS (
+           SELECT 1 FROM media_assets
+           WHERE id = ?1 AND storage_scope = 'public_content'
+             AND mime_type LIKE 'image/%' AND upload_status = 'ready'
+         ) AS found`,
+      )
+      .bind(mediaId)
+      .first<BooleanRow>();
+    return row?.found === 1;
+  }
+
   async createDraft(record: CreateContentDraftRecord) {
     await this.database.batch([
       this.database
@@ -217,8 +233,9 @@ export class ContentRepository implements ContentRepositoryPort {
         .prepare(
           `UPDATE content_entries
            SET slug = ?2, title = ?3, summary = ?4, body_json = ?5,
-               version = version + 1, updated_by = ?6, updated_at = ?7
-           WHERE id = ?1 AND status = 'draft' AND version = ?8`,
+               cover_media_id = ?6, version = version + 1,
+               updated_by = ?7, updated_at = ?8
+           WHERE id = ?1 AND status = 'draft' AND version = ?9`,
         )
         .bind(
           record.content.id,
@@ -226,6 +243,7 @@ export class ContentRepository implements ContentRepositoryPort {
           record.title,
           record.summary,
           record.bodyJson,
+          record.coverMediaId,
           record.actorStaffId,
           record.createdAt,
           record.content.version,
