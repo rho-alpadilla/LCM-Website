@@ -4,12 +4,13 @@ Zero-subscription-first, upgrade-ready church outreach platform built with Next.
 
 ## Current Status
 
-The application foundation, Cloudflare bindings, D1 access control, and the
-application-side Phase 3 staff lifecycle are implemented. Admin pages now use
+Phases 1 through 4 are complete in the local codebase. Admin pages use
 Cloudflare Access identity plus D1 invitations, activation, roles, suspension,
-and audit records. Provider activation awaits the church domain. The Supabase
-prototype remains only as inactive rollback/reference code. Public content,
-giving, and prayer workflows are not production-ready.
+and audit records. The public site reads only published content, expands
+upcoming activities, and delivers approved R2 files through protected routes.
+Provider activation awaits the church domain. The Supabase prototype remains
+only as inactive rollback/reference code. Giving and prayer workflows are not
+production-ready and are planned for Phase 5.
 
 ## Requirements
 

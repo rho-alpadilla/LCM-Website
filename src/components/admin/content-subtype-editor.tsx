@@ -465,7 +465,10 @@ export function ContentSubtypeEditor({
               type="date"
             />
           </Field>
-          <Field label="Location name (optional)">
+          <Field
+            label="Location name (optional)"
+            hint="For area-only visibility, enter only a safe general area such as the barangay or city."
+          >
             <input
               className={inputClass}
               defaultValue={value(subtype, "locationName")}
@@ -473,7 +476,10 @@ export function ContentSubtypeEditor({
               name="locationName"
             />
           </Field>
-          <Field label="Location privacy">
+          <Field
+            label="Location privacy"
+            hint="Protected choices hide the location fields. Never put a private address in the title, summary, description, or registration link."
+          >
             <select
               className={inputClass}
               defaultValue={

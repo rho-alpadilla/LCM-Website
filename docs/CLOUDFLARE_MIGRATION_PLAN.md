@@ -11,7 +11,8 @@ authorization.
 - Next.js, React, TypeScript, Tailwind CSS, OpenNext, and Wrangler are present.
 - Phase 1 platform bindings, Phase 2 D1 access control, and the application-side
   Phase 3 Cloudflare Access staff lifecycle are implemented and verified
-  locally.
+  locally. Phase 4 content, publishing, public reads, and private file delivery
+  are also complete locally.
 - Supabase helpers and PostgreSQL migrations remain as an inactive rollback
   prototype. Active admin pages and staff mutations use Cloudflare Access and
   D1.
@@ -53,8 +54,8 @@ availability without returning sensitive details.
 
 ## Phase 2: D1 Schema and Repositories
 
-Status: access-control scope complete locally. Content, prayer, and giving tables
-remain assigned to their later phases below.
+Status: access-control and content scope complete locally. Prayer and giving
+tables remain assigned to Phase 5.
 
 1. Convert the approved logical data model to SQLite-compatible migrations.
 2. Preserve foreign keys, uniqueness rules, status constraints, indexes, audit
@@ -90,10 +91,11 @@ wrong-audience scenarios all have automated tests and audit behavior.
 
 ## Phase 4: Content and File Storage
 
-Status: started. The D1 content schema, R2 metadata schema, immutable revision
-history, workflow guards, scoped permission service, and repository boundary are
-implemented locally. Admin editors, subtype write services, actual R2 uploads,
-public content routes, and cache invalidation remain.
+Status: complete locally. D1 content and R2 metadata, immutable revisions,
+scoped workflow permissions, admin editors, subtype services, private uploads,
+safe public file delivery, public routes, recurrence expansion, and targeted
+cache invalidation are implemented and covered by automated tests. Deployment
+against church-owned Cloudflare resources remains a Phase 6 verification task.
 
 1. Migrate sermons, activities, announcements, bulletins, and publishing
    workflow to D1.
@@ -106,7 +108,13 @@ public content routes, and cache invalidation remain.
 Exit criteria: heads can self-approve only within their content scope, all
 publishing is audited, and private files cannot be retrieved publicly.
 
+Local exit criteria are satisfied. Real-environment Access, R2, D1, and cache
+smoke tests will be repeated during Phase 6 before production launch.
+
 ## Phase 5: Sensitive Workflows
+
+Status: next planned phase. No prayer or giving implementation should be
+treated as production-ready yet.
 
 1. Implement prayer privacy scopes, restricted access, retention states, and
    audit trails.

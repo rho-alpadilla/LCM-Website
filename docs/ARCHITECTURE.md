@@ -484,9 +484,18 @@ No database service credential may be used in browser-delivered code.
 
 ## Caching and Performance
 
-- Public published content is cached at the application/CDN layer.
-- Publishing invalidates only affected pages and lists.
-- Admin, prayer and giving responses use private/no-store behavior.
+- Published D1 reads use Next.js application-data caching with separate tags
+  for ministries, sermons, announcements, bulletins, and activities.
+- Publishing and archiving immediately invalidate only the affected tag, list,
+  and detail route. Schedule exceptions invalidate the activities tag and route.
+- Announcement visibility is refreshed at minute granularity so start and end
+  times take effect without requiring a staff action.
+- Dynamic admin responses require revalidation and are excluded from public
+  application caching. Production Cloudflare cache rules must bypass `/admin`
+  and `/api/admin`; sensitive future prayer and giving responses must use
+  private/no-store behavior.
+- Controlled R2 delivery remains private/no-store and rechecks current
+  publication references before serving a file.
 - Images use responsive dimensions and modern formats.
 - Sermon video remains externally hosted and lazy-loaded.
 - Public database queries select only required fields.

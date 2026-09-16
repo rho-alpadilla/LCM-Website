@@ -6,6 +6,10 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import { requireActiveStaffSession } from "@/features/auth/staff-context";
+import {
+  invalidatePublicContent,
+  invalidatePublicSchedule,
+} from "@/lib/public-content-cache";
 import { ContentRepository } from "@/server/repositories/content-repository";
 import { ContentSubtypeRepository } from "@/server/repositories/content-subtype-repository";
 import { ContentSubtypeService } from "@/server/services/content-subtype-service";
@@ -215,6 +219,7 @@ export async function saveScheduleExceptionAction(formData: FormData) {
       },
     );
     revalidatePath(`/admin/content/${contentId}`);
+    invalidatePublicSchedule();
   } catch {
     redirect(editorPath(contentId, "error=exception_save_failed"));
   }
@@ -269,11 +274,12 @@ export async function requestContentChangesAction(formData: FormData) {
 export async function publishContentAction(formData: FormData) {
   const { state, contentId } = await stateAndId(formData);
   try {
-    await services(state.environment.DB).workflow.publish(
+    const published = await services(state.environment.DB).workflow.publish(
       state.context,
       contentId,
     );
     revalidatePath("/admin/content");
+    invalidatePublicContent(published.contentType, published.slug);
   } catch {
     redirect(editorPath(contentId, "error=publish_failed"));
   }
@@ -286,12 +292,13 @@ export async function archiveContentAction(formData: FormData) {
     redirect(editorPath(contentId, "error=archive_not_confirmed"));
   }
   try {
-    await services(state.environment.DB).workflow.archive(
+    const archived = await services(state.environment.DB).workflow.archive(
       state.context,
       contentId,
       text(formData, "reason"),
     );
     revalidatePath("/admin/content");
+    invalidatePublicContent(archived.contentType, archived.slug);
   } catch {
     redirect(editorPath(contentId, "error=archive_failed"));
   }

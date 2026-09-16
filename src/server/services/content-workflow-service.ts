@@ -294,6 +294,7 @@ export class ContentWorkflowService {
       reviewEventId: this.createId(),
       reason: null,
     });
+    return { contentType: content.contentType, slug: content.slug };
   }
 
   async archive(actor: StaffContext, rawContentId: string, rawReason: string) {
@@ -318,6 +319,7 @@ export class ContentWorkflowService {
       reviewEventId: this.createId(),
       reason: archiveReasonSchema.parse(rawReason),
     });
+    return { contentType: content.contentType, slug: content.slug };
   }
 
   private async requireContent(
