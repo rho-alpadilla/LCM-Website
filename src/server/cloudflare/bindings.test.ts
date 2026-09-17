@@ -10,6 +10,7 @@ describe("Cloudflare bindings", () => {
         WEBSITE_FILES: {},
         ACCESS_TEAM_DOMAIN: "",
         ACCESS_AUD: "",
+        TURNSTILE_HOSTNAMES: "localhost,127.0.0.1",
       }),
     ).not.toThrow();
   });

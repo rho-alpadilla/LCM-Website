@@ -2,7 +2,10 @@
 
 ## Project Status
 
-Planning in progress. The free-first Cloudflare technology stack has been approved. Domain, payment gateway, and detailed operational policies remain to be confirmed.
+Development is in progress on the approved free-first Cloudflare stack. The
+website/ChMS boundary and six-role website permission model are approved.
+PayMongo Hosted Checkout is the next focused phase. Domain and production
+provider configuration remain pending.
 
 The initial system architecture is documented in `docs/ARCHITECTURE.md`.
 
@@ -46,26 +49,25 @@ Build an online outreach platform for Lifechangers Ministry Incorporated serving
 ### Planned Roles
 
 - System Administrator
-- Senior Pastor
-- Associate Pastor
-- Leader
+- Pastor
 - Core Leader
-- Multimedia Head
-- Multimedia Team
-- Bulletin Head
-- Bulletin Team
-- Treasurer
-- Prayer Warriors
+- Content Publisher
+- Content Editor
+- Prayer Warrior
 
-Multimedia and Bulletin Heads may approve and publish content only within the content areas their teams are permitted to manage, including their own work. Leaders receive the shared day-to-day access of the pastoral roles so operations do not depend on pastors regularly using the dashboard. A System Administrator may assign the separate Core Leader role to selected trusted Leaders who require Senior-Pastor-equivalent authority, including sensitive financial approval permissions.
+Senior Pastor and Associate Pastor are job titles using the same Pastor role.
+Content Publishers may approve and publish their own work. A System
+Administrator may assign Core Leader only to selected highly trusted people,
+with a recorded reason. Core Leader has Pastor-equivalent website operations
+access. The website has no Treasurer or bookkeeping role.
 
 ### Prayer Request Access
 
-- Senior Pastor and Associate Pastor may access confidential prayer requests.
-- Leaders receive the same operational prayer access as the Associate Pastor.
-- Core Leaders receive the same access as the Senior Pastor.
+- Pastors and Core Leaders may access team and pastoral-only prayer requests.
 - Prayer Warriors may access prayer requests that are permitted for the prayer team.
-- A pastoral-only privacy option is recommended and remains to be confirmed.
+- A pastoral-only privacy option is confirmed for launch and is not visible to Prayer Warriors.
+- Assigned Prayer Warriors may close only their assigned prayer-team requests.
+- Closed-request contact details are erased after 30 days and closed prayer text after 90 days, except under an approved legal hold.
 
 ## Confirmed Content Requirements
 
@@ -82,12 +84,23 @@ Daily activities and special events should use a shared schedule system with act
 
 ## Confirmed Giving Requirements
 
-- Support online giving at launch without recurring payments.
-- Record offline cash and bank giving.
-- Support giving categories, receipt handling, corrections, and refunds.
-- Exact categories, receipt fields, refund rules, and approval authorities remain to be confirmed.
-- Online transaction amounts must come from verified payment-provider records and must not be silently overwritten.
-- Financial corrections must preserve the original record and create an auditable adjustment.
+- Provide a simple `Give Tithes & Offerings` public action.
+- Use PayMongo Hosted Checkout for one-time payments; recurring giving is not
+  required for the first launch.
+- Never collect card or wallet credentials in this website.
+- Validate allowed purpose and amount on the server and trust payment status
+  only from a verified provider webhook.
+- Planned public purposes are general church, church building and love gift;
+  final wording and provider-policy eligibility remain to be confirmed.
+- Allow the payment gateway's normal transaction fee and investigate a clearly
+  disclosed sender-paid fee option where PayMongo supports it.
+- Use the PayMongo dashboard as the website's payment source of truth.
+- Do not store offline gifts, a donor ledger, bookkeeping records, adjustments,
+  refunds, official receipts or finance reports in this website.
+
+Full bookkeeping and member management belong to a future separate ChMS with
+its own deployment, database, storage, secrets, permissions, Access application,
+backups and repository.
 
 ## Existing Website and Domain
 
@@ -148,7 +161,8 @@ Operate with no recurring platform subscription during development and the initi
 - Cloudflare Web Analytics if analytics is enabled
 - Dashboard-based notifications at first; outbound transactional email remains optional until a no-cost provider and its limits are approved
 - Facebook and/or YouTube embeds for sermon video delivery
-- Payment provider to be selected after comparing church eligibility, fees, settlement, webhook support, refunds, and receipt requirements
+- PayMongo Hosted Checkout, subject to church-account eligibility, fee,
+  settlement and giving-purpose confirmation
 
 ### Development and Quality
 
@@ -188,7 +202,7 @@ Operate with no recurring platform subscription during development and the initi
 
 Review the move to paid production services before or when any of the following occurs:
 
-- Real online or offline giving records become operationally important.
+- Payment traffic or confidential prayer volume exceeds free-tier capacity.
 - Confidential prayer requests are stored regularly.
 - Free-tier capacity or availability affects staff or visitors.
 - Reliable automatic backups and recovery become necessary.
@@ -199,11 +213,8 @@ Review the move to paid production services before or when any of the following 
 
 - Official service schedule and weekly recurring activities
 - Domain name and registrar
-- Exact giving categories
-- Receipt information and workflow
-- Refund and correction approval process
-- Pastoral-only prayer-request option
+- Final public giving-purpose labels and permitted love-gift policy
+- PayMongo account, enabled methods, fee disclosure and settlement process
 - Content approval authorities and emergency publishing permissions
-- Number of Leader, Core Leader, Multimedia Head and Bulletin Head accounts
-- Payment gateway
+- Number of accounts per approved website role
 - Existing content and media inventory

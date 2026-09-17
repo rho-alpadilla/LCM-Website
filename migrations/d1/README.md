@@ -1,27 +1,25 @@
 # D1 Migrations
 
-This directory contains ordered, SQLite-compatible Cloudflare D1 migrations.
+These ordered, SQLite-compatible migrations build the website database.
 
-The Phase 1 platform health probe uses `SELECT 1`. Phase 2 begins with the
-access-control schema and approved role/permission seed data. Phase 3 adds the
-staff invitation and first-login activation workflow, followed by cross-table
-guards that prevent bypassing the approved invitation path. Phase 4 begins with
-publishable content, immutable revision history, subtype records, schedules, and
-R2 object metadata, with workflow and subtype consistency guards.
-Subtype edits are draft-only, while audited schedule exceptions remain available
-for active schedules after publication.
-Reviewers can return a pending revision to a new draft version with an immutable
-reasoned review event.
-Media upload guards keep core metadata immutable, restrict lifecycle
-transitions, and require a SHA-256 checksum before an asset becomes ready.
-Checksums become immutable after the pending upload is completed.
+- `0001`-`0004`: access control, six-role seeds, invitations and account guards.
+- `0005`-`0012`: content, revisions, schedules, recurrence exceptions, media,
+  workflow guards and public-read support.
+- `0013`: prayer requests, separate contacts, assignments, updates and indexes.
+- `0014`: prayer immutability, privacy and redaction guards.
+- `0015`: retention deadline guards.
+- `0016`: active-assignee, open-request and closure/update workflow guards.
 
-Use the database binding name rather than a production resource identifier:
+No migration creates a Treasurer role or website finance ledger. A future
+PayMongo migration may store only minimal checkout/idempotency/webhook status,
+not bookkeeping data.
+
+Run local migrations with:
 
 ```text
 pnpm d1:migrations:list
 pnpm d1:migrations:apply
 ```
 
-Both scripts target local D1 storage. Remote migrations require a separately
-reviewed command, a verified backup, and an explicit environment selection.
+Remote migrations require a separately reviewed command, an explicit target
+environment, a verified backup/recovery plan and deployment approval.

@@ -22,9 +22,8 @@ export default async function AdminPage() {
           Welcome, {context.displayName}
         </h1>
         <p className="mt-4 max-w-2xl leading-7 text-slate-600">
-          Your dashboard will show only the ministry areas your role permits.
-          Content, prayer, and giving cards will be added as those modules are
-          implemented.
+          Your dashboard shows only the website and prayer-care areas your role
+          permits.
         </p>
         <section
           className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
@@ -66,6 +65,17 @@ export default async function AdminPage() {
               </h2>
               <p className="mt-2 leading-6 text-slate-600">
                 Upload validated images and bulletin PDFs.
+              </p>
+            </Link>
+          ) : null}
+          {context.permissions.includes("prayer.read_team") ? (
+            <Link
+              className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+              href={"/admin/prayer" as Route}
+            >
+              <h2 className="text-xl font-black text-slate-950">Prayer care</h2>
+              <p className="mt-2 leading-6 text-slate-600">
+                Review only the prayer requests allowed by your role.
               </p>
             </Link>
           ) : null}

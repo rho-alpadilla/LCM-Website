@@ -1,154 +1,101 @@
-# Cloudflare Migration Plan
+# Cloudflare Delivery Roadmap
 
-## Goal
+## Current Position
 
-Move the preserved Supabase prototype to the approved Cloudflare Workers, D1,
-Access, and R2 architecture without losing required behavior or weakening
-authorization.
+The project uses Next.js on Cloudflare Workers, D1, R2, Access and Turnstile.
+Phases 1-4 are complete locally. Phase 5A/5B prayer work is complete locally
+and preserved. The abandoned Phase 5C finance ledger has been removed following
+the approved website/ChMS separation.
 
-## Current State
+## Completed Locally
 
-- Next.js, React, TypeScript, Tailwind CSS, OpenNext, and Wrangler are present.
-- Phase 1 platform bindings, Phase 2 D1 access control, and the application-side
-  Phase 3 Cloudflare Access staff lifecycle are implemented and verified
-  locally. Phase 4 content, publishing, public reads, and private file delivery
-  are also complete locally.
-- Supabase helpers and PostgreSQL migrations remain as an inactive rollback
-  prototype. Active admin pages and staff mutations use Cloudflare Access and
-  D1.
-- No production data migration is currently required because no production
-  Supabase database has been identified.
+### Phase 1: Platform foundation
 
-## Migration Principles
+- local/preview/production Worker, D1 and R2 bindings;
+- typed environment validation and health checks; and
+- free-first Cloudflare deployment path.
 
-- Preserve the public frontend and approved business rules.
-- Replace provider-specific code behind identity, repository, and storage
-  boundaries.
-- Keep the Supabase prototype until each replacement passes its tests.
-- Do not combine migration work with unrelated design or content changes.
-- Do not deploy real prayer or giving data until authorization, audit, backup,
-  and recovery checks pass.
+### Phase 2: Access-control database
 
-## Phase 0: Preserve and Measure
+- D1 staff, role, permission and audit schema;
+- invitation/bootstrap lifecycle and final-admin protection; and
+- repository/service authorization boundaries.
 
-1. Review the current uncommitted files and create an approved baseline commit.
-2. Record the current lint, type-check, unit-test, and production-build results.
-3. Inventory every Supabase import, environment variable, migration, route, and
-   authentication screen.
-4. Record current Cloudflare Free limits from official documentation.
+### Phase 3: Staff identity and administration
 
-Exit criteria: the prototype can be recovered, and the replacement scope is
-fully listed.
+- Cloudflare Access JWT verification;
+- staff invitations, activation, role mutation and suspension; and
+- protected admin dashboard.
 
-## Phase 1: Platform Bindings
+Real Access application/audience setup waits for the church-owned domain.
 
-1. Add separate local, preview, and production D1 databases.
-2. Add R2 bindings without enabling public bucket listing.
-3. Generate Cloudflare environment types.
-4. Add configuration validation that reports missing bindings without exposing
-   credentials or account identifiers.
-5. Keep production resources owned by a church-controlled Cloudflare account.
+### Phase 4: Content and public read layer
 
-Exit criteria: a local health check can verify application, D1, and optional R2
-availability without returning sensitive details.
+- content subtypes, immutable revisions and approval workflow;
+- sermons, ministries, announcements, bulletins and recurring schedules;
+- private R2 metadata/upload and safe public file delivery;
+- public-only reads, private location protection, caching and targeted
+  invalidation; and
+- responsive/accessibility E2E coverage.
 
-## Phase 2: D1 Schema and Repositories
+### Phase 5A/5B: Prayer care
 
-Status: access-control and content scope complete locally. Prayer and giving
-tables remain assigned to Phase 5.
+- public prayer form with team/pastoral-only privacy;
+- Turnstile verification boundary, rate limiting and generic responses;
+- permission-filtered queues, assignments, updates, audited contact reveal,
+  escalation and closure; and
+- 30-day contact and 90-day prayer-text retention with daily scheduled cleanup.
 
-1. Convert the approved logical data model to SQLite-compatible migrations.
-2. Preserve foreign keys, uniqueness rules, status constraints, indexes, audit
-   history, and append-only finance corrections where D1 supports them.
-3. Move authorization-sensitive mutations into tested service functions and D1
-   transactions/batches.
-4. Use bound query parameters and allowlisted sort/filter fields.
-5. Implement repositories so UI components never issue D1 queries directly.
+Production Turnstile keys and hostname validation wait for the domain.
 
-Exit criteria: local migrations work from an empty database, schema tests pass,
-and denied operations leave no partial writes.
+## Current Checkpoint: Architecture and Roles
 
-## Phase 3: Cloudflare Access Identity
+- website and future ChMS are formally separated;
+- obsolete Treasurer/finance ledger code and schema are removed;
+- the six-role website permission model is active; and
+- prayer functionality remains part of the website.
 
-Status: complete locally. JWT verification, D1 identity authorization,
-bootstrap, invitations, first-login activation, role changes, Core Leader
-elevation rules, suspension, audit writes, and the D1-backed admin interface are
-implemented. Creating the real Access application and activating route
-protection remain pending until the church owns its domain.
+## Next Focused Phase: PayMongo Hosted Giving
 
-1. Protect `/admin` and protected API routes with Cloudflare Access.
-2. Allowlist exact staff email addresses; never allow `Everyone` or an
-   unrestricted one-time-PIN login method.
-3. Validate the Access JWT signature, issuer, audience, expiry, and identity in
-   trusted server code.
-4. Map the validated identity to an active D1 staff profile.
-5. Enforce the approved permission matrix for every protected use case.
-6. Implement safe bootstrap, staff activation, suspension, role changes, Core
-   Leader elevation, and final-System-Administrator safeguards.
+1. Confirm PayMongo account eligibility, supported methods, current fees,
+   `pass_on_fees` behavior, settlement ownership and love-gift policy.
+2. Create a provider adapter and server-only checkout endpoint.
+3. Validate purpose and amount on the server and use an idempotency key.
+4. Redirect visitors to PayMongo's hosted page; never collect card or wallet
+   credentials in this application.
+5. Verify webhook signatures and event identity before updating minimal checkout
+   status.
+6. Add safe success/cancel/status pages and synthetic test fixtures.
+7. Keep provider keys in environment secrets. Use test mode until the domain and
+   church-owned provider account exist.
 
-Exit criteria: allowed, denied, suspended, unknown, expired-token, and
-wrong-audience scenarios all have automated tests and audit behavior.
+This phase must not recreate an internal contribution ledger, Treasurer role,
+offline-entry workflow, finance reports, refunds, adjustments or official
+receipts.
 
-## Phase 4: Content and File Storage
+## Later Phase: Production Cutover
 
-Status: complete locally. D1 content and R2 metadata, immutable revisions,
-scoped workflow permissions, admin editors, subtype services, private uploads,
-safe public file delivery, public routes, recurrence expansion, and targeted
-cache invalidation are implemented and covered by automated tests. Deployment
-against church-owned Cloudflare resources remains a Phase 6 verification task.
+- purchase and configure the church-owned domain;
+- create production Access and Turnstile applications;
+- provision production D1/R2 resources and secrets;
+- run migrations and full checks in preview;
+- test backup/export and recovery;
+- confirm privacy notices and operational owners; and
+- deploy with monitoring and a rollback plan.
 
-1. Migrate sermons, activities, announcements, bulletins, and publishing
-   workflow to D1.
-2. Configure R2 Standard for approved images and documents only.
-3. Enforce file type, content signature, size, generated names, ownership,
-   publication state, and total storage quotas.
-4. Continue embedding Facebook/YouTube sermon video instead of storing video.
-5. Cache only public published content; private/admin responses use `no-store`.
+## Deferred Future Project: ChMS
 
-Exit criteria: heads can self-approve only within their content scope, all
-publishing is audited, and private files cannot be retrieved publicly.
-
-Local exit criteria are satisfied. Real-environment Access, R2, D1, and cache
-smoke tests will be repeated during Phase 6 before production launch.
-
-## Phase 5: Sensitive Workflows
-
-Status: next planned phase. No prayer or giving implementation should be
-treated as production-ready yet.
-
-1. Implement prayer privacy scopes, restricted access, retention states, and
-   audit trails.
-2. Implement online/offline giving records, receipt requests, corrections,
-   refunds, reconciliation, and immutable transaction history.
-3. Add Turnstile, server validation, rate limiting, and generic public responses
-   to prayer, contact, ministry-interest, and giving-initiation forms.
-4. Keep payment collection on a provider-hosted page and trust only verified,
-   idempotent webhook events.
-
-Exit criteria: privacy and finance threat-model tests pass, exports are
-permission-controlled, and no sensitive content appears in logs.
-
-## Phase 6: Cutover and Cleanup
-
-1. Run the complete lint, type-check, unit, integration, responsive, and
-   production-build suite.
-2. Test deployment size, Worker CPU behavior, D1 usage, Access login, R2 quotas,
-   cache invalidation, error states, backup export, and restore.
-3. Obtain explicit approval before deleting Supabase code, migrations,
-   dependencies, environment variables, or setup documentation.
-4. Remove the legacy implementation in a focused cleanup change only after the
-   Cloudflare replacement satisfies every exit criterion.
-
-Exit criteria: no runtime Supabase imports remain, documentation matches the
-deployed architecture, and a rollback/recovery procedure has been tested.
+The ChMS is a separate project for members, attendance, bookkeeping, offline
+giving, expenses, reconciliation, official receipts and private documents. It
+requires its own architecture, threat model, deployment, database, storage,
+secrets, roles, backups and repository.
 
 ## Decisions Still Required
 
-- Domain name and registrar.
-- Official service and daily-activity schedule.
-- Giving categories, receipt fields, correction thresholds, and refund approver.
-- Payment gateway and its transaction fees.
-- Prayer-request retention period and whether `pastoral_only` is offered.
-- Whether outbound email notifications are required for the first launch.
-- R2 application storage ceiling below the provider's free allowance.
-- Backup export frequency and responsible person.
+- church-owned domain and registrar;
+- official service/weekly schedule content;
+- final PayMongo giving-purpose labels and minimum/maximum amounts;
+- which payment methods the church will enable;
+- whether the giver may add fees and how that is disclosed;
+- transactional email requirement; and
+- production backup owner and frequency.

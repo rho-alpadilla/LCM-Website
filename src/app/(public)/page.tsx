@@ -31,6 +31,12 @@ export default function HomePage() {
             >
               View daily activities
             </Link>
+            <Link
+              className="rounded-xl border border-white/40 px-5 py-3 font-bold text-white"
+              href={"/prayer" as Route}
+            >
+              Request prayer
+            </Link>
           </div>
         </div>
       </section>
@@ -63,8 +69,8 @@ export default function HomePage() {
           ))}
         </div>
         <p className="mt-8 rounded-xl bg-amber-50 p-4 text-sm text-amber-950">
-          Prayer requests, contact forms, ministry-interest forms, and online
-          giving are planned Phase 5 features and are not connected yet.
+          Contact forms, ministry-interest forms, and online giving remain
+          planned Phase 5 features and are not connected yet.
         </p>
       </section>
     </PublicPage>

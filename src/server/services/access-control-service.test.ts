@@ -101,7 +101,7 @@ describe("AccessControlService", () => {
       email: "leader@example.com",
       displayName: "Church Leader",
       accountStatus: "active",
-      roles: ["leader"],
+      roles: ["content_editor"],
       permissions: ["admin.access"],
     };
     const service = new AccessControlService(
@@ -129,7 +129,7 @@ describe("AccessControlService", () => {
         email: "leader@example.com",
         displayName: "Church Leader",
         accountStatus: "suspended",
-        roles: ["leader"],
+        roles: ["content_editor"],
         permissions: ["admin.access"],
       } satisfies StaffContext,
     ],
@@ -140,7 +140,7 @@ describe("AccessControlService", () => {
         email: "leader@example.com",
         displayName: "Church Leader",
         accountStatus: "disabled",
-        roles: ["leader"],
+        roles: ["content_editor"],
         permissions: ["admin.access"],
       } satisfies StaffContext,
     ],
@@ -167,7 +167,7 @@ describe("AccessControlService", () => {
           email: "expected@example.com",
           displayName: "Church Leader",
           accountStatus: "active",
-          roles: ["leader"],
+          roles: ["content_editor"],
           permissions: ["admin.access"],
         }),
       }),
@@ -193,13 +193,13 @@ describe("AccessControlService", () => {
           accessSubject: "staff-subject",
           email: "staff@example.com",
         },
-        "giving.details.read",
+        "prayer.read_pastoral",
       ),
     ).rejects.toMatchObject({ code: "FORBIDDEN" });
     expect(permissionCheck).toHaveBeenCalledWith(
       "staff-subject",
       "staff@example.com",
-      "giving.details.read",
+      "prayer.read_pastoral",
     );
   });
 
@@ -223,8 +223,8 @@ describe("AccessControlService", () => {
         displayName: " Church Leader ",
         phone: "",
         jobTitle: " Ministry Leader ",
-        roleCode: "leader",
-        reason: "Approved ministry leader",
+        roleCode: "content_editor",
+        reason: "Approved content editor",
       }),
     ).resolves.toEqual({ invitationId: "invitation-id" });
 
@@ -235,7 +235,7 @@ describe("AccessControlService", () => {
         displayName: "Church Leader",
         phone: null,
         jobTitle: "Ministry Leader",
-        roleCode: "leader",
+        roleCode: "content_editor",
       }),
     );
   });
@@ -251,7 +251,7 @@ describe("AccessControlService", () => {
         actorStaffId: "5d3a2ee4-7f94-4e95-ae5b-5c0650b8749e",
         email: "staff@example.com",
         displayName: "Staff Person",
-        roleCode: "leader",
+        roleCode: "content_editor",
       }),
     ).rejects.toMatchObject({ code: "VALIDATION_FAILED" });
 
@@ -274,9 +274,9 @@ describe("AccessControlService", () => {
       displayName: "Church Leader",
       phone: null,
       jobTitle: null,
-      initialRoleCode: "leader",
-      initialRoleName: "Leader",
-      assignmentReason: "Approved church leader",
+      initialRoleCode: "content_editor",
+      initialRoleName: "Content Editor",
+      assignmentReason: "Approved content editor",
       invitedBy: "5d3a2ee4-7f94-4e95-ae5b-5c0650b8749e",
       createdAt: "2026-09-10T00:00:00.000Z",
     };
@@ -308,7 +308,8 @@ describe("AccessControlService", () => {
     );
   });
 
-  it("requires Leader before Core Leader elevation", async () => {
+  it("allows a reasoned Core Leader elevation without another prerequisite role", async () => {
+    const assignRole = vi.fn().mockResolvedValue(undefined);
     const service = new AccessControlService(
       createRepositoryStub({
         findStaffById: vi.fn().mockResolvedValue({
@@ -320,6 +321,7 @@ describe("AccessControlService", () => {
           accountStatus: "active",
           roles: [],
         }),
+        assignRole,
       }),
     );
     await expect(
@@ -329,6 +331,12 @@ describe("AccessControlService", () => {
         roleCode: "core_leader",
         reason: "Approved for senior leadership access",
       }),
-    ).rejects.toMatchObject({ code: "VALIDATION_FAILED" });
+    ).resolves.toBeUndefined();
+    expect(assignRole).toHaveBeenCalledWith(
+      expect.objectContaining({
+        roleCode: "core_leader",
+        reason: "Approved for senior leadership access",
+      }),
+    );
   });
 });

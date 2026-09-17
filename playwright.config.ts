@@ -1,5 +1,10 @@
 import { defineConfig, devices } from "@playwright/test";
 
+const testPort = process.env.PLAYWRIGHT_PORT ?? "3000";
+const testBaseUrl = `http://127.0.0.1:${testPort}`;
+const testWebCommand =
+  process.env.PLAYWRIGHT_WEB_COMMAND ?? `pnpm dev --port ${testPort}`;
+
 export default defineConfig({
   testDir: "./tests/e2e",
   fullyParallel: true,
@@ -7,7 +12,7 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   reporter: "html",
   use: {
-    baseURL: "http://127.0.0.1:3000",
+    baseURL: testBaseUrl,
     trace: "on-first-retry",
   },
   projects: [
@@ -15,8 +20,8 @@ export default defineConfig({
     { name: "mobile-chrome", use: { ...devices["Pixel 7"] } },
   ],
   webServer: {
-    command: "pnpm dev",
-    url: "http://127.0.0.1:3000",
+    command: testWebCommand,
+    url: testBaseUrl,
     reuseExistingServer: !process.env.CI,
   },
 });

@@ -15,7 +15,7 @@ function actor(permissions = ["content.media.manage"]): StaffContext {
     email: "media@example.com",
     displayName: "Media Team",
     accountStatus: "active",
-    roles: ["multimedia_team"],
+    roles: ["content_editor"],
     permissions,
   };
 }

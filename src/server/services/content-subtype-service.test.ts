@@ -17,7 +17,7 @@ function actor(permissions: string[]): StaffContext {
     email: "head@example.com",
     displayName: "Ministry Head",
     accountStatus: "active",
-    roles: ["multimedia_head"],
+    roles: ["content_publisher"],
     permissions,
   };
 }

@@ -37,6 +37,14 @@ export function AdminHeader({ context }: { context: StaffContext }) {
               Media
             </Link>
           ) : null}
+          {context.permissions.includes("prayer.read_team") ? (
+            <Link
+              className="font-semibold text-blue-800"
+              href={"/admin/prayer" as Route}
+            >
+              Prayer
+            </Link>
+          ) : null}
           {context.permissions.includes("staff.read") ? (
             <Link className="font-semibold text-blue-800" href="/admin/staff">
               Staff

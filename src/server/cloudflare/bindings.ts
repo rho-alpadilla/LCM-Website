@@ -7,6 +7,7 @@ const requiredBindingNames = [
   "WEBSITE_FILES",
   "ACCESS_TEAM_DOMAIN",
   "ACCESS_AUD",
+  "TURNSTILE_HOSTNAMES",
 ] as const;
 
 type RequiredBindingName = (typeof requiredBindingNames)[number];
@@ -15,6 +16,11 @@ export type RequiredCloudflareBindings = Pick<
   CloudflareEnv,
   RequiredBindingName
 >;
+
+export type PrayerCloudflareBindings = RequiredCloudflareBindings &
+  Pick<CloudflareEnv, "PRAYER_SUBMISSION_RATE_LIMITER"> & {
+    TURNSTILE_SECRET?: string;
+  };
 
 type D1HealthProbe = {
   prepare(query: string): {
@@ -43,6 +49,18 @@ export async function requireCloudflareBindings(): Promise<RequiredCloudflareBin
   validateCloudflareBindings(env);
 
   return env;
+}
+
+export async function requirePrayerCloudflareBindings(): Promise<PrayerCloudflareBindings> {
+  const { env } = await getCloudflareContext({ async: true });
+  validateCloudflareBindings(env);
+  if (!env.PRAYER_SUBMISSION_RATE_LIMITER) {
+    throw new ApplicationError(
+      "INTERNAL_ERROR",
+      "Prayer submission protection is unavailable.",
+    );
+  }
+  return env as PrayerCloudflareBindings;
 }
 
 export async function checkD1Connection(

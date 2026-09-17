@@ -1,13 +1,14 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "lifechangers-ministry-web",
-  "main": ".open-next/worker.js",
-  "compatibility_date": "2026-09-10",
+  "main": "custom-worker.ts",
+  "compatibility_date": "2026-09-17",
   "compatibility_flags": ["nodejs_compat"],
   "vars": {
     "APP_ENVIRONMENT": "local",
     "ACCESS_TEAM_DOMAIN": "",
     "ACCESS_AUD": "",
+    "TURNSTILE_HOSTNAMES": "localhost,127.0.0.1",
   },
   "assets": {
     "directory": ".open-next/assets",
@@ -26,6 +27,14 @@
       "bucket_name": "lifechangers-ministry-local-files",
     },
   ],
+  "ratelimits": [
+    {
+      "name": "PRAYER_SUBMISSION_RATE_LIMITER",
+      "namespace_id": "1101",
+      "simple": { "limit": 5, "period": 60 },
+    },
+  ],
+  "triggers": { "crons": ["15 18 * * *"] },
   "observability": {
     "enabled": true,
     "head_sampling_rate": 1,
@@ -37,6 +46,7 @@
         "APP_ENVIRONMENT": "preview",
         "ACCESS_TEAM_DOMAIN": "",
         "ACCESS_AUD": "",
+        "TURNSTILE_HOSTNAMES": "",
       },
       "d1_databases": [
         {
@@ -51,6 +61,14 @@
           "bucket_name": "lifechangers-ministry-preview-files",
         },
       ],
+      "ratelimits": [
+        {
+          "name": "PRAYER_SUBMISSION_RATE_LIMITER",
+          "namespace_id": "1102",
+          "simple": { "limit": 5, "period": 60 },
+        },
+      ],
+      "triggers": { "crons": ["15 18 * * *"] },
     },
     "production": {
       "name": "lifechangers-ministry-web-production",
@@ -58,6 +76,7 @@
         "APP_ENVIRONMENT": "production",
         "ACCESS_TEAM_DOMAIN": "",
         "ACCESS_AUD": "",
+        "TURNSTILE_HOSTNAMES": "",
       },
       "d1_databases": [
         {
@@ -72,6 +91,14 @@
           "bucket_name": "lifechangers-ministry-production-files",
         },
       ],
+      "ratelimits": [
+        {
+          "name": "PRAYER_SUBMISSION_RATE_LIMITER",
+          "namespace_id": "1103",
+          "simple": { "limit": 5, "period": 60 },
+        },
+      ],
+      "triggers": { "crons": ["15 18 * * *"] },
     },
   },
 }

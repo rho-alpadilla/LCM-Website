@@ -148,20 +148,6 @@ BEGIN
   SELECT RAISE(ABORT, 'Elevated role assignments require a reason');
 END;
 
-CREATE TRIGGER staff_roles_require_leader_before_core_leader
-BEFORE INSERT ON staff_roles
-WHEN NEW.role_code = 'core_leader'
-  AND NOT EXISTS (
-    SELECT 1
-    FROM staff_roles
-    WHERE staff_id = NEW.staff_id
-      AND role_code = 'leader'
-      AND revoked_at IS NULL
-  )
-BEGIN
-  SELECT RAISE(ABORT, 'Core Leader access requires an active Leader role');
-END;
-
 CREATE TRIGGER staff_roles_prevent_assignment_rewrite
 BEFORE UPDATE OF staff_id, role_code, assigned_by, assignment_reason, assigned_at
 ON staff_roles

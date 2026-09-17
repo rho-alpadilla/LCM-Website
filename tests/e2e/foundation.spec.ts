@@ -8,6 +8,7 @@ const publicPages = [
   { path: "/activities", heading: "Daily activities" },
   { path: "/announcements", heading: "Announcements" },
   { path: "/bulletins", heading: "Bulletins" },
+  { path: "/prayer", heading: "How can we pray with you?" },
 ];
 
 test("shows the confirmed church identity", async ({ page }) => {

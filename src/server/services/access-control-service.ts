@@ -18,15 +18,10 @@ const bootstrapAdministratorSchema = verifiedIdentitySchema.extend({
 
 const roleCodeSchema = z.enum([
   "system_admin",
-  "senior_pastor",
-  "associate_pastor",
-  "leader",
+  "pastor",
   "core_leader",
-  "multimedia_head",
-  "multimedia_team",
-  "bulletin_head",
-  "bulletin_team",
-  "treasurer",
+  "content_publisher",
+  "content_editor",
   "prayer_warrior",
 ]);
 
@@ -248,15 +243,6 @@ export class AccessControlService {
       throw new ApplicationError(
         "VALIDATION_FAILED",
         "That role is already assigned.",
-      );
-    }
-    if (
-      input.roleCode === "core_leader" &&
-      !target.roles.some((role) => role.code === "leader")
-    ) {
-      throw new ApplicationError(
-        "VALIDATION_FAILED",
-        "Core Leader requires an active Leader role first.",
       );
     }
     if (
