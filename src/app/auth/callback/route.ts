@@ -1,5 +1,1 @@
-import { type NextRequest, NextResponse } from "next/server";
-
-export function GET(request: NextRequest) {
-  return NextResponse.redirect(new URL("/admin/login", request.url));
-}
+export { GET } from "@/backend/http/handlers/auth/callback";

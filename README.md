@@ -8,9 +8,30 @@ Phases 1 through 4 are complete in the local codebase. Admin pages use
 Cloudflare Access identity plus D1 invitations, activation, roles, suspension,
 and audit records. The public site reads only published content, expands
 upcoming activities, and delivers approved R2 files through protected routes.
-Provider activation awaits the church domain. The Supabase prototype remains
-only as inactive rollback/reference code. Giving and prayer workflows are not
-production-ready and are planned for Phase 5.
+Phase 5 protected prayer workflows and the minimal PayMongo hosted-checkout
+flow are implemented locally. Provider activation and end-to-end provider
+verification await the final domain/launch stage; these integrations are not
+yet production-verified. The Supabase prototype remains only as inactive
+rollback/reference code. Phase 6 outreach completion and UI polish remain
+separate planned work.
+
+## Code Organization
+
+The frontend and backend have separate source folders but remain one Next.js
+application, one local development server, and one website deployment.
+
+```text
+src/app/         URL entry points, route metadata, layouts and error boundaries
+src/frontend/    Public/admin screens, reusable UI and display helpers
+src/backend/     Protected queries, actions, HTTP handlers, services and D1 access
+src/shared/      Runtime-neutral types, schemas, labels and public configuration
+src/legacy/      Inactive Supabase prototype; not imported by active routes
+migrations/d1/   Active database migrations (unchanged by the source refactor)
+tests/e2e/       Browser regression and accessibility tests
+```
+
+Start with [the code structure guide](docs/CODE_STRUCTURE.md) to find the right
+place for a change. `pnpm lint` enforces the source dependency boundaries.
 
 ## Requirements
 
@@ -28,6 +49,10 @@ production-ready and are planned for Phase 5.
 3. Install dependencies with `pnpm install`.
 4. Start the application with `pnpm dev`.
 5. Open `http://localhost:3000`.
+
+If PowerShell cannot find `pnpm.cmd`, use `corepack.cmd pnpm` in place of
+`pnpm` for these commands (for example, `corepack.cmd pnpm dev`). The folder
+reorganization does not change the startup or migration commands.
 
 Local development uses Wrangler's local D1 and R2-compatible bindings. Generate
 the binding types whenever `wrangler.jsonc` changes:
@@ -110,6 +135,7 @@ stage creates symbolic links that ordinary Windows sessions commonly block.
 
 - `docs/PROJECT_BRIEF.md`
 - `docs/ARCHITECTURE.md`
+- `docs/CODE_STRUCTURE.md`
 - `docs/DATABASE_SCHEMA.md`
 - `docs/PERMISSION_MATRIX.md`
 - `docs/CLOUDFLARE_MIGRATION_PLAN.md`

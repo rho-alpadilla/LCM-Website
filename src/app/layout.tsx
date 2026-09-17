@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
-import { siteConfig } from "@/lib/config/site";
+import { siteConfig } from "@/shared/config/site";
 
 import "./globals.css";
 

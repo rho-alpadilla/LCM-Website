@@ -48,18 +48,33 @@ be a configuration upgrade, not an application rewrite.
 ## Application Boundaries
 
 ```text
-src/app                 Route and page composition
-src/components          Reusable UI
-src/features            Feature actions, schemas and view models
-src/server/services     Authorization and business rules
-src/server/repositories Parameterized D1 access
-src/server/security     Verification, rate-limit and trusted-boundary helpers
-migrations/d1           Ordered schema and policy migrations
+src/app                  Thin route entries, metadata and layout/error boundaries
+src/frontend/screens     Public and admin screen presentation
+src/frontend/components  Reusable UI, including explicit client components
+src/frontend/lib         Display formatting
+src/backend/actions      Next.js server actions
+src/backend/queries      Server-only screen loaders and public content caching
+src/backend/http         HTTP handlers, response and request-security helpers
+src/backend/auth         Verified staff identity and session authorization
+src/backend/services     Authorization and business rules
+src/backend/repositories Parameterized D1 access
+src/backend/integrations Provider clients and webhook verification
+src/backend/security     Turnstile and trusted-boundary helpers
+src/backend/cloudflare   Runtime binding access
+src/shared               Runtime-neutral schemas, types, labels and public config
+src/legacy               Isolated, inactive Supabase prototype
+migrations/d1            Ordered schema and policy migrations
 ```
 
 Pages and components do not query D1 directly. Public inputs are validated on
 the server. Protected actions require a verified Access identity, active staff
 profile, and explicit permission.
+
+Frontend/backend separation is a source-code boundary, not a second website
+deployment. Server-rendered screens call backend queries; browser components
+use HTTP endpoints or explicit server actions. Shared modules cannot depend on
+the backend. ESLint enforces these import directions, including relative
+imports. See `CODE_STRUCTURE.md` for file ownership and examples.
 
 ## Public Website
 
