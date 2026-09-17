@@ -12,9 +12,9 @@ export type GivingPurpose = z.infer<typeof givingPurposeSchema>;
 export type PayMongoPaymentMethod = "card" | "gcash" | "qrph";
 
 const purposeLabels: Record<GivingPurpose, string> = {
-  general_church: "Tithes and offerings",
-  church_building: "Church building",
-  love_gift: "Love gift",
+  general_church: "Tithes & Offerings",
+  church_building: "Church Building Fund",
+  love_gift: "Love Gift",
 };
 
 const checkoutResponseSchema = z.object({

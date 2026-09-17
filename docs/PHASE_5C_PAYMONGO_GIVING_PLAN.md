@@ -2,10 +2,10 @@
 
 ## Status
 
-Started after checkpoint `0e4f428`. The provider adapter and webhook-signature
-verification boundary are implemented with synthetic tests. No public checkout
-route, database migration, real key, webhook registration or live payment is
-active yet.
+Implemented locally after checkpoint `0e4f428`. The public checkout route,
+minimal D1 migration, rate limit, server validation, raw-body webhook handler,
+safe return page and synthetic tests are in place. No real key, webhook
+registration or live payment is active yet.
 
 ## Confirmed Direction
 
@@ -17,25 +17,29 @@ active yet.
 - Keep PayMongo as the website payment source of truth.
 - Store only minimal checkout reference/status for idempotency and visitor
   recovery; do not create a website bookkeeping ledger.
+- Accept ₱1.00–₱100,000.00 per checkout. A zero display value cannot be
+  submitted because a provider checkout cannot process it.
+- Use public labels Tithes & Offerings, Church Building Fund and Love Gift.
+- Treat Love Gift as a church-managed fund without recipient names, selection
+  or delivery instructions.
 
-## Provisional Values Requiring Confirmation
+## Provider Configuration Still Required
 
-- Display labels: Tithes and offerings, Church building, Love gift.
-- Enabled methods: card, GCash and QR Ph, subject to the church PayMongo account.
-- Minimum and maximum amount.
-- Whether Love gift can name an individual or must use a staff-managed generic
-  campaign label. No member identity will be accepted until policy is approved.
-- Success/cancel wording and contact path for payment questions.
+- Enable card, GCash and QR Ph on the church PayMongo account.
+- Review provider fees, sender-paid disclosure and settlement ownership.
+- Create the PayMongo webhook endpoint and save its secret in the Worker.
+- Configure Turnstile for the church-owned production hostname.
 
 ## Delivery Slices
 
-1. Provider contract and HMAC verification (started).
-2. Minimal D1 checkout/idempotency/webhook-event schema.
-3. Server-side giving service with amount/purpose validation and rate limiting.
-4. Accessible public giving form and hosted-checkout redirect.
+1. Provider contract and HMAC verification (complete).
+2. Minimal D1 checkout/idempotency/webhook-event schema (complete).
+3. Server-side giving service with amount/purpose validation and rate limiting
+   (complete).
+4. Accessible public giving form and hosted-checkout redirect (complete).
 5. Raw-body webhook route for `checkout_session.payment.paid` with signature,
-   timestamp and duplicate-event checks.
-6. Safe success/cancel/status pages and tests.
+   timestamp and duplicate-event checks (complete).
+6. Safe success/cancel pages and tests (complete).
 7. Test-mode account verification after credentials are available.
 8. Live keys, webhook registration and hostname setup only after the domain is
    available and production approval is given.
@@ -43,7 +47,8 @@ active yet.
 ## Security Rules
 
 - API and webhook secrets are server-only environment secrets.
-- The server creates amount, purpose, reference and redirect URLs; client values
+- The server validates the visitor-selected amount and purpose, generates the
+  reference/redirect URLs, and constructs the provider request. Client values
   are never trusted directly.
 - Webhooks are verified against the exact raw request body before JSON parsing.
 - Test and live webhook signatures are not interchangeable.

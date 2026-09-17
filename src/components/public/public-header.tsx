@@ -10,6 +10,7 @@ const navigation = [
   { href: "/announcements", label: "Announcements" },
   { href: "/bulletins", label: "Bulletins" },
   { href: "/prayer", label: "Request prayer" },
+  { href: "/give", label: "Give" },
 ] as const;
 
 export function PublicHeader() {

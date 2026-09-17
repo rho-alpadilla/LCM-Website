@@ -37,6 +37,12 @@ export default function HomePage() {
             >
               Request prayer
             </Link>
+            <Link
+              className="rounded-xl border border-white/40 px-5 py-3 font-bold text-white"
+              href={"/give" as Route}
+            >
+              Give securely
+            </Link>
           </div>
         </div>
       </section>
@@ -69,8 +75,8 @@ export default function HomePage() {
           ))}
         </div>
         <p className="mt-8 rounded-xl bg-amber-50 p-4 text-sm text-amber-950">
-          Contact forms, ministry-interest forms, and online giving remain
-          planned Phase 5 features and are not connected yet.
+          Contact and ministry-interest forms remain planned. Online giving is
+          available only after the church completes PayMongo and Turnstile setup.
         </p>
       </section>
     </PublicPage>

@@ -85,14 +85,22 @@ the audit shape.
   active legal hold.
 - Scheduled retention runs daily and uses bounded batches.
 
-## PayMongo Boundary for the Next Phase
+## PayMongo Checkout Boundary
 
-The obsolete website finance schema has been removed. The PayMongo phase may
-add only minimal checkout records needed for idempotency, redirect recovery and
-verified webhook status. It must not recreate contributors, an offline ledger,
-adjustments, refunds, bookkeeping reports or official receipt workflows.
-PayMongo remains the website's payment source of truth; the future ChMS may
-later import approved settlement data through a separate contract.
+The obsolete website finance schema has been removed. `giving_checkout_sessions`
+stores only a checkout ID, idempotency key, reference number, approved purpose,
+amount, provider IDs/URL and lifecycle timestamps. Its constraints cap one
+checkout at ₱100,000 and prevent changing the purpose, amount or provider
+identity after creation.
+
+`paymongo_webhook_events` stores a duplicate-safe identifier and the minimum
+verified event metadata needed to mark a checkout paid. Both tables reject
+deletion and preserve their security-relevant identities. They do not store
+giver names, email addresses, card details, wallet details, recipient names,
+offline gifts, a donor ledger, adjustments, refunds, bookkeeping reports or
+official receipt workflows. PayMongo remains the website's payment source of
+truth; the future ChMS may later import approved settlement data through a
+separate contract.
 
 ## Data That Must Never Be Seeded or Committed
 

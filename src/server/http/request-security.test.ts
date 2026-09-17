@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { readLimitedJson, requireSameOrigin } from "./request-security";
+import {
+  readLimitedJson,
+  requireConfiguredRequestHostname,
+  requireSameOrigin,
+} from "./request-security";
 
 describe("administrative request security", () => {
   it("allows only a matching request origin", () => {
@@ -24,6 +28,17 @@ describe("administrative request security", () => {
     expect(() => requireSameOrigin(malformedOriginRequest)).toThrow(
       /administration website/i,
     );
+  });
+
+  it("allows configured checkout hostnames only", () => {
+    const request = new Request("https://church.example/api/giving/checkout");
+
+    expect(() =>
+      requireConfiguredRequestHostname(request, "church.example,www.church.example"),
+    ).not.toThrow();
+    expect(() =>
+      requireConfiguredRequestHostname(request, "www.church.example"),
+    ).toThrow(/not configured/i);
   });
 
   it("reads valid JSON within the configured size limit", async () => {

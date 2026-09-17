@@ -1,5 +1,6 @@
 export type ApplicationErrorCode =
   | "AUTHENTICATION_REQUIRED"
+  | "CONFLICT"
   | "FORBIDDEN"
   | "NOT_FOUND"
   | "RATE_LIMITED"

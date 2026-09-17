@@ -55,19 +55,19 @@ Production Turnstile keys and hostname validation wait for the domain.
 - the six-role website permission model is active; and
 - prayer functionality remains part of the website.
 
-## Next Focused Phase: PayMongo Hosted Giving
+## Current Focus: PayMongo Hosted Giving
 
-1. Confirm PayMongo account eligibility, supported methods, current fees,
-   `pass_on_fees` behavior, settlement ownership and love-gift policy.
-2. Create a provider adapter and server-only checkout endpoint.
-3. Validate purpose and amount on the server and use an idempotency key.
-4. Redirect visitors to PayMongo's hosted page; never collect card or wallet
-   credentials in this application.
-5. Verify webhook signatures and event identity before updating minimal checkout
-   status.
-6. Add safe success/cancel/status pages and synthetic test fixtures.
-7. Keep provider keys in environment secrets. Use test mode until the domain and
-   church-owned provider account exist.
+- PayMongo Checkout Session V2 adapter, sender-paid fee disclosure and payment
+  method request are implemented.
+- The public form validates ₱1.00–₱100,000.00 on the server, uses an
+  idempotency key, and redirects to a provider-hosted page; it never handles
+  card or wallet credentials.
+- Minimal D1 records retain only checkout/idempotency/webhook state. Love Gift
+  remains a generic church-managed fund without recipient details.
+- The raw-body webhook route verifies the time-bound PayMongo HMAC signature
+  before parsing an event and records paid status idempotently.
+- Provider keys remain environment secrets. Use test mode until the
+  church-owned domain, PayMongo account and webhook configuration are ready.
 
 This phase must not recreate an internal contribution ledger, Treasurer role,
 offline-entry workflow, finance reports, refunds, adjustments or official
@@ -94,8 +94,7 @@ secrets, roles, backups and repository.
 
 - church-owned domain and registrar;
 - official service/weekly schedule content;
-- final PayMongo giving-purpose labels and minimum/maximum amounts;
-- which payment methods the church will enable;
-- whether the giver may add fees and how that is disclosed;
-- transactional email requirement; and
+- PayMongo test/live account setup, payment method activation, settlement
+  ownership and final fee disclosure review;
+- production Turnstile hostname and webhook registration; and
 - production backup owner and frequency.

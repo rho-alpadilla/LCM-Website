@@ -38,7 +38,7 @@ authenticated API or controlled export/import contract.
 - Cloudflare Access for staff identity; D1 roles for application authorization
 - Turnstile plus rate limits for public prayer submissions
 - Vitest/Testing Library for unit and component tests; Playwright for E2E
-- PayMongo Hosted Checkout in the next phase, with secrets stored as Worker
+- PayMongo Hosted Checkout for one-time giving, with secrets stored as Worker
   secrets and verified webhooks as the only trusted payment status
 
 The initial target is Cloudflare's free tiers. The domain and payment-provider
@@ -107,10 +107,17 @@ retention batches.
 
 ## Giving Boundary
 
-The website will offer a simple `Give Tithes & Offerings` visitor action using
-PayMongo Hosted Checkout. Planned public purposes are general church, church
-building and love gift; final wording and provider eligibility still require
-confirmation.
+The website offers a simple `Give Tithes & Offerings` visitor action using
+PayMongo Hosted Checkout. The approved public labels are **Tithes & Offerings**,
+**Church Building Fund** and **Love Gift**. Love Gift is a general,
+church-managed fund at launch: the form does not accept or select a recipient.
+Questions concerning a specific person go through the church contact path.
+
+The interface explains that an amount starts at zero, but PayMongo cannot
+process a zero-value payment. Server validation therefore accepts ₱1.00 through
+₱100,000.00 per checkout. Card, GCash and QR Ph are requested from PayMongo;
+the final availability remains subject to the church account. PayMongo's
+`pass_on_fees` setting shows method-specific fees before the giver confirms.
 
 The website will not maintain offline gifts, donor ledgers, bookkeeping,
 adjustments, refunds, official receipts or finance reports. PayMongo's dashboard
@@ -126,7 +133,7 @@ provider/office processes until the separate ChMS is designed.
 - Production deployment waits for a church-owned domain/account, real Access
   policy, Turnstile hostnames, tested backup/restore and leadership approval.
 - Observability logs identifiers and error codes, not prayer text, contact
-  details, tokens or payment payloads.
+  details, tokens, payer details or payment payloads.
 
 ## Legacy Supabase Prototype
 

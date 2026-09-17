@@ -22,6 +22,14 @@ export type PrayerCloudflareBindings = RequiredCloudflareBindings &
     TURNSTILE_SECRET?: string;
   };
 
+export type PayMongoCloudflareBindings = RequiredCloudflareBindings &
+  Pick<CloudflareEnv, "GIVING_CHECKOUT_RATE_LIMITER"> & {
+    TURNSTILE_SECRET?: string;
+    PAYMONGO_SECRET_KEY?: string;
+    PAYMONGO_WEBHOOK_SECRET?: string;
+    PAYMONGO_MODE?: "test" | "live";
+  };
+
 type D1HealthProbe = {
   prepare(query: string): {
     first<Result>(): Promise<Result | null>;
@@ -61,6 +69,18 @@ export async function requirePrayerCloudflareBindings(): Promise<PrayerCloudflar
     );
   }
   return env as PrayerCloudflareBindings;
+}
+
+export async function requirePayMongoCloudflareBindings(): Promise<PayMongoCloudflareBindings> {
+  const { env } = await getCloudflareContext({ async: true });
+  validateCloudflareBindings(env);
+  if (!env.GIVING_CHECKOUT_RATE_LIMITER) {
+    throw new ApplicationError(
+      "INTERNAL_ERROR",
+      "Giving checkout protection is unavailable.",
+    );
+  }
+  return env as PayMongoCloudflareBindings;
 }
 
 export async function checkD1Connection(

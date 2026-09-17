@@ -4,8 +4,8 @@
 
 Development is in progress on the approved free-first Cloudflare stack. The
 website/ChMS boundary and six-role website permission model are approved.
-PayMongo Hosted Checkout is the next focused phase. Domain and production
-provider configuration remain pending.
+PayMongo Hosted Checkout is implemented for local/test configuration. Domain
+and production-provider configuration remain pending.
 
 The initial system architecture is documented in `docs/ARCHITECTURE.md`.
 
@@ -90,10 +90,17 @@ Daily activities and special events should use a shared schedule system with act
 - Never collect card or wallet credentials in this website.
 - Validate allowed purpose and amount on the server and trust payment status
   only from a verified provider webhook.
-- Planned public purposes are general church, church building and love gift;
-  final wording and provider-policy eligibility remain to be confirmed.
-- Allow the payment gateway's normal transaction fee and investigate a clearly
-  disclosed sender-paid fee option where PayMongo supports it.
+- Public labels are Tithes & Offerings, Church Building Fund and Love Gift.
+  Love Gift is a church-managed fund at launch. It does not collect a recipient
+  name, member data or delivery instruction; those responsibilities belong to
+  the future ChMS and church office process.
+- Use the payment gateway's normal transaction fee with PayMongo's clearly
+  disclosed sender-paid fee option where the church account supports it.
+- Allow ₱1.00 to ₱100,000.00 per checkout. Zero can be the empty starting
+  value in the form but cannot be submitted because PayMongo does not process
+  zero-value payments.
+- Request card, GCash and QR Ph in PayMongo Checkout, subject to account
+  activation and actual provider availability.
 - Use the PayMongo dashboard as the website's payment source of truth.
 - Do not store offline gifts, a donor ledger, bookkeeping records, adjustments,
   refunds, official receipts or finance reports in this website.
@@ -213,8 +220,8 @@ Review the move to paid production services before or when any of the following 
 
 - Official service schedule and weekly recurring activities
 - Domain name and registrar
-- Final public giving-purpose labels and permitted love-gift policy
-- PayMongo account, enabled methods, fee disclosure and settlement process
+- PayMongo test/live account configuration, enabled methods, fee disclosure
+  and settlement process
 - Content approval authorities and emergency publishing permissions
 - Number of accounts per approved website role
 - Existing content and media inventory

@@ -9,6 +9,8 @@ const publicPages = [
   { path: "/announcements", heading: "Announcements" },
   { path: "/bulletins", heading: "Bulletins" },
   { path: "/prayer", heading: "How can we pray with you?" },
+  { path: "/give", heading: "Give Tithes & Offerings" },
+  { path: "/give/success", heading: "Your giving is being confirmed" },
 ];
 
 test("shows the confirmed church identity", async ({ page }) => {
