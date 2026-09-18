@@ -38,6 +38,11 @@
       "namespace_id": "1104",
       "simple": { "limit": 5, "period": 60 },
     },
+    {
+      "name": "INQUIRY_SUBMISSION_RATE_LIMITER",
+      "namespace_id": "1107",
+      "simple": { "limit": 5, "period": 60 },
+    },
   ],
   "triggers": { "crons": ["15 18 * * *"] },
   "observability": {
@@ -77,6 +82,11 @@
           "namespace_id": "1105",
           "simple": { "limit": 5, "period": 60 },
         },
+        {
+          "name": "INQUIRY_SUBMISSION_RATE_LIMITER",
+          "namespace_id": "1108",
+          "simple": { "limit": 5, "period": 60 },
+        },
       ],
       "triggers": { "crons": ["15 18 * * *"] },
     },
@@ -110,6 +120,11 @@
         {
           "name": "GIVING_CHECKOUT_RATE_LIMITER",
           "namespace_id": "1106",
+          "simple": { "limit": 5, "period": 60 },
+        },
+        {
+          "name": "INQUIRY_SUBMISSION_RATE_LIMITER",
+          "namespace_id": "1109",
           "simple": { "limit": 5, "period": 60 },
         },
       ],

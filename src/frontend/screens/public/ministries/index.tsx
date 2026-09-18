@@ -44,6 +44,12 @@ export default async function MinistriesPage() {
                       {ministry.summary}
                     </p>
                   ) : null}
+                  <Link
+                    className="mt-5 inline-block font-bold text-blue-800 underline"
+                    href={`/join?ministry=${encodeURIComponent(ministry.slug)}` as Route}
+                  >
+                    I’m interested
+                  </Link>
                 </div>
               </article>
             ))}

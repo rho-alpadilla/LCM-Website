@@ -31,7 +31,7 @@ export function PageIntro({
   description: string;
 }) {
   return (
-    <section className="bg-slate-950 text-white">
+    <section className="bg-[linear-gradient(120deg,#020617_0%,#1111a8_65%,#020617_100%)] text-white">
       <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
         <p className="text-sm font-bold tracking-[0.2em] text-yellow-300 uppercase">
           {eyebrow}

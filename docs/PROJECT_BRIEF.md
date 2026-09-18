@@ -219,6 +219,9 @@ Review the move to paid production services before or when any of the following 
 ## Outstanding Decisions
 
 - Official service schedule and weekly recurring activities
+- Confirm or revise the provisional 90-day retention period for closed Contact
+  and Ministry Interest submissions before their Turnstile-protected public
+  forms are enabled.
 - Domain name and registrar
 - PayMongo test/live account configuration, enabled methods, fee disclosure
   and settlement process

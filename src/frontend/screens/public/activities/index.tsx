@@ -4,6 +4,7 @@ import {
   PageIntro,
   PublicPage,
 } from "@/frontend/components/public/public-page";
+import { MonthlyActivityPlanner } from "@/frontend/components/public/monthly-activity-planner";
 import { getPublicUpcomingOccurrences } from "@/backend/queries/public-activities";
 import {
   activityTypeLabel,
@@ -23,8 +24,15 @@ export default async function ActivitiesPage() {
         title="Daily activities"
       />
       <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+        <MonthlyActivityPlanner
+          initialMonth={currentManilaMonth()}
+          occurrences={occurrences}
+        />
+        <h2 className="mt-12 text-2xl font-black text-slate-950">
+          Upcoming activities
+        </h2>
         {occurrences.length ? (
-          <div className="grid gap-6 lg:grid-cols-2">
+          <div className="mt-6 grid gap-6 lg:grid-cols-2">
             {occurrences.map((occurrence) => {
               const { activity } = occurrence;
               return (
@@ -145,4 +153,15 @@ export default async function ActivitiesPage() {
       </section>
     </PublicPage>
   );
+}
+
+function currentManilaMonth() {
+  const parts = new Intl.DateTimeFormat("en-PH", {
+    timeZone: "Asia/Manila",
+    year: "numeric",
+    month: "2-digit",
+  }).formatToParts(new Date());
+  const value = (type: "year" | "month") =>
+    parts.find((part) => part.type === type)?.value ?? "01";
+  return `${value("year")}-${value("month")}`;
 }

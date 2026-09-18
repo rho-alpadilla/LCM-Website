@@ -11,6 +11,8 @@ These ordered, SQLite-compatible migrations build the website database.
 - `0016`: active-assignee, open-request and closure/update workflow guards.
 - `0017`: minimal PayMongo checkout sessions and immutable verified webhook
   records; no donor or bookkeeping ledger.
+- `0018`: protected Contact and Ministry Interest inquiry workflow, assignment
+  and follow-up history, D1 guards, and provisional 90-day redaction support.
 
 No migration creates a Treasurer role or website finance ledger. PayMongo data
 is limited to checkout/idempotency/webhook status, not bookkeeping data.

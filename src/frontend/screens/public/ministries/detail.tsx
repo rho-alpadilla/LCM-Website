@@ -1,4 +1,6 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
+import type { Route } from "next";
 
 import { ContentCover } from "@/frontend/components/public/content-cover";
 import { PublicPage } from "@/frontend/components/public/public-page";
@@ -51,6 +53,12 @@ export default async function MinistryPage({
                 ) : null}
               </div>
             ) : null}
+            <Link
+              className="mt-6 inline-block rounded-xl bg-blue-800 px-5 py-3 font-bold text-white"
+              href={`/join?ministry=${encodeURIComponent(ministry.slug)}` as Route}
+            >
+              I’m interested in this ministry
+            </Link>
           </div>
         </div>
       </article>

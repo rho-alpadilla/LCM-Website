@@ -7,7 +7,8 @@ import { siteConfig } from "@/shared/config/site";
 export default function HomePage() {
   return (
     <PublicPage>
-      <section className="bg-slate-950 text-white">
+      <section className="relative overflow-hidden bg-[linear-gradient(120deg,#020617_0%,#1111a8_60%,#020617_100%)] text-white">
+        <div aria-hidden="true" className="absolute -top-32 -right-28 h-80 w-80 rounded-full bg-yellow-300/15 blur-3xl" />
         <div className="mx-auto flex min-h-[70vh] max-w-6xl flex-col justify-center px-4 py-16 sm:px-6 sm:py-24">
           <p className="text-sm font-bold tracking-[0.2em] text-yellow-300 uppercase">
             Love God. Love people.
@@ -29,7 +30,7 @@ export default function HomePage() {
               className="rounded-xl border border-white/40 px-5 py-3 font-bold text-white"
               href={"/activities" as Route}
             >
-              View daily activities
+              View calendar
             </Link>
             <Link
               className="rounded-xl border border-white/40 px-5 py-3 font-bold text-white"
@@ -39,9 +40,9 @@ export default function HomePage() {
             </Link>
             <Link
               className="rounded-xl border border-white/40 px-5 py-3 font-bold text-white"
-              href={"/give" as Route}
+              href={"/join" as Route}
             >
-              Give securely
+              Join a ministry
             </Link>
           </div>
         </div>
@@ -74,10 +75,20 @@ export default function HomePage() {
             </Link>
           ))}
         </div>
-        <p className="mt-8 rounded-xl bg-amber-50 p-4 text-sm text-amber-950">
-          Contact and ministry-interest forms remain planned. Online giving is
-          available only after the church completes PayMongo and Turnstile setup.
-        </p>
+        <div className="mt-8 flex flex-wrap gap-3">
+          <Link
+            className="rounded-xl bg-blue-800 px-5 py-3 font-bold text-white"
+            href={"/contact" as Route}
+          >
+            Contact the church
+          </Link>
+          <Link
+            className="rounded-xl border border-slate-300 px-5 py-3 font-bold text-slate-900"
+            href={"/give" as Route}
+          >
+            Give tithes &amp; offerings
+          </Link>
+        </div>
       </section>
     </PublicPage>
   );
@@ -96,8 +107,8 @@ const publicDestinations = [
   },
   {
     href: "/activities",
-    label: "Daily activities",
-    description: "See services and upcoming church gatherings.",
+    label: "Church calendar",
+    description: "See services and upcoming church gatherings by month.",
   },
   {
     href: "/announcements",
@@ -108,5 +119,10 @@ const publicDestinations = [
     href: "/bulletins",
     label: "Bulletins",
     description: "Download approved church bulletins.",
+  },
+  {
+    href: "/about",
+    label: "About LCM",
+    description: "Read our vision, mission, goals, passion, and values.",
   },
 ] as const;

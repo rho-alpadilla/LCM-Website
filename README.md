@@ -12,7 +12,11 @@ Phase 5 protected prayer workflows and the minimal PayMongo hosted-checkout
 flow are implemented locally. Cloudflare Access is active for the temporary
 `workers.dev` preview's admin route. PayMongo and Turnstile activation, plus
 all production-provider verification, await the final domain/launch stage.
-Phase 6 outreach completion and UI polish remain separate planned work.
+Phase 6 public outreach pages and workflows are implemented: About, Contact,
+Join a Ministry, a monthly activities planner, consistent public navigation,
+and protected staff inquiry handling. Contact and Ministry Interest submissions
+remain intentionally disabled until Turnstile is configured for the final
+church domain. See `docs/PHASE_6_PUBLIC_OUTREACH_PLAN.md`.
 
 Local development opens `/admin` as one clearly labelled, synthetic System
 Administrator on `localhost` only. It uses local D1/R2, never replaces
@@ -147,4 +151,5 @@ stage creates symbolic links that ordinary Windows sessions commonly block.
 - `docs/PERMISSION_MATRIX.md`
 - `docs/CLOUDFLARE_MIGRATION_PLAN.md`
 - `docs/CLOUDFLARE_ACCESS_SETUP.md`
+- `docs/PHASE_6_PUBLIC_OUTREACH_PLAN.md`
 - `docs/decisions/0001-cloudflare-zero-subscription-platform.md`

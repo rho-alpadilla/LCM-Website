@@ -133,6 +133,19 @@ Closed-request contact fields are redacted after 30 days and prayer text after
 90 days. Legal hold prevents deletion. A daily Worker cron executes bounded
 retention batches.
 
+## Visitor Inquiry Privacy
+
+The Contact and Join a Ministry forms share one protected public-inquiry
+workflow. Turnstile and a dedicated rate limit protect submissions. The public
+handler has no email, SMS or export behavior; it returns a generic response and
+stores only the data required for approved staff follow-up.
+
+Only Pastors and Core Leaders with matching type-specific permissions can view,
+assign, update or close inquiries. Detail views and mutations are audited with
+safe metadata only. The initial implementation redacts closed inquiry data and
+staff notes after 90 days. That retention period is a documented Phase 6
+assumption requiring leadership confirmation before live public use.
+
 ## Giving Boundary
 
 The website offers a simple `Give Tithes & Offerings` visitor action using

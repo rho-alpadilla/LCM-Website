@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 import { PrayerRepository } from "@/backend/repositories/prayer-repository";
+import { InquiryRepository } from "@/backend/repositories/inquiry-repository";
 
 function fakeDatabase(
   options: { rejectBatch?: boolean; allResults?: unknown[] } = {},
@@ -65,5 +66,37 @@ describe("sensitive workflow repository transactions", () => {
     expect(query).toContain("prayer_requests.legal_hold = 0");
     expect(query).toContain("contact_retention_due_at <= ?1");
     expect(query).toContain("content_retention_due_at <= ?1");
+  });
+
+  it("creates a visitor inquiry and audit record in one D1 batch", async () => {
+    const fake = fakeDatabase();
+    const repository = new InquiryRepository(fake.database);
+    await repository.create({
+      inquiryId: "synthetic-inquiry",
+      input: {
+        inquiryType: "contact",
+        ministryContentId: null,
+        name: "Synthetic Visitor",
+        email: "synthetic@example.test",
+        phone: null,
+        preferredContact: "email",
+        followUpConsent: true,
+        message: "Synthetic request for information.",
+      },
+      createdAt: "2026-01-01T00:00:00.000Z",
+      auditLogId: "synthetic-audit",
+      correlationId: "synthetic-correlation",
+    });
+    expect(fake.batch).toHaveBeenCalledOnce();
+    expect(fake.batch.mock.calls[0]?.[0]).toHaveLength(2);
+  });
+
+  it("limits visitor-inquiry retention to closed records whose deadline has passed", async () => {
+    const fake = fakeDatabase({ allResults: [] });
+    const repository = new InquiryRepository(fake.database);
+    await repository.findRetentionCandidates("2026-01-01T00:00:00.000Z", 100);
+    const query = fake.sql.join("\n");
+    expect(query).toContain("status = 'closed'");
+    expect(query).toContain("retention_due_at <= ?1");
   });
 });

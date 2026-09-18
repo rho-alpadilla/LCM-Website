@@ -3,7 +3,7 @@ import { defineConfig, devices } from "@playwright/test";
 const testPort = process.env.PLAYWRIGHT_PORT ?? "3000";
 const testBaseUrl = `http://127.0.0.1:${testPort}`;
 const testWebCommand =
-  process.env.PLAYWRIGHT_WEB_COMMAND ?? `pnpm dev --port ${testPort}`;
+  process.env.PLAYWRIGHT_WEB_COMMAND ?? `corepack.cmd pnpm dev --port ${testPort}`;
 
 export default defineConfig({
   testDir: "./tests/e2e",

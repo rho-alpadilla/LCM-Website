@@ -78,6 +78,20 @@ export default async function AdminPage() {
               </p>
             </Link>
           ) : null}
+          {context.permissions.includes("contact.read") ||
+          context.permissions.includes("ministry_interest.read") ? (
+            <Link
+              className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+              href={"/admin/inquiries" as Route}
+            >
+              <h2 className="text-xl font-black text-slate-950">
+                Visitor inquiries
+              </h2>
+              <p className="mt-2 leading-6 text-slate-600">
+                Handle church contacts and ministry-interest follow-up.
+              </p>
+            </Link>
+          ) : null}
         </section>
       </main>
     </div>

@@ -57,7 +57,20 @@ Production Turnstile keys and hostname validation wait for the domain.
 - the six-role website permission model is active; and
 - prayer functionality remains part of the website.
 
-## Current Focus: PayMongo Hosted Giving
+## Phase 6: Public Outreach Completion
+
+- approved About content, branded navigation/footer and home calls to action;
+- protected Contact and Join a Ministry submissions backed by D1;
+- a Pastors/Core Leaders-only inquiry queue with assignment, follow-up and
+  closure records; and
+- a monthly public calendar based on the existing recurrence expansion.
+
+The visitor forms use their own rate-limit binding and require Turnstile action
+`visitor_inquiry`. They remain disabled until Turnstile is configured for the
+final church domain. The provisional 90-day inquiry-retention rule must be
+confirmed before real public submissions are enabled.
+
+## Implemented Provider Boundary: PayMongo Hosted Giving
 
 - PayMongo Checkout Session V2 adapter, sender-paid fee disclosure and payment
   method request are implemented.
@@ -100,3 +113,5 @@ secrets, roles, backups and repository.
   ownership and final fee disclosure review;
 - production Turnstile hostname and webhook registration; and
 - production backup owner and frequency.
+- final approval or revision of the 90-day Contact and Ministry Interest
+  retention period.

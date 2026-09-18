@@ -102,6 +102,40 @@ official receipt workflows. PayMongo remains the website's payment source of
 truth; the future ChMS may later import approved settlement data through a
 separate contract.
 
+## Visitor Contact and Ministry Interest
+
+### `visitor_inquiries`
+
+Stores a narrowly scoped website Contact or Ministry Interest submission: type,
+optional ministry reference, visitor-supplied follow-up channel, consent,
+message, workflow status, assignment state and closure/retention timestamps.
+It is not a member profile, donor record, pastoral record or ChMS contact book.
+
+An open or in-progress record requires a name, one consented contact channel,
+and any required message. Closing atomically records a 90-day provisional
+redaction deadline. Retention preserves the workflow/audit shape while
+redacting personal fields and moving the record to `retention_review`.
+
+### `visitor_inquiry_assignments` and `visitor_inquiry_updates`
+
+These append-oriented tables retain assignment and staff follow-up history.
+Only an active staff member who has the matching follow-up permission can be
+assigned. Updates contain no provider delivery behavior: recording a response
+does not send an email or SMS. Redaction clears notes only after the inquiry's
+deadline.
+
+### Inquiry guards
+
+- direct deletion and restoration of redacted inquiry data are rejected;
+- selected ministry references must resolve to a ministry content entry;
+- an inquiry has no more than one active assignee;
+- assignment targets must be active staff with the matching response
+  permission; and
+- retention runs in bounded daily batches alongside prayer retention.
+
+The 90-day period is documented as a Phase 6 provisional policy and requires
+leadership confirmation before the public forms receive real submissions.
+
 ## Data That Must Never Be Seeded or Committed
 
 - real prayer requests or contact information;

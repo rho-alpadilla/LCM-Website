@@ -43,6 +43,19 @@ model.
 `Assigned scope` is enforced by the prayer service and database guards, not only
 by hiding controls in the interface.
 
+## Contact and Ministry Inquiry Rules
+
+- `contact.*` permissions apply only to Contact submissions;
+  `ministry_interest.*` permissions apply only to Ministry Interest submissions.
+- Pastors and Core Leaders are the only roles granted these permissions.
+- System Administrators may manage accounts and integrations but cannot view
+  visitor inquiry content by default.
+- The dashboard records follow-up work; it does not send messages, export
+  inquiry lists, or create ChMS member records.
+- Detail views, assignments, updates and closures are server-authorized and
+  audited. Publicly submitted names, channels and messages never enter audit
+  metadata.
+
 ## Assignment Rules
 
 - Every staff member has an individual Cloudflare Access identity and D1 staff

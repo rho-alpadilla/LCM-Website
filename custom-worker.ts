@@ -3,6 +3,8 @@
 // @ts-ignore -- generated build output is intentionally absent in a clean checkout.
 import openNextWorker from "./.open-next/worker.js";
 
+import { InquiryRepository } from "./src/backend/repositories/inquiry-repository";
+import { InquiryService } from "./src/backend/services/inquiry-service";
 import { PrayerRepository } from "./src/backend/repositories/prayer-repository";
 import { PrayerService } from "./src/backend/services/prayer-service";
 
@@ -10,15 +12,23 @@ export default {
   fetch: openNextWorker.fetch,
 
   async scheduled(controller, environment) {
-    const service = new PrayerService({
+    const prayerService = new PrayerService({
       repository: new PrayerRepository(environment.DB),
       now: () => new Date(controller.scheduledTime),
     });
-    const result = await service.runRetention(100);
+    const inquiryService = new InquiryService({
+      repository: new InquiryRepository(environment.DB),
+      now: () => new Date(controller.scheduledTime),
+    });
+    const [prayerResult, inquiryResult] = await Promise.all([
+      prayerService.runRetention(100),
+      inquiryService.runRetention(100),
+    ]);
     console.info(
       JSON.stringify({
-        event: "prayer_retention_completed",
-        processed: result.processed,
+        event: "website_retention_completed",
+        prayerProcessed: prayerResult.processed,
+        inquiryProcessed: inquiryResult.processed,
         scheduledTime: controller.scheduledTime,
       }),
     );

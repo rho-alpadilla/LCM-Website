@@ -3,12 +3,15 @@ import AxeBuilder from "@axe-core/playwright";
 
 const publicPages = [
   { path: "/", heading: "Lifechangers Ministry Incorporated" },
+  { path: "/about", heading: "About Lifechangers Ministry" },
   { path: "/sermons", heading: "Sermons" },
   { path: "/ministries", heading: "Ministries" },
   { path: "/activities", heading: "Daily activities" },
   { path: "/announcements", heading: "Announcements" },
   { path: "/bulletins", heading: "Bulletins" },
   { path: "/prayer", heading: "How can we pray with you?" },
+  { path: "/contact", heading: "Contact the church" },
+  { path: "/join", heading: "Join a ministry" },
   { path: "/give", heading: "Give Tithes & Offerings" },
   { path: "/give/success", heading: "Your giving is being confirmed" },
 ];
@@ -23,8 +26,36 @@ test("shows the confirmed church identity", async ({ page }) => {
     page.getByRole("link", { name: "Watch a sermon" }),
   ).toBeVisible();
   await expect(
-    page.getByRole("link", { name: "Daily activities", exact: true }),
+    page.getByRole("link", { name: "View calendar", exact: true }),
   ).toBeVisible();
+});
+
+test("groups public navigation without removing routes", async ({ page }) => {
+  await page.goto("/");
+
+  await page.getByText("Our Church", { exact: true }).click();
+  await expect(page.getByRole("link", { name: "About", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Contact", exact: true })).toBeVisible();
+
+  await page.getByText("Get Connected", { exact: true }).click();
+  await expect(page.getByRole("link", { name: "Ministries", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Calendar", exact: true })).toBeVisible();
+
+  await page.getByText("Updates", { exact: true }).click();
+  await expect(page.getByRole("link", { name: "Announcements", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Bulletins", exact: true })).toBeVisible();
+});
+
+test("shows a usable monthly activities planner", async ({ page }) => {
+  await page.goto("/activities");
+
+  await expect(
+    page.getByRole("heading", { name: "Church calendar", level: 2 }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Next", exact: true }),
+  ).toBeVisible();
+  await expect(page.locator("button[aria-pressed='true']")).toHaveCount(1);
 });
 
 for (const publicPage of publicPages.slice(1)) {

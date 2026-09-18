@@ -23,6 +23,11 @@ export type PrayerCloudflareBindings = RequiredCloudflareBindings &
     TURNSTILE_SECRET?: string;
   };
 
+export type InquiryCloudflareBindings = RequiredCloudflareBindings &
+  Pick<CloudflareEnv, "INQUIRY_SUBMISSION_RATE_LIMITER"> & {
+    TURNSTILE_SECRET?: string;
+  };
+
 export type PayMongoCloudflareBindings = RequiredCloudflareBindings &
   Pick<CloudflareEnv, "GIVING_CHECKOUT_RATE_LIMITER"> & {
     APP_ENVIRONMENT?: unknown;
@@ -71,6 +76,18 @@ export async function requirePrayerCloudflareBindings(): Promise<PrayerCloudflar
     );
   }
   return env as PrayerCloudflareBindings;
+}
+
+export async function requireInquiryCloudflareBindings(): Promise<InquiryCloudflareBindings> {
+  const { env } = await getCloudflareContext({ async: true });
+  validateCloudflareBindings(env);
+  if (!env.INQUIRY_SUBMISSION_RATE_LIMITER) {
+    throw new ApplicationError(
+      "INTERNAL_ERROR",
+      "Visitor inquiry protection is unavailable.",
+    );
+  }
+  return env as InquiryCloudflareBindings;
 }
 
 export async function requirePayMongoCloudflareBindings(): Promise<PayMongoCloudflareBindings> {

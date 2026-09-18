@@ -10,4 +10,10 @@ export const siteConfig = {
     "Contact the church",
     "Give online",
   ],
+  contact: {
+    address: "#3 Johnbee Village, Bokawkan Road, Baguio City, Philippines",
+    phone: "0916 665 2531",
+    email: "agentofchangelcm@gmail.com",
+    facebookUrl: "https://www.facebook.com/LCMAGENTSofCHANGE",
+  },
 } as const;
