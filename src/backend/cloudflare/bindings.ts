@@ -1,5 +1,6 @@
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 
+import { assertPayMongoUnavailableInLocalDevelopment } from "@/backend/development/local-mode";
 import { ApplicationError } from "@/shared/errors/application-error";
 
 const requiredBindingNames = [
@@ -24,6 +25,7 @@ export type PrayerCloudflareBindings = RequiredCloudflareBindings &
 
 export type PayMongoCloudflareBindings = RequiredCloudflareBindings &
   Pick<CloudflareEnv, "GIVING_CHECKOUT_RATE_LIMITER"> & {
+    APP_ENVIRONMENT?: unknown;
     TURNSTILE_SECRET?: string;
     PAYMONGO_SECRET_KEY?: string;
     PAYMONGO_WEBHOOK_SECRET?: string;
@@ -80,6 +82,7 @@ export async function requirePayMongoCloudflareBindings(): Promise<PayMongoCloud
       "Giving checkout protection is unavailable.",
     );
   }
+  assertPayMongoUnavailableInLocalDevelopment(env);
   return env as PayMongoCloudflareBindings;
 }
 

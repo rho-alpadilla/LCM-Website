@@ -96,3 +96,25 @@ test("keeps public visitors separate from staff authentication", async ({
   await expect(page.getByText(/No password fallback is enabled/)).toBeVisible();
   await expect(page.getByRole("textbox")).toHaveCount(0);
 });
+
+test("does not grant local developer access in a production build", async ({
+  page,
+}) => {
+  await page.goto("/admin");
+
+  await expect(page).toHaveURL(/\/admin\/login\?error=configuration$/);
+  await expect(
+    page.getByRole("heading", { name: "Secure sign-in" }),
+  ).toBeVisible();
+});
+
+test("does not expose the removed sandbox route in a production build", async ({
+  page,
+}) => {
+  const response = await page.goto("/admin/sandbox");
+
+  expect(response?.status()).toBe(404);
+  await expect(
+    page.getByRole("heading", { name: "Local development mode" }),
+  ).toHaveCount(0);
+});

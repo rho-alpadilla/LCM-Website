@@ -111,3 +111,11 @@ separate contract.
 - production database or R2 exports.
 
 Tests use synthetic data only.
+
+## Local Development Data
+
+Only during `next dev` on a loopback hostname, the normal dashboard may create
+one fixed `local-development-admin@lifechangers.test` System Administrator in
+local D1. It is not church staff and is never available to preview or
+production builds. It exists only so the normal `/admin` UI can be inspected
+without a domain or Cloudflare Access application.

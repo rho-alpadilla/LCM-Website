@@ -11,11 +11,27 @@ import {
   AccessControlRepository,
   type StaffContext,
 } from "@/backend/repositories/access-control-repository";
+import { localDevelopmentAdministrator } from "@/backend/development/local-administrator";
 
 export type { StaffContext };
 
 export async function getStaffAuthState() {
   const environment = await requireCloudflareBindings();
+  const requestHeaders = await headers();
+  const development = await localDevelopmentAdministrator(
+    requestHeaders,
+    environment,
+  );
+  if (development) {
+    return {
+      kind: "development" as const,
+      environment,
+      identity: development.identity,
+      context: development.context,
+      bootstrapAvailable: false,
+      pendingInvitation: null,
+    };
+  }
   if (
     !environment.ACCESS_TEAM_DOMAIN.trim() ||
     !environment.ACCESS_AUD.trim()
@@ -25,10 +41,7 @@ export async function getStaffAuthState() {
 
   let identity;
   try {
-    identity = await verifyCloudflareAccessHeaders(
-      await headers(),
-      environment,
-    );
+    identity = await verifyCloudflareAccessHeaders(requestHeaders, environment);
   } catch (error) {
     if (
       error instanceof ApplicationError &&
@@ -63,6 +76,12 @@ export async function requireActiveStaffSession(
   requiredPermission = "admin.access",
 ) {
   const state = await getStaffAuthState();
+  if (state.kind === "development") {
+    if (!state.context.permissions.includes(requiredPermission)) {
+      redirect("/admin/access-denied");
+    }
+    return state;
+  }
   if (state.kind === "unconfigured")
     redirect("/admin/login?error=configuration");
   if (state.kind === "anonymous") redirect("/admin/login");

@@ -28,6 +28,7 @@ approved in decision `0002`; it is not the `backend` folder in this website.
 | Call PayMongo or another approved provider | `src/backend/integrations` |
 | Verify bots or protect submission limits | `src/backend/security` |
 | Access validated Cloudflare bindings | `src/backend/cloudflare` |
+| Guard localhost-only developer access and seed its local identity | `src/backend/development` |
 | Share a schema, type or safe constant | `src/shared` |
 | Change the active database schema | `migrations/d1` |
 
@@ -81,6 +82,14 @@ while persistence-only record shapes and repository ports stay in `backend`.
 Root `tests` holds architecture checks and cross-application browser tests.
 Avoid a generic dumping-ground `utils` folder or a single barrel exporting
 server and client modules together.
+
+### Local development administrator
+
+`backend/development` owns the localhost-only development guard and its one
+synthetic local D1 identity. It is not a login route, shared password, or
+production feature. The authentication boundary calls it before Cloudflare
+Access only when both the Worker and Next.js are running locally in development
+mode; preview and production are rejected by the same guard.
 
 ## Refactor map
 

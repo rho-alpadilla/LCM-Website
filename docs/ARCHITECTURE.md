@@ -104,6 +104,20 @@ Core principles:
 - Prayer Warrior access is restricted to assigned team requests; and
 - the final System Administrator cannot be removed or suspended.
 
+## Local Development Administrator
+
+`pnpm dev` applies pending migrations to local D1 before Next.js starts. On a
+loopback hostname, the normal `/admin` route then uses one fixed synthetic
+System Administrator identity from local D1. There is no local login, role
+switcher, `/admin/sandbox` route, shared password, or secret configuration.
+
+The helper requires both the Worker binding `APP_ENVIRONMENT=local` and the
+Next.js `development` runtime. It rejects network, preview, and production
+requests even if a loopback Host header is supplied. A permanent banner marks
+the local state, and PayMongo is blocked until its separate, deliberate
+test-mode configuration. Cloudflare Access remains the only authentication
+path in preview and production.
+
 ## Prayer Privacy
 
 Public prayer submission supports `team` and `pastoral_only`. Turnstile is

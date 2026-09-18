@@ -7,7 +7,7 @@ import { getStaffAuthState } from "@/backend/auth/staff-context";
 
 export default async function LoginPage() {
   const state = await getStaffAuthState();
-  if (state.kind === "verified") {
+  if (state.kind === "verified" || state.kind === "development") {
     if (state.context?.accountStatus === "active") redirect("/admin");
     if (state.context) redirect("/admin/access-denied");
     if (state.bootstrapAvailable) redirect("/admin/bootstrap");

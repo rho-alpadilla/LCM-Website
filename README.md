@@ -15,6 +15,11 @@ yet production-verified. The Supabase prototype remains only as inactive
 rollback/reference code. Phase 6 outreach completion and UI polish remain
 separate planned work.
 
+Local development opens `/admin` as one clearly labelled, synthetic System
+Administrator on `localhost` only. It uses local D1/R2, never replaces
+Cloudflare Access in preview or production, and keeps PayMongo unavailable
+until its separate test-mode setup.
+
 ## Code Organization
 
 The frontend and backend have separate source folders but remain one Next.js
@@ -43,16 +48,15 @@ place for a change. `pnpm lint` enforces the source dependency boundaries.
 ## Local Setup
 
 1. Copy `.env.example` to `.env.local`.
-2. Leave provider values empty while working on public UI foundations. Admin
-   sign-in remains unavailable until the Access application values are set; no
-   insecure local password or header bypass is provided.
+2. Leave provider values empty while working on public UI foundations.
 3. Install dependencies with `pnpm install`.
-4. Start the application with `pnpm dev`.
-5. Open `http://localhost:3000`.
+4. Start the application with `pnpm dev`. Pending local D1 migrations are
+   applied automatically before Next.js starts.
+5. Open `http://localhost:3000` or `http://localhost:3000/admin`.
 
 If PowerShell cannot find `pnpm.cmd`, use `corepack.cmd pnpm` in place of
 `pnpm` for these commands (for example, `corepack.cmd pnpm dev`). The folder
-reorganization does not change the startup or migration commands.
+reorganization does not change the startup commands.
 
 Local development uses Wrangler's local D1 and R2-compatible bindings. Generate
 the binding types whenever `wrangler.jsonc` changes:
@@ -64,7 +68,8 @@ pnpm cf:typegen
 The server-only `SUPABASE_SERVICE_ROLE_KEY` is used only by the preserved
 prototype. Never expose it through a `NEXT_PUBLIC_` variable or commit it to Git.
 
-D1 migrations live in `migrations/d1`. Apply them to local Wrangler storage with:
+D1 migrations live in `migrations/d1`. `pnpm dev` applies pending migrations to
+local Wrangler storage automatically. To inspect or apply them separately:
 
 ```text
 pnpm d1:migrations:list
@@ -82,6 +87,16 @@ pnpm supabase:test
 
 The reset command destroys only the local Supabase database. Never run a reset
 against a hosted project.
+
+## Local Development Administrator
+
+During `pnpm dev`, `/admin` automatically uses one fixed
+`local-development-admin@lifechangers.test` System Administrator identity when
+the request is on `localhost` or `127.0.0.1`. A warning banner remains visible
+so local data cannot be mistaken for real church data. The helper requires both
+the local Worker environment and Next.js development mode; it does not run in
+a preview or production build. Cloudflare Access remains the only deployed
+staff sign-in method.
 
 ## Preserved Legacy Prototype
 

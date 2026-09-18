@@ -66,6 +66,7 @@ export async function activateInvitedStaffAction() {
 
 export async function logoutAction() {
   const state = await getStaffAuthState();
+  if (state.kind === "development") redirect("/");
   if (state.kind === "unconfigured") redirect("/");
   const environment = await requireCloudflareBindings();
   const { teamDomain } = parseCloudflareAccessConfiguration(environment);
