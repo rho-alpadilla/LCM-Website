@@ -39,13 +39,7 @@ export const architectureRule = {
         !/^(backend|shared)\//.test(target)
       ) {
         reason =
-          "Backend modules may depend on backend and shared modules, not UI, routing, or legacy code.";
-      } else if (
-        ["app", "frontend"].includes(layer) &&
-        target?.startsWith("legacy/")
-      ) {
-        reason =
-          "The inactive prototype must not be connected to active routes or UI.";
+          "Backend modules may depend on backend and shared modules, not UI or routing code.";
       } else if (layer === "frontend" && target) {
         if (target.startsWith("app/")) {
           reason = "Frontend modules must not depend on routing entry points.";

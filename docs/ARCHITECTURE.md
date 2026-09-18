@@ -62,7 +62,6 @@ src/backend/integrations Provider clients and webhook verification
 src/backend/security     Turnstile and trusted-boundary helpers
 src/backend/cloudflare   Runtime binding access
 src/shared               Runtime-neutral schemas, types, labels and public config
-src/legacy               Isolated, inactive Supabase prototype
 migrations/d1            Ordered schema and policy migrations
 ```
 
@@ -163,9 +162,3 @@ provider/office processes until the separate ChMS is designed.
   policy, Turnstile hostnames, tested backup/restore and leadership approval.
 - Observability logs identifiers and error codes, not prayer text, contact
   details, tokens, payer details or payment payloads.
-
-## Legacy Supabase Prototype
-
-Supabase helpers/migrations remain inactive as a rollback prototype. Removing
-them is a separate, explicitly approved cleanup after Cloudflare cutover checks.
-They are not the production backend.

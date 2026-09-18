@@ -44,7 +44,6 @@ describe("source architecture boundaries", () => {
     ["frontend/screens/example", 'export * from "@/backend/services/example";'],
     ["frontend/screens/example", 'import("@/backend/cloudflare/bindings");'],
     ["frontend/screens/example", 'require("@/backend/integrations/paymongo");'],
-    ["app/example", 'import x from "@/legacy/supabase/server";'],
   ])("rejects a forbidden import from %s", (file, source) => {
     expect(check(file, source)).toEqual([
       expect.objectContaining({ ruleId: "architecture/boundaries" }),

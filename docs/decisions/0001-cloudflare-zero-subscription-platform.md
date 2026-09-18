@@ -2,6 +2,7 @@
 
 - Status: Accepted
 - Date: 2026-09-10
+- Cloudflare migration verified: 2026-09-18
 
 ## Context
 
@@ -66,18 +67,18 @@ not permitted.
 - D1 uses SQLite rather than PostgreSQL.
 - D1 does not provide Supabase Row Level Security or Supabase Auth; permission
   enforcement moves into trusted server services and must be tested thoroughly.
-- The current Supabase authentication UI, migrations, and server helpers cannot
-  be used unchanged.
+- The previous Supabase authentication UI, migrations, and server helpers could
+  not be used unchanged and were removed after the Cloudflare preview passed.
 - R2 usage above its free allowance can be billable if billing is enabled, so
   application quotas are mandatory.
 - Provider free plans and limits may change, so they must be reviewed before
   production launch and during periodic maintenance.
 
-## Migration Rule
+## Migration Completion
 
-The Supabase prototype remains in place until equivalent Cloudflare behavior is
-implemented and verified. Removal of the old implementation is a separate,
-explicitly reviewed step after all migration exit criteria pass.
+The Cloudflare Worker, D1 and R2 preview was deployed and verified before the
+inactive Supabase prototype was removed with explicit approval. Git history
+retains the prototype if historical comparison is ever required.
 
 ## References
 

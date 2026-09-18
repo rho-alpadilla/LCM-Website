@@ -40,7 +40,6 @@ UI forms     -> backend/actions --------------------> services -> repositories
 app/route.ts -> backend/http/handlers ---------------> services -> repositories
 
 frontend and backend -> shared
-active website       -X-> legacy
 ```
 
 Repositories own SQL, services own business rules, and request/action/query
@@ -104,7 +103,6 @@ mode; preview and production are rejected by the same guard.
 | Feature schemas, labels and policies | `src/shared` |
 | `src/lib/public-content-cache.ts` | `src/backend/queries/public-content-cache.ts` |
 | `src/lib/public-format.ts` | `src/frontend/lib/public-format.ts` |
-| Supabase helpers and unused MFA UI | `src/legacy/supabase` |
 
 ## Verification
 

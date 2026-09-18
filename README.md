@@ -11,8 +11,7 @@ upcoming activities, and delivers approved R2 files through protected routes.
 Phase 5 protected prayer workflows and the minimal PayMongo hosted-checkout
 flow are implemented locally. Provider activation and end-to-end provider
 verification await the final domain/launch stage; these integrations are not
-yet production-verified. The Supabase prototype remains only as inactive
-rollback/reference code. Phase 6 outreach completion and UI polish remain
+yet production-verified. Phase 6 outreach completion and UI polish remain
 separate planned work.
 
 Local development opens `/admin` as one clearly labelled, synthetic System
@@ -30,7 +29,6 @@ src/app/         URL entry points, route metadata, layouts and error boundaries
 src/frontend/    Public/admin screens, reusable UI and display helpers
 src/backend/     Protected queries, actions, HTTP handlers, services and D1 access
 src/shared/      Runtime-neutral types, schemas, labels and public configuration
-src/legacy/      Inactive Supabase prototype; not imported by active routes
 migrations/d1/   Active database migrations (unchanged by the source refactor)
 tests/e2e/       Browser regression and accessibility tests
 ```
@@ -43,7 +41,6 @@ place for a change. `pnpm lint` enforces the source dependency boundaries.
 - Node.js 20.9 or newer
 - pnpm 11
 - A Cloudflare account for hosted previews and production
-- Docker Desktop only when running the preserved Supabase prototype locally
 
 ## Local Setup
 
@@ -65,9 +62,6 @@ the binding types whenever `wrangler.jsonc` changes:
 pnpm cf:typegen
 ```
 
-The server-only `SUPABASE_SERVICE_ROLE_KEY` is used only by the preserved
-prototype. Never expose it through a `NEXT_PUBLIC_` variable or commit it to Git.
-
 D1 migrations live in `migrations/d1`. `pnpm dev` applies pending migrations to
 local Wrangler storage automatically. To inspect or apply them separately:
 
@@ -75,18 +69,6 @@ local Wrangler storage automatically. To inspect or apply them separately:
 pnpm d1:migrations:list
 pnpm d1:migrations:apply
 ```
-
-Legacy prototype migrations live in `supabase/migrations`. Once Docker Desktop
-is running, apply and test them locally with:
-
-```text
-pnpm supabase:start
-pnpm supabase:reset
-pnpm supabase:test
-```
-
-The reset command destroys only the local Supabase database. Never run a reset
-against a hosted project.
 
 ## Local Development Administrator
 
@@ -97,13 +79,6 @@ so local data cannot be mistaken for real church data. The helper requires both
 the local Worker environment and Next.js development mode; it does not run in
 a preview or production build. Cloudflare Access remains the only deployed
 staff sign-in method.
-
-## Preserved Legacy Prototype
-
-Supabase helpers, migrations, and tests are retained for rollback/reference.
-They are not connected to the active `/admin` routes and must not be deployed as
-the production backend. Their deletion remains a separately approved cleanup
-task after the Cloudflare replacement is verified in preview.
 
 ## Verification
 
@@ -152,9 +127,10 @@ Preview and production use distinct Worker, D1, and R2 resource names. Deploymen
 scripts select the environment explicitly so local resources cannot be mistaken
 for production resources.
 
-D1 and R2 bindings are configured. The Access application, exact-email policy,
-and non-secret audience/team values must be added after the domain exists. See
-`docs/CLOUDFLARE_ACCESS_SETUP.md`.
+D1 and R2 bindings are configured. Cloudflare Access can protect the temporary
+`workers.dev` preview before the final domain exists. Configure the preview
+Access application, exact-email policy and non-secret audience/team values as
+described in `docs/CLOUDFLARE_ACCESS_SETUP.md`.
 
 On Windows, run the OpenNext Cloudflare build from WSL because its bundling
 stage creates symbolic links that ordinary Windows sessions commonly block.

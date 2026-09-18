@@ -17,10 +17,6 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "supabase:start": "supabase start",
-    "supabase:stop": "supabase stop",
-    "supabase:reset": "supabase db reset",
-    "supabase:test": "supabase test db",
     "preview:cf": "pnpm build:cf && opennextjs-cloudflare preview",
     "deploy:cf:preview": "pnpm build:cf && opennextjs-cloudflare deploy --env preview",
     "deploy:cf": "pnpm build:cf && opennextjs-cloudflare deploy --env production",
@@ -30,8 +26,6 @@
     "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm build"
   },
   "dependencies": {
-    "@supabase/ssr": "^0.12.3",
-    "@supabase/supabase-js": "^2.110.7",
     "jose": "^6.2.12",
     "next": "^16.3.3",
     "react": "^19.2.7",
@@ -55,7 +49,6 @@
     "jsdom": "^29.1.1",
     "prettier": "^3.9.5",
     "prettier-plugin-tailwindcss": "^0.8.1",
-    "supabase": "^2.109.1",
     "tailwindcss": "^4.3.3",
     "typescript": "^6.0.0",
     "vitest": "^4.1.10",
