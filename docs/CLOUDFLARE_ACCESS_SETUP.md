@@ -33,6 +33,17 @@ After the first administrator is bootstrapped, add each approved staff email
 individually. A matching Access login proves identity only; D1 roles and
 permissions still decide what that person may do inside the administration area.
 
+## Preview Sign-in Method
+
+The preview application accepts only Cloudflare Access **One-time PIN** login
+and redirects directly to its email-code form. It does not offer Cloudflare
+account login. This lets approved church staff authenticate with their existing
+email address without being added to the Cloudflare account.
+
+The exact-email Allow policy remains the access boundary: enabling One-time PIN
+must never be paired with a broad `Everyone` or unrestricted `Login Methods`
+Include rule.
+
 ## Configuration Values
 
 The preview app's non-secret values are recorded in the preview `vars` block
@@ -50,7 +61,8 @@ Wrangler config.
 
 1. The preview Allow policy contains only the approved first administrator's
    exact email. Do not version staff email addresses in this repository.
-2. Open the deployed preview `/admin` URL and sign in through Cloudflare Access.
+2. Open the deployed preview `/admin` URL, enter that email address, and use
+   the one-time code sent by Cloudflare Access.
 3. Submit the administrator display name and documented setup reason to the
    protected bootstrap operation.
 4. Confirm the new D1 profile has the `system_admin` role and an audit record.

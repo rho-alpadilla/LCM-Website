@@ -132,7 +132,8 @@ D1 and R2 bindings are configured. Cloudflare Access protects the temporary
 preview policy uses individual approved email addresses; its non-secret team
 and audience values are versioned in `wrangler.jsonc`. See
 `docs/CLOUDFLARE_ACCESS_SETUP.md` for the policy, verification and staff
-onboarding process.
+onboarding process. The preview admin sign-in sends an email one-time code;
+staff do not need Cloudflare accounts.
 
 On Windows, run the OpenNext Cloudflare build from WSL because its bundling
 stage creates symbolic links that ordinary Windows sessions commonly block.
