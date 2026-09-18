@@ -46,7 +46,7 @@
   },
   "env": {
     "preview": {
-      "name": "lifechangers-ministry-web-preview",
+      "name": "lcm-website",
       "vars": {
         "APP_ENVIRONMENT": "preview",
         "ACCESS_TEAM_DOMAIN": "",
