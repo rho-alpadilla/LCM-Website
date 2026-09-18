@@ -133,7 +133,20 @@ After dependencies and Cloudflare credentials are configured:
 pnpm preview:cf
 ```
 
-Deployment is intentionally not performed during scaffolding.
+`pnpm build` always generates the ignored `cloudflare-env.d.ts` Worker binding
+types before Next.js type-checks the application. `pnpm build:cf` then runs the
+OpenNext conversion required for Cloudflare Workers. This keeps local and
+Cloudflare Workers Builds consistent.
+
+For the dedicated remote preview Worker, configure Cloudflare Workers Builds
+with:
+
+```text
+Build command: pnpm run build:cf
+Deploy command: pnpm exec opennextjs-cloudflare deploy --env preview
+```
+
+Do not use `npx wrangler deploy` alone: it does not perform the OpenNext build.
 
 Preview and production use distinct Worker, D1, and R2 resource names. Deployment
 scripts select the environment explicitly so local resources cannot be mistaken
