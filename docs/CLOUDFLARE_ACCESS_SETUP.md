@@ -3,22 +3,23 @@
 ## Status
 
 The application-side Access verifier, D1 invitations, first-login activation,
-role administration, suspension, and audit writes are implemented and tested
-locally. Provider activation is intentionally pending because the church does
-not yet own its domain. The blank values in `wrangler.jsonc` are labeled
-configuration slots, not working credentials.
+role administration, suspension, and audit writes are implemented and tested.
+Preview Access is active on the temporary `workers.dev` hostname. Production
+Access remains intentionally unconfigured until the church owns its final
+domain and completes production cutover.
 
 ## What Access Protects
 
-Create a self-hosted Access application that covers both the parent routes and
-their descendants:
+The active preview self-hosted application protects the staff route and its
+descendants:
 
-- `<church-domain>/admin`
-- `<church-domain>/admin/*`
-- `<church-domain>/api/admin`
-- `<church-domain>/api/admin/*`
+- `https://lcm-website.dabsco-needlepoint-studio.workers.dev/admin*`
 
-The public website must remain outside this Access application.
+This includes the `/admin` landing page and all admin pages and Server Actions.
+The public website remains outside this Access application. Existing
+`/api/admin/*` handlers independently require a valid Access assertion and
+therefore fail closed when used outside an Access-protected request; they are
+not public browser entry points.
 
 ## Initial Policy
 
@@ -34,20 +35,22 @@ permissions still decide what that person may do inside the administration area.
 
 ## Configuration Values
 
-After the Access application exists, copy these non-secret values into the
-matching preview or production `vars` block in `wrangler.jsonc`:
+The preview app's non-secret values are recorded in the preview `vars` block
+of `wrangler.jsonc`:
 
-- `ACCESS_TEAM_DOMAIN`: the complete HTTPS team origin, such as
-  `https://your-team.cloudflareaccess.com`
-- `ACCESS_AUD`: the Application Audience tag for this Access application
+- `ACCESS_TEAM_DOMAIN`: `https://muddy-queen-9afb.cloudflareaccess.com`
+- `ACCESS_AUD`: the preview application's Audience tag
 
-Keep preview and production application audience values separate. Regenerate
-types and run the complete verification suite after changing Wrangler config.
+Keep preview and production application audience values separate. The
+production values remain blank until a distinct production Access application
+exists. Regenerate types and run the complete verification suite after changing
+Wrangler config.
 
 ## Bootstrap Procedure
 
-1. Add only the approved first administrator's exact email to the Access policy.
-2. Sign in through Cloudflare Access.
+1. The preview Allow policy contains only the approved first administrator's
+   exact email. Do not version staff email addresses in this repository.
+2. Open the deployed preview `/admin` URL and sign in through Cloudflare Access.
 3. Submit the administrator display name and documented setup reason to the
    protected bootstrap operation.
 4. Confirm the new D1 profile has the `system_admin` role and an audit record.

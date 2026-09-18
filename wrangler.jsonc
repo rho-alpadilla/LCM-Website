@@ -49,8 +49,8 @@
       "name": "lcm-website",
       "vars": {
         "APP_ENVIRONMENT": "preview",
-        "ACCESS_TEAM_DOMAIN": "",
-        "ACCESS_AUD": "",
+        "ACCESS_TEAM_DOMAIN": "https://muddy-queen-9afb.cloudflareaccess.com",
+        "ACCESS_AUD": "e01d4ed2cef950a5e618cd93dbb8d5b68054c0c7c2fbba50a752bb5f57174dfe",
         "TURNSTILE_HOSTNAMES": "",
       },
       "d1_databases": [

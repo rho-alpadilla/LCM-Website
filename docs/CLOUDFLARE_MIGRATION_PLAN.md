@@ -27,7 +27,9 @@ the approved website/ChMS separation.
 - staff invitations, activation, role mutation and suspension; and
 - protected admin dashboard.
 
-Real Access application/audience setup waits for the church-owned domain.
+Preview Access is active on the temporary `workers.dev` hostname with an
+individual-email Allow policy. A separate production Access application still
+waits for the church-owned domain.
 
 ### Phase 4: Content and public read layer
 

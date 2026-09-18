@@ -27,9 +27,9 @@ export default async function LoginPage() {
           className="rounded-xl bg-amber-50 p-4 text-sm text-amber-900"
           role="status"
         >
-          Development notice: Cloudflare Access is intentionally not active
-          until the church domain and Access application are configured. No
-          password fallback is enabled.
+          Configuration notice: Cloudflare Access is not configured for this
+          environment. The public website remains open, and no password
+          fallback is enabled.
         </p>
       ) : (
         <p

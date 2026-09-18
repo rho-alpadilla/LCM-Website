@@ -9,10 +9,10 @@ Cloudflare Access identity plus D1 invitations, activation, roles, suspension,
 and audit records. The public site reads only published content, expands
 upcoming activities, and delivers approved R2 files through protected routes.
 Phase 5 protected prayer workflows and the minimal PayMongo hosted-checkout
-flow are implemented locally. Provider activation and end-to-end provider
-verification await the final domain/launch stage; these integrations are not
-yet production-verified. Phase 6 outreach completion and UI polish remain
-separate planned work.
+flow are implemented locally. Cloudflare Access is active for the temporary
+`workers.dev` preview's admin route. PayMongo and Turnstile activation, plus
+all production-provider verification, await the final domain/launch stage.
+Phase 6 outreach completion and UI polish remain separate planned work.
 
 Local development opens `/admin` as one clearly labelled, synthetic System
 Administrator on `localhost` only. It uses local D1/R2, never replaces
@@ -127,10 +127,12 @@ Preview and production use distinct Worker, D1, and R2 resource names. Deploymen
 scripts select the environment explicitly so local resources cannot be mistaken
 for production resources.
 
-D1 and R2 bindings are configured. Cloudflare Access can protect the temporary
-`workers.dev` preview before the final domain exists. Configure the preview
-Access application, exact-email policy and non-secret audience/team values as
-described in `docs/CLOUDFLARE_ACCESS_SETUP.md`.
+D1 and R2 bindings are configured. Cloudflare Access protects the temporary
+`workers.dev` preview's `/admin*` route before the final domain exists. The
+preview policy uses individual approved email addresses; its non-secret team
+and audience values are versioned in `wrangler.jsonc`. See
+`docs/CLOUDFLARE_ACCESS_SETUP.md` for the policy, verification and staff
+onboarding process.
 
 On Windows, run the OpenNext Cloudflare build from WSL because its bundling
 stage creates symbolic links that ordinary Windows sessions commonly block.

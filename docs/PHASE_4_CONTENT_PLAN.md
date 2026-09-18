@@ -72,9 +72,11 @@ keeps rendering safe and leaves room for a versioned block editor later.
 - The Next.js production build passes locally. OpenNext passes its Next.js and
   compatibility stages, then reaches the documented Windows symlink limitation;
   its final bundle must be repeated in WSL/Linux or CI during Phase 6.
-- Cloudflare preview deployment and real Access/R2/D1 smoke tests are deferred
-  to Phase 6; this is an external-environment check, not unfinished Phase 4
-  application code.
+- Cloudflare preview deployment and real D1/R2 smoke tests were completed on
+  2026-09-18. Preview Access now protects the staff `/admin*` route. Final
+  production verification still depends on the church-owned domain, Turnstile
+  configuration and launch approval; it is not unfinished Phase 4 application
+  code.
 
 ## Schedule Recurrence Assumption
 
