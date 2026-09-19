@@ -50,28 +50,33 @@ export default function HomePage() {
               </Link>
             </div>
           </div>
-          <aside className="relative hidden overflow-hidden rounded-[2rem] border border-white/20 bg-white/10 p-8 shadow-2xl shadow-slate-950/30 backdrop-blur-sm lg:block">
+          <figure className="relative hidden aspect-[4/5] overflow-hidden rounded-[2rem] border border-white/20 bg-slate-950/25 shadow-2xl shadow-slate-950/30 lg:block">
             <div
               aria-hidden="true"
-              className="absolute top-0 right-0 h-2 w-1/4 bg-yellow-300"
+              className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,239,0,0.18),transparent_32%),linear-gradient(145deg,rgba(17,17,168,0.55),rgba(2,6,23,0.88))]"
             />
-            <p className="text-sm font-black tracking-[0.2em] text-yellow-300 uppercase">
-              Church without walls
-            </p>
-            <p className="mt-6 text-3xl leading-10 font-black text-white">
-              A family of Christ’s Lifechangers.
-            </p>
-            <p className="mt-5 leading-7 text-slate-200">
-              Transforming lives, families, campuses, barangays, and nations
-              through Family Cell Groups.
-            </p>
-            <div aria-hidden="true" className="mt-10 flex items-end gap-2">
-              <span className="h-12 w-12 bg-blue-800" />
-              <span className="h-20 w-12 bg-green-600" />
-              <span className="h-28 w-12 bg-yellow-300" />
-              <span className="h-36 w-12 bg-red-700" />
+            <div className="relative flex h-full flex-col justify-between p-8">
+              <p className="w-fit rounded-full border border-white/25 bg-slate-950/35 px-3 py-1 text-xs font-black tracking-[0.16em] text-yellow-300 uppercase">
+                Church photography
+              </p>
+              <div className="border-l-2 border-yellow-300 pl-5">
+                <p className="text-xs font-bold tracking-[0.16em] text-slate-300 uppercase">
+                  Temporary visual placeholder
+                </p>
+                <h2 className="mt-3 text-3xl leading-10 font-black text-white">
+                  Official Lifechangers Ministry photos will be added here.
+                </h2>
+                <p className="mt-4 max-w-sm leading-7 text-slate-200">
+                  This space is reserved for authentic photos from church life,
+                  worship, and community outreach.
+                </p>
+              </div>
             </div>
-          </aside>
+            <figcaption className="sr-only">
+              Temporary church photography placeholder. Official church photos
+              will replace this visual.
+            </figcaption>
+          </figure>
         </div>
       </section>
 

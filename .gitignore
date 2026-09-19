@@ -30,6 +30,8 @@ test-results/
 *.sqlite3
 
 # Logs and local tooling
+.agents/
+skills-lock.json
 *.log
 *.tsbuildinfo
 .pnpm-store/
