@@ -1,5 +1,8 @@
 import { VisitorInquiryForm } from "@/frontend/components/public/visitor-inquiry-form";
-import { PageIntro, PublicPage } from "@/frontend/components/public/public-page";
+import {
+  PageIntro,
+  PublicPage,
+} from "@/frontend/components/public/public-page";
 import { getPublicMinistries } from "@/backend/queries/public-content-cache";
 
 export default async function JoinMinistryPage({
@@ -30,7 +33,10 @@ export default async function JoinMinistryPage({
         ) : null}
         <VisitorInquiryForm
           inquiryType="ministry_interest"
-          ministries={ministries.map((ministry) => ({ id: ministry.id, title: ministry.title }))}
+          ministries={ministries.map((ministry) => ({
+            id: ministry.id,
+            title: ministry.title,
+          }))}
           selectedMinistryId={selectedMinistry?.id ?? null}
           siteKey={siteKey}
         />

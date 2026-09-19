@@ -18,7 +18,10 @@ const amountSchema = z
     const [whole, fraction = ""] = amount.split(".");
     return Number(whole) * 100 + Number(fraction.padEnd(2, "0"));
   })
-  .refine((amountMinor) => amountMinor >= 100, "The minimum giving amount is ₱1.00.")
+  .refine(
+    (amountMinor) => amountMinor >= 100,
+    "The minimum giving amount is ₱1.00.",
+  )
   .refine(
     (amountMinor) => amountMinor <= 10_000_000,
     "The maximum giving amount is ₱100,000.00.",
@@ -79,7 +82,8 @@ export class GivingCheckoutService {
     );
     if (
       existing &&
-      (existing.purpose !== input.purpose || existing.amountMinor !== input.amount)
+      (existing.purpose !== input.purpose ||
+        existing.amountMinor !== input.amount)
     ) {
       throw new ApplicationError(
         "CONFLICT",
@@ -107,7 +111,10 @@ export class GivingCheckoutService {
     const now = this.now().toISOString();
     const prepared = existing
       ? await this.dependencies.repository.restartFailed(checkout.id, now)
-      : await this.dependencies.repository.createInitiated({ ...checkout, createdAt: now });
+      : await this.dependencies.repository.createInitiated({
+          ...checkout,
+          createdAt: now,
+        });
 
     if (!prepared) {
       const current = await this.dependencies.repository.findByIdempotencyKey(
@@ -127,14 +134,15 @@ export class GivingCheckoutService {
           "The payment provider is not configured.",
         );
       }
-      const providerCheckout = await this.dependencies.payMongo.createCheckoutSession({
-        amountMinor: checkout.amountMinor,
-        purpose: checkout.purpose,
-        referenceNumber: checkout.referenceNumber,
-        successUrl: input.successUrl,
-        cancelUrl: input.cancelUrl,
-        paymentMethodTypes: ["card", "gcash", "qrph"],
-      });
+      const providerCheckout =
+        await this.dependencies.payMongo.createCheckoutSession({
+          amountMinor: checkout.amountMinor,
+          purpose: checkout.purpose,
+          referenceNumber: checkout.referenceNumber,
+          successUrl: input.successUrl,
+          cancelUrl: input.cancelUrl,
+          paymentMethodTypes: ["card", "gcash", "qrph"],
+        });
       await this.dependencies.repository.markReady({
         id: checkout.id,
         providerCheckoutSessionId: providerCheckout.checkoutSessionId,
@@ -155,7 +163,10 @@ export class GivingCheckoutService {
     }
   }
 
-  async recordVerifiedPaidWebhook(rawPayload: unknown, providerEventKey: string) {
+  async recordVerifiedPaidWebhook(
+    rawPayload: unknown,
+    providerEventKey: string,
+  ) {
     const payload = paidWebhookSchema.parse(rawPayload);
     const providerCheckoutSessionId = payload.data.data.id;
     const payment = payload.data.data.attributes.payments.at(-1);

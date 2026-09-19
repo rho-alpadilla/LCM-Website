@@ -9,7 +9,6 @@ import {
 } from "@/frontend/components/public/public-page";
 import { getPublicMinistries } from "@/backend/queries/public-content-cache";
 
-
 export default async function MinistriesPage() {
   const ministries = await getPublicMinistries();
   return (
@@ -46,7 +45,9 @@ export default async function MinistriesPage() {
                   ) : null}
                   <Link
                     className="mt-5 inline-block font-bold text-blue-800 underline"
-                    href={`/join?ministry=${encodeURIComponent(ministry.slug)}` as Route}
+                    href={
+                      `/join?ministry=${encodeURIComponent(ministry.slug)}` as Route
+                    }
                   >
                     I’m interested
                   </Link>

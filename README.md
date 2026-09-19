@@ -88,10 +88,15 @@ staff sign-in method.
 
 ```text
 pnpm lint
+pnpm format:check
 pnpm typecheck
 pnpm test
 pnpm build
 ```
+
+Use `pnpm format` only when you intentionally want Prettier to rewrite source
+formatting. `.editorconfig` and `.gitattributes` keep future edits consistent
+across Windows, macOS and Linux without rewriting existing files automatically.
 
 `/api/health` verifies that required Cloudflare bindings exist and that D1 can
 answer a minimal query. It returns only a generic status and never exposes

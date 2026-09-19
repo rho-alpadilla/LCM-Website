@@ -32,7 +32,8 @@ export default async function InquiryQueuePage() {
               >
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <span className="font-black text-slate-950">
-                    {inquiryTypeLabel(inquiry.inquiryType)} · {formatStatus(inquiry.status)}
+                    {inquiryTypeLabel(inquiry.inquiryType)} ·{" "}
+                    {formatStatus(inquiry.status)}
                   </span>
                   {inquiry.assignedToName ? (
                     <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-900">
@@ -45,7 +46,8 @@ export default async function InquiryQueuePage() {
                   )}
                 </div>
                 <p className="mt-3 text-sm text-slate-600">
-                  {inquiry.name || "Contact details redacted"} · Submitted {formatDate(inquiry.submittedAt)}
+                  {inquiry.name || "Contact details redacted"} · Submitted{" "}
+                  {formatDate(inquiry.submittedAt)}
                   {inquiry.ministryTitle ? ` · ${inquiry.ministryTitle}` : ""}
                 </p>
               </Link>

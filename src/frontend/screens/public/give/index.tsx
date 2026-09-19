@@ -1,6 +1,8 @@
 import { GivingForm } from "@/frontend/components/public/giving-form";
-import { PageIntro, PublicPage } from "@/frontend/components/public/public-page";
-
+import {
+  PageIntro,
+  PublicPage,
+} from "@/frontend/components/public/public-page";
 
 export default function GivePage() {
   const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim() || null;

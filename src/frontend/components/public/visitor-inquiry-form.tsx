@@ -46,7 +46,9 @@ export function VisitorInquiryForm({
       setStatus({
         kind: "error",
         message:
-          error instanceof Error ? error.message : "The message could not be submitted.",
+          error instanceof Error
+            ? error.message
+            : "The message could not be submitted.",
       });
     } finally {
       window.turnstile?.reset();
@@ -90,22 +92,41 @@ export function VisitorInquiryForm({
         <div className="grid gap-5 sm:grid-cols-2">
           <label className="font-bold text-slate-900">
             Name
-            <input className={inputClass} maxLength={120} name="name" required />
+            <input
+              className={inputClass}
+              maxLength={120}
+              name="name"
+              required
+            />
           </label>
           <label className="font-bold text-slate-900">
             Preferred follow-up
-            <select className={inputClass} defaultValue="email" name="preferredContact">
+            <select
+              className={inputClass}
+              defaultValue="email"
+              name="preferredContact"
+            >
               <option value="email">Email</option>
               <option value="phone">Phone</option>
             </select>
           </label>
           <label className="font-bold text-slate-900">
             Email
-            <input className={inputClass} maxLength={254} name="email" type="email" />
+            <input
+              className={inputClass}
+              maxLength={254}
+              name="email"
+              type="email"
+            />
           </label>
           <label className="font-bold text-slate-900">
             Phone
-            <input className={inputClass} maxLength={40} name="phone" type="tel" />
+            <input
+              className={inputClass}
+              maxLength={40}
+              name="phone"
+              type="tel"
+            />
           </label>
         </div>
 
@@ -119,18 +140,26 @@ export function VisitorInquiryForm({
             name="message"
             required={!isMinistryInterest}
           />
-          <span className="mt-2 block text-sm font-normal leading-6 text-slate-600">
-            Please avoid sharing unnecessary private details about yourself or another person.
+          <span className="mt-2 block text-sm leading-6 font-normal text-slate-600">
+            Please avoid sharing unnecessary private details about yourself or
+            another person.
           </span>
         </label>
 
         <label className="flex items-start gap-3 leading-6">
-          <input className="mt-1" name="followUpConsent" required type="checkbox" />
-          I consent to the church contacting me using my selected method about this message.
+          <input
+            className="mt-1"
+            name="followUpConsent"
+            required
+            type="checkbox"
+          />
+          I consent to the church contacting me using my selected method about
+          this message.
         </label>
         <p className="-mt-3 text-sm leading-6 text-slate-600">
           Only Pastors and approved Core Leaders can access these submissions.
-          Once an inquiry is closed, its details are automatically redacted after 90 days.
+          Once an inquiry is closed, its details are automatically redacted
+          after 90 days.
         </p>
 
         {siteKey ? (
@@ -140,8 +169,12 @@ export function VisitorInquiryForm({
             data-sitekey={siteKey}
           />
         ) : (
-          <p className="rounded-xl bg-amber-50 p-4 text-sm font-semibold text-amber-950" role="status">
-            Secure message submission will be enabled when the church Turnstile setup is complete.
+          <p
+            className="rounded-xl bg-amber-50 p-4 text-sm font-semibold text-amber-950"
+            role="status"
+          >
+            Secure message submission will be enabled when the church Turnstile
+            setup is complete.
           </p>
         )}
 
@@ -154,7 +187,9 @@ export function VisitorInquiryForm({
         </button>
         {status.message ? (
           <p
-            className={status.kind === "error" ? "text-red-800" : "text-green-800"}
+            className={
+              status.kind === "error" ? "text-red-800" : "text-green-800"
+            }
             aria-live="polite"
             role="status"
           >

@@ -1,6 +1,18 @@
-import type { ContentBody, ContentEntry, ContentListItem, ContentStatus, ContentType } from "@/shared/content/types";
+import type {
+  ContentBody,
+  ContentEntry,
+  ContentListItem,
+  ContentStatus,
+  ContentType,
+} from "@/shared/content/types";
 
-export type { ContentBody, ContentEntry, ContentListItem, ContentStatus, ContentType } from "@/shared/content/types";
+export type {
+  ContentBody,
+  ContentEntry,
+  ContentListItem,
+  ContentStatus,
+  ContentType,
+} from "@/shared/content/types";
 
 type MutationIdentity = {
   actorStaffId: string;

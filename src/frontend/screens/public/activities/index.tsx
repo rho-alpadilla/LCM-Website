@@ -1,4 +1,3 @@
-
 import {
   EmptyContent,
   PageIntro,
@@ -12,7 +11,6 @@ import {
   formatPublicDateTime,
   recurrenceLabel,
 } from "@/frontend/lib/public-format";
-
 
 export default async function ActivitiesPage() {
   const occurrences = await getPublicUpcomingOccurrences();

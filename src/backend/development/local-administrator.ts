@@ -28,9 +28,7 @@ export async function localDevelopmentAdministrator(
   requestHeaders: Pick<Headers, "get">,
   environment: LocalDevelopmentEnvironment,
 ) {
-  if (
-    !localDevelopmentConfiguration(environment, requestHeaders.get("host"))
-  ) {
+  if (!localDevelopmentConfiguration(environment, requestHeaders.get("host"))) {
     return null;
   }
 

@@ -1,16 +1,12 @@
-
 import { ContentCover } from "@/frontend/components/public/content-cover";
 import {
   EmptyContent,
   PageIntro,
   PublicPage,
 } from "@/frontend/components/public/public-page";
-import {
-  publicMediaUrl,
-} from "@/shared/media/public-url";
+import { publicMediaUrl } from "@/shared/media/public-url";
 import { getPublicBulletins } from "@/backend/queries/public-content-cache";
 import { formatPublicDate } from "@/frontend/lib/public-format";
-
 
 export default async function BulletinsPage() {
   const bulletins = await getPublicBulletins();

@@ -5,7 +5,6 @@ import { PublicPage } from "@/frontend/components/public/public-page";
 import { getPublicSermon } from "@/backend/queries/public-content-cache";
 import { formatDuration, formatPublicDate } from "@/frontend/lib/public-format";
 
-
 export default async function SermonPage({
   params,
 }: {

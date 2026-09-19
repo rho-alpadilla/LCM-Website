@@ -5,7 +5,6 @@ import {
   privateJsonResponse,
 } from "@/backend/http/responses";
 
-
 export async function GET(request: Request) {
   try {
     const environment = await requireCloudflareBindings();

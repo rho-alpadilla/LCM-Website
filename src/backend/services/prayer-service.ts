@@ -405,9 +405,7 @@ export class PrayerService {
   }
 
   private isPastoralLeader(actor: StaffContext) {
-    return actor.roles.some((role) =>
-      ["pastor", "core_leader"].includes(role),
-    );
+    return actor.roles.some((role) => ["pastor", "core_leader"].includes(role));
   }
 
   private withoutContactChannels(

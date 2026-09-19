@@ -10,7 +10,6 @@ import {
 import { getPublicAnnouncements } from "@/backend/queries/public-content-cache";
 import { formatPublicDate } from "@/frontend/lib/public-format";
 
-
 export default async function AnnouncementsPage() {
   const announcements = await getPublicAnnouncements();
   return (

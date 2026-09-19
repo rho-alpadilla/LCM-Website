@@ -33,7 +33,9 @@ export type PaidWebhookRecord = {
 };
 
 export interface GivingCheckoutRepositoryPort {
-  findByIdempotencyKey(idempotencyKey: string): Promise<GivingCheckoutRecord | null>;
+  findByIdempotencyKey(
+    idempotencyKey: string,
+  ): Promise<GivingCheckoutRecord | null>;
   findByProviderCheckoutSessionId(
     providerCheckoutSessionId: string,
   ): Promise<GivingCheckoutRecord | null>;
@@ -170,7 +172,11 @@ export class GivingCheckoutRepository implements GivingCheckoutRepositoryPort {
              AND status IN ('ready', 'failed', 'paid')
              AND (provider_payment_id IS NULL OR provider_payment_id = ?2)`,
         )
-        .bind(record.checkoutSessionId, record.providerPaymentId, record.processedAt),
+        .bind(
+          record.checkoutSessionId,
+          record.providerPaymentId,
+          record.processedAt,
+        ),
       this.database
         .prepare(
           `INSERT OR IGNORE INTO paymongo_webhook_events (

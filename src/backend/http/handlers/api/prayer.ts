@@ -12,7 +12,6 @@ import {
 } from "@/backend/security/turnstile";
 import { PrayerService } from "@/backend/services/prayer-service";
 
-
 const nullableText = (maximum: number) =>
   z
     .string()

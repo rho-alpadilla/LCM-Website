@@ -5,7 +5,9 @@ import { useState } from "react";
 import { revealPrayerContact, type PrayerContact } from "@/frontend/api/prayer";
 
 export function PrayerContactReveal({ requestId }: { requestId: string }) {
-  const [contact, setContact] = useState<PrayerContact | null | undefined>(undefined);
+  const [contact, setContact] = useState<PrayerContact | null | undefined>(
+    undefined,
+  );
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 

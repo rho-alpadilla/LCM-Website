@@ -34,16 +34,28 @@ test("groups public navigation without removing routes", async ({ page }) => {
   await page.goto("/");
 
   await page.getByText("Our Church", { exact: true }).click();
-  await expect(page.getByRole("link", { name: "About", exact: true })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Contact", exact: true })).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "About", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Contact", exact: true }),
+  ).toBeVisible();
 
   await page.getByText("Get Connected", { exact: true }).click();
-  await expect(page.getByRole("link", { name: "Ministries", exact: true })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Calendar", exact: true })).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Ministries", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Calendar", exact: true }),
+  ).toBeVisible();
 
   await page.getByText("Updates", { exact: true }).click();
-  await expect(page.getByRole("link", { name: "Announcements", exact: true })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Bulletins", exact: true })).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Announcements", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Bulletins", exact: true }),
+  ).toBeVisible();
 });
 
 test("shows a usable monthly activities planner", async ({ page }) => {

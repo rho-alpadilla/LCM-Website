@@ -5,13 +5,11 @@ afterEach(() => vi.unstubAllGlobals());
 
 describe("giving browser requests", () => {
   it("preserves the amount, purpose, token and idempotency key", async () => {
-    const request = vi
-      .fn()
-      .mockResolvedValue(
-        Response.json({
-          checkoutUrl: "https://checkout.example.test/synthetic",
-        }),
-      );
+    const request = vi.fn().mockResolvedValue(
+      Response.json({
+        checkoutUrl: "https://checkout.example.test/synthetic",
+      }),
+    );
     vi.stubGlobal("fetch", request);
     const form = new FormData();
     form.set("amount", "100.00");

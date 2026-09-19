@@ -13,6 +13,8 @@
     "build:cf": "opennextjs-cloudflare build",
     "start": "next start",
     "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "typecheck": "pnpm cf:typegen && tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",

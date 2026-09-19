@@ -108,19 +108,27 @@ describe("InquiryService privacy and permission enforcement", () => {
 
   it("denies handling a ministry inquiry when only contact permission exists", async () => {
     const repo = repository({
-      findById: vi.fn().mockResolvedValue(inquiry({ inquiryType: "ministry_interest" })),
+      findById: vi
+        .fn()
+        .mockResolvedValue(inquiry({ inquiryType: "ministry_interest" })),
     });
     await expect(
-      service(repo).addUpdate(actor({ permissions: ["contact.respond"] }), ids[0]!, {
-        updateType: "note",
-        note: "Synthetic internal note.",
-      }),
+      service(repo).addUpdate(
+        actor({ permissions: ["contact.respond"] }),
+        ids[0]!,
+        {
+          updateType: "note",
+          note: "Synthetic internal note.",
+        },
+      ),
     ).rejects.toMatchObject({ code: "FORBIDDEN" });
     expect(repo.addUpdate).not.toHaveBeenCalled();
   });
 
   it("requires an eligible staff member before assignment", async () => {
-    const repo = repository({ isEligibleAssignee: vi.fn().mockResolvedValue(false) });
+    const repo = repository({
+      isEligibleAssignee: vi.fn().mockResolvedValue(false),
+    });
     await expect(
       service(repo).assign(actor(), ids[0]!, ids[1]),
     ).rejects.toMatchObject({ code: "VALIDATION_FAILED" });
@@ -140,11 +148,15 @@ describe("InquiryService privacy and permission enforcement", () => {
   });
 
   it("processes only bounded retention batches", async () => {
-    const repo = repository({ findRetentionCandidates: vi.fn().mockResolvedValue([ids[0], ids[1]]) });
+    const repo = repository({
+      findRetentionCandidates: vi.fn().mockResolvedValue([ids[0], ids[1]]),
+    });
     await expect(service(repo).runRetention(501)).rejects.toMatchObject({
       code: "VALIDATION_FAILED",
     });
-    await expect(service(repo).runRetention(100)).resolves.toEqual({ processed: 2 });
+    await expect(service(repo).runRetention(100)).resolves.toEqual({
+      processed: 2,
+    });
     expect(repo.applyRetention).toHaveBeenCalledTimes(2);
   });
 });

@@ -329,9 +329,14 @@ export class InquiryRepository implements InquiryRepositoryPort {
           record.actorStaffId,
           record.createdAt,
         ),
-      this.changedRowAuditStatement(record, "inquiry.updated", record.inquiryId, {
-        updateType: record.updateType,
-      }),
+      this.changedRowAuditStatement(
+        record,
+        "inquiry.updated",
+        record.inquiryId,
+        {
+          updateType: record.updateType,
+        },
+      ),
     ]);
   }
 
@@ -358,9 +363,14 @@ export class InquiryRepository implements InquiryRepositoryPort {
           record.actorStaffId,
           record.createdAt,
         ),
-      this.changedRowAuditStatement(record, "inquiry.closed", record.inquiryId, {
-        retentionDueAt: record.retentionDueAt,
-      }),
+      this.changedRowAuditStatement(
+        record,
+        "inquiry.closed",
+        record.inquiryId,
+        {
+          retentionDueAt: record.retentionDueAt,
+        },
+      ),
     ]);
     return result.meta.changes;
   }

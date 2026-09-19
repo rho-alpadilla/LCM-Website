@@ -28,8 +28,8 @@ export default async function LoginPage() {
           role="status"
         >
           Configuration notice: Cloudflare Access is not configured for this
-          environment. The public website remains open, and no password
-          fallback is enabled.
+          environment. The public website remains open, and no password fallback
+          is enabled.
         </p>
       ) : (
         <p

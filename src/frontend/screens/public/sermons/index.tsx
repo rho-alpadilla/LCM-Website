@@ -10,7 +10,6 @@ import {
 import { getPublicSermons } from "@/backend/queries/public-content-cache";
 import { formatDuration, formatPublicDate } from "@/frontend/lib/public-format";
 
-
 export default async function SermonsPage() {
   const sermons = await getPublicSermons();
   return (

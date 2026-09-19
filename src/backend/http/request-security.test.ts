@@ -34,7 +34,10 @@ describe("administrative request security", () => {
     const request = new Request("https://church.example/api/giving/checkout");
 
     expect(() =>
-      requireConfiguredRequestHostname(request, "church.example,www.church.example"),
+      requireConfiguredRequestHostname(
+        request,
+        "church.example,www.church.example",
+      ),
     ).not.toThrow();
     expect(() =>
       requireConfiguredRequestHostname(request, "www.church.example"),

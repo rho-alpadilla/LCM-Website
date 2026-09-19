@@ -6,7 +6,10 @@ import {
   requireSameOrigin,
 } from "@/backend/http/request-security";
 import { InquiryRepository } from "@/backend/repositories/inquiry-repository";
-import { anonymousRateLimitKey, verifyTurnstile } from "@/backend/security/turnstile";
+import {
+  anonymousRateLimitKey,
+  verifyTurnstile,
+} from "@/backend/security/turnstile";
 import { InquiryService } from "@/backend/services/inquiry-service";
 import { publicInquirySchema } from "@/shared/inquiries/schemas";
 
@@ -63,7 +66,10 @@ export async function POST(request: Request) {
     );
   } catch {
     return Response.json(
-      { message: "The message could not be submitted. Please check the form and try again." },
+      {
+        message:
+          "The message could not be submitted. Please check the form and try again.",
+      },
       { status: 400, headers: responseHeaders },
     );
   }

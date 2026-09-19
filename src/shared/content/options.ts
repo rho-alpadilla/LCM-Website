@@ -1,7 +1,4 @@
-import type {
-  ContentStatus,
-  ContentType,
-} from "@/shared/content/types";
+import type { ContentStatus, ContentType } from "@/shared/content/types";
 
 export const contentTypeLabels: Record<ContentType, string> = {
   page: "Page",

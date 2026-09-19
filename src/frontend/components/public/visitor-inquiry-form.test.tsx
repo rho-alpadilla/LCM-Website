@@ -8,9 +8,13 @@ afterEach(cleanup);
 
 describe("VisitorInquiryForm", () => {
   it("collects explicit consent and accessible contact fields", () => {
-    render(<VisitorInquiryForm inquiryType="contact" siteKey="synthetic-site-key" />);
+    render(
+      <VisitorInquiryForm inquiryType="contact" siteKey="synthetic-site-key" />,
+    );
     expect(screen.getByLabelText("Name")).toBeRequired();
-    expect(screen.getByRole("textbox", { name: /How can we help/ })).toBeRequired();
+    expect(
+      screen.getByRole("textbox", { name: /How can we help/ }),
+    ).toBeRequired();
     expect(screen.getByLabelText(/I consent to the church/)).toBeRequired();
     expect(screen.getByRole("button", { name: "Send message" })).toBeEnabled();
   });
@@ -23,8 +27,12 @@ describe("VisitorInquiryForm", () => {
         siteKey="synthetic-site-key"
       />,
     );
-    expect(screen.getByLabelText(/Ministry you are interested in/)).toHaveValue("");
-    expect(screen.getByRole("option", { name: "Synthetic Ministry" })).toBeInTheDocument();
+    expect(screen.getByLabelText(/Ministry you are interested in/)).toHaveValue(
+      "",
+    );
+    expect(
+      screen.getByRole("option", { name: "Synthetic Ministry" }),
+    ).toBeInTheDocument();
     expect(screen.getByLabelText(/Anything you would like/)).not.toBeRequired();
   });
 

@@ -22,17 +22,17 @@ minimal PayMongo hosted-checkout phase; bookkeeping belongs to a future ChMS.
 
 ## Threat Model and Controls
 
-| Threat | Control |
-| --- | --- |
-| Automated spam | Turnstile, per-source rate limiting and bounded input |
-| Forged client validation | Server-side Zod validation and normalized values |
-| Unauthorized pastoral read | Permission-filtered repository/service query |
-| Prayer Warrior overreach | Active assignment plus team-scope checks |
-| Accidental contact exposure | Separate contact table and audited reveal route |
-| Sensitive logs | Structured metadata only; no request/contact text |
-| Stale sensitive data | Scheduled 30/90-day redaction with legal-hold guard |
-| Destructive history edits | Append-oriented updates/assignments and D1 triggers |
-| Silent failure | Generic public message plus server diagnostic code |
+| Threat                      | Control                                               |
+| --------------------------- | ----------------------------------------------------- |
+| Automated spam              | Turnstile, per-source rate limiting and bounded input |
+| Forged client validation    | Server-side Zod validation and normalized values      |
+| Unauthorized pastoral read  | Permission-filtered repository/service query          |
+| Prayer Warrior overreach    | Active assignment plus team-scope checks              |
+| Accidental contact exposure | Separate contact table and audited reveal route       |
+| Sensitive logs              | Structured metadata only; no request/contact text     |
+| Stale sensitive data        | Scheduled 30/90-day redaction with legal-hold guard   |
+| Destructive history edits   | Append-oriented updates/assignments and D1 triggers   |
+| Silent failure              | Generic public message plus server diagnostic code    |
 
 ## Workflow
 

@@ -3,10 +3,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { saveContentSubtypeAction } from "@/backend/actions/content";
-import type {
-  ContentEntry,
-  ContentListItem,
-} from "@/shared/content/types";
+import type { ContentEntry, ContentListItem } from "@/shared/content/types";
 import type { MediaAssetListItem } from "@/shared/media/types";
 
 type Props = {

@@ -39,10 +39,7 @@ function payMongo() {
   } as unknown as PayMongoClient;
 }
 
-function service(
-  repo = repository(),
-  provider = payMongo(),
-) {
+function service(repo = repository(), provider = payMongo()) {
   return new GivingCheckoutService({
     repository: repo,
     payMongo: provider,
@@ -69,7 +66,10 @@ describe("GivingCheckoutService", () => {
       checkoutUrl: "https://checkout.paymongo.com/cs_synthetic",
     });
     expect(repo.createInitiated).toHaveBeenCalledWith(
-      expect.objectContaining({ amountMinor: 50050, purpose: "general_church" }),
+      expect.objectContaining({
+        amountMinor: 50050,
+        purpose: "general_church",
+      }),
     );
     expect(provider.createCheckoutSession).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -82,7 +82,9 @@ describe("GivingCheckoutService", () => {
   it.each(["0", "0.99", "100000.01"])(
     "rejects an amount outside the approved range: %s",
     async (amount) => {
-      await expect(service().start({ ...validInput, amount })).rejects.toBeTruthy();
+      await expect(
+        service().start({ ...validInput, amount }),
+      ).rejects.toBeTruthy();
     },
   );
 

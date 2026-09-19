@@ -49,12 +49,16 @@ export function PublicHeader() {
             className="h-10 w-10 rounded-xl bg-slate-950 object-cover shadow-sm"
             height={40}
             priority
-            src="/brand/lcm-mark.png"
+            src="/brand/lcm-mark.webp"
             width={40}
           />
           <span>
-            <span className="block text-base font-black tracking-tight sm:text-lg">{siteConfig.name}</span>
-            <span className="block text-xs font-bold tracking-wide text-slate-500 uppercase">Church without walls</span>
+            <span className="block text-base font-black tracking-tight sm:text-lg">
+              {siteConfig.name}
+            </span>
+            <span className="block text-xs font-bold tracking-wide text-slate-500 uppercase">
+              Church without walls
+            </span>
           </span>
         </Link>
         <nav aria-label="Main navigation">

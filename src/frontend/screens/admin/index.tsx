@@ -5,7 +5,6 @@ import { AdminHeader } from "@/frontend/components/admin/admin-header";
 import { requireActiveStaffSession } from "@/backend/auth/staff-context";
 import { manageableContentTypes } from "@/shared/content/options";
 
-
 export default async function AdminPage() {
   const { context } = await requireActiveStaffSession();
   const contentTypes = manageableContentTypes(context.permissions);

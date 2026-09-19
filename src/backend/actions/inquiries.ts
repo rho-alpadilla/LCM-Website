@@ -43,7 +43,11 @@ function revalidateInquiryPages(inquiryId: string) {
 export async function assignInquiryAction(formData: FormData) {
   const { state, inquiryId, service } = await context(formData);
   try {
-    await service.assign(state.context, inquiryId, text(formData, "assignedTo"));
+    await service.assign(
+      state.context,
+      inquiryId,
+      text(formData, "assignedTo"),
+    );
     revalidateInquiryPages(inquiryId);
   } catch {
     redirect(detailPath(inquiryId, "error=assign_failed"));

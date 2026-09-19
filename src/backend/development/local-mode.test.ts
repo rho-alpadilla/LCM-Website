@@ -28,8 +28,18 @@ describe("local development mode", () => {
   it.each([
     ["a network host", localEnvironment, "192.168.1.104:3000", "development"],
     ["a production process", localEnvironment, "localhost:3000", "production"],
-    ["a preview binding", { APP_ENVIRONMENT: "preview" }, "localhost:3000", "development"],
-    ["a production binding", { APP_ENVIRONMENT: "production" }, "localhost:3000", "development"],
+    [
+      "a preview binding",
+      { APP_ENVIRONMENT: "preview" },
+      "localhost:3000",
+      "development",
+    ],
+    [
+      "a production binding",
+      { APP_ENVIRONMENT: "production" },
+      "localhost:3000",
+      "development",
+    ],
   ] as const)("rejects %s", (_label, environment, host, nodeEnvironment) => {
     expect(
       localDevelopmentConfiguration(environment, host, nodeEnvironment),

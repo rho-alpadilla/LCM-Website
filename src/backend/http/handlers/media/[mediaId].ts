@@ -4,7 +4,6 @@ import { requireCloudflareBindings } from "@/backend/cloudflare/bindings";
 import { PublicContentRepository } from "@/backend/repositories/public-content-repository";
 import { PublicMediaService } from "@/backend/services/public-media-service";
 
-
 type Props = { params: Promise<{ mediaId: string }> };
 
 export async function GET(request: NextRequest, { params }: Props) {

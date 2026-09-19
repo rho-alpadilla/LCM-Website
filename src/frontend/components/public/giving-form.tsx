@@ -22,7 +22,10 @@ export function GivingForm({ siteKey }: { siteKey: string | null }) {
 
     const form = new FormData(event.currentTarget);
     try {
-      const checkoutUrl = await startGivingCheckout(form, idempotencyKey.current);
+      const checkoutUrl = await startGivingCheckout(
+        form,
+        idempotencyKey.current,
+      );
       window.location.assign(checkoutUrl);
     } catch (error) {
       setStatus({
@@ -64,7 +67,7 @@ export function GivingForm({ siteKey }: { siteKey: string | null }) {
             step="0.01"
             type="number"
           />
-          <span className="mt-2 block text-sm font-normal leading-6 text-slate-600">
+          <span className="mt-2 block text-sm leading-6 font-normal text-slate-600">
             Enter ₱1.00 to ₱100,000.00. A ₱0 payment cannot be processed.
           </span>
         </label>
@@ -72,7 +75,12 @@ export function GivingForm({ siteKey }: { siteKey: string | null }) {
         <fieldset>
           <legend className="font-bold text-slate-900">Giving purpose</legend>
           <label className="mt-3 flex gap-3">
-            <input defaultChecked name="purpose" type="radio" value="general_church" />
+            <input
+              defaultChecked
+              name="purpose"
+              type="radio"
+              value="general_church"
+            />
             Tithes &amp; Offerings
           </label>
           <label className="mt-3 flex gap-3">
@@ -86,9 +94,10 @@ export function GivingForm({ siteKey }: { siteKey: string | null }) {
         </fieldset>
 
         <aside className="rounded-xl bg-slate-100 p-4 text-sm leading-6 text-slate-700">
-          PayMongo will show any payment-method fee before you confirm. Love Gift
-          is a church-managed fund at launch. Please contact the church directly
-          for questions about a specific person; do not enter a recipient name here.
+          PayMongo will show any payment-method fee before you confirm. Love
+          Gift is a church-managed fund at launch. Please contact the church
+          directly for questions about a specific person; do not enter a
+          recipient name here.
         </aside>
 
         {siteKey ? (
@@ -111,7 +120,9 @@ export function GivingForm({ siteKey }: { siteKey: string | null }) {
           disabled={!siteKey || status.kind === "submitting"}
           type="submit"
         >
-          {status.kind === "submitting" ? "Opening secure checkout…" : "Give securely"}
+          {status.kind === "submitting"
+            ? "Opening secure checkout…"
+            : "Give securely"}
         </button>
         {status.message ? (
           <p className="text-red-800" role="status" aria-live="polite">

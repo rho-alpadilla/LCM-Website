@@ -1,6 +1,14 @@
-import type { AllowedMediaMimeType, MediaAssetListItem, MediaStorageScope } from "@/shared/media/types";
+import type {
+  AllowedMediaMimeType,
+  MediaAssetListItem,
+  MediaStorageScope,
+} from "@/shared/media/types";
 
-export type { AllowedMediaMimeType, MediaAssetListItem, MediaStorageScope } from "@/shared/media/types";
+export type {
+  AllowedMediaMimeType,
+  MediaAssetListItem,
+  MediaStorageScope,
+} from "@/shared/media/types";
 
 type UploadIdentity = {
   mediaId: string;

@@ -9,7 +9,6 @@ const responseHeaders = {
   "Cache-Control": "no-store",
 };
 
-
 export async function GET() {
   try {
     const { DB } = await requireCloudflareBindings();

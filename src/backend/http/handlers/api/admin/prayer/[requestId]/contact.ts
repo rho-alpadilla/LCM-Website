@@ -7,7 +7,6 @@ import {
 import { PrayerRepository } from "@/backend/repositories/prayer-repository";
 import { PrayerService } from "@/backend/services/prayer-service";
 
-
 export async function GET(
   request: Request,
   context: { params: Promise<{ requestId: string }> },

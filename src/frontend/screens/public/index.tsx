@@ -8,7 +8,10 @@ export default function HomePage() {
   return (
     <PublicPage>
       <section className="relative overflow-hidden bg-[linear-gradient(120deg,#020617_0%,#1111a8_60%,#020617_100%)] text-white">
-        <div aria-hidden="true" className="absolute -top-32 -right-28 h-80 w-80 rounded-full bg-yellow-300/15 blur-3xl" />
+        <div
+          aria-hidden="true"
+          className="absolute -top-32 -right-28 h-80 w-80 rounded-full bg-yellow-300/15 blur-3xl"
+        />
         <div className="mx-auto flex min-h-[70vh] max-w-6xl flex-col justify-center px-4 py-16 sm:px-6 sm:py-24">
           <p className="text-sm font-bold tracking-[0.2em] text-yellow-300 uppercase">
             Love God. Love people.

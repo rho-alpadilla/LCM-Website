@@ -6,7 +6,6 @@ import { ContentCover } from "@/frontend/components/public/content-cover";
 import { PublicPage } from "@/frontend/components/public/public-page";
 import { getPublicMinistry } from "@/backend/queries/public-content-cache";
 
-
 export default async function MinistryPage({
   params,
 }: {
@@ -55,7 +54,9 @@ export default async function MinistryPage({
             ) : null}
             <Link
               className="mt-6 inline-block rounded-xl bg-blue-800 px-5 py-3 font-bold text-white"
-              href={`/join?ministry=${encodeURIComponent(ministry.slug)}` as Route}
+              href={
+                `/join?ministry=${encodeURIComponent(ministry.slug)}` as Route
+              }
             >
               I’m interested in this ministry
             </Link>

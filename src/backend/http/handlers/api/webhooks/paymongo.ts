@@ -4,7 +4,6 @@ import { verifyPayMongoWebhook } from "@/backend/integrations/paymongo";
 import { GivingCheckoutRepository } from "@/backend/repositories/giving-checkout-repository";
 import { GivingCheckoutService } from "@/backend/services/giving-checkout-service";
 
-
 const responseHeaders = {
   "Cache-Control": "no-store, max-age=0",
   "Content-Type": "application/json; charset=utf-8",
@@ -14,7 +13,10 @@ export async function POST(request: Request) {
   try {
     const environment = await requirePayMongoCloudflareBindings();
     if (!environment.PAYMONGO_WEBHOOK_SECRET) {
-      return Response.json({ received: false }, { status: 503, headers: responseHeaders });
+      return Response.json(
+        { received: false },
+        { status: 503, headers: responseHeaders },
+      );
     }
     const rawBody = await readLimitedText(request, 65_536);
     await verifyPayMongoWebhook({
@@ -28,9 +30,15 @@ export async function POST(request: Request) {
       repository: new GivingCheckoutRepository(environment.DB),
     });
     await service.recordVerifiedPaidWebhook(payload, await eventKey(rawBody));
-    return Response.json({ received: true }, { status: 200, headers: responseHeaders });
+    return Response.json(
+      { received: true },
+      { status: 200, headers: responseHeaders },
+    );
   } catch {
-    return Response.json({ received: false }, { status: 400, headers: responseHeaders });
+    return Response.json(
+      { received: false },
+      { status: 400, headers: responseHeaders },
+    );
   }
 }
 

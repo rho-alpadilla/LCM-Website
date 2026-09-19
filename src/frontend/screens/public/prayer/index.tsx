@@ -1,6 +1,8 @@
 import { PrayerRequestForm } from "@/frontend/components/public/prayer-request-form";
-import { PageIntro, PublicPage } from "@/frontend/components/public/public-page";
-
+import {
+  PageIntro,
+  PublicPage,
+} from "@/frontend/components/public/public-page";
 
 export default function PrayerPage() {
   const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim() || null;

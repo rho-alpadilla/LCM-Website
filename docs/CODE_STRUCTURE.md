@@ -12,25 +12,25 @@ approved in decision `0002`; it is not the `backend` folder in this website.
 
 ## Where to work
 
-| Task | Location |
-| --- | --- |
-| Add a URL or change route metadata | `src/app` |
-| Change public or admin screen layout | `src/frontend/screens/public` or `admin` |
-| Reuse a form, header, card or interactive control | `src/frontend/components` |
-| Format displayed dates, durations or labels | `src/frontend/lib` |
-| Send a browser HTTP request | `src/frontend/api` |
-| Load screen data with staff authorization | `src/backend/queries` |
-| Handle a staff form submission | `src/backend/actions` |
-| Handle a public form/API request or webhook | `src/backend/http/handlers` |
-| Change a permission-aware workflow | `src/backend/services` |
-| Read/write D1 | `src/backend/repositories` |
-| Verify staff identity or permissions | `src/backend/auth` |
-| Call PayMongo or another approved provider | `src/backend/integrations` |
-| Verify bots or protect submission limits | `src/backend/security` |
-| Access validated Cloudflare bindings | `src/backend/cloudflare` |
-| Guard localhost-only developer access and seed its local identity | `src/backend/development` |
-| Share a schema, type or safe constant | `src/shared` |
-| Change the active database schema | `migrations/d1` |
+| Task                                                              | Location                                 |
+| ----------------------------------------------------------------- | ---------------------------------------- |
+| Add a URL or change route metadata                                | `src/app`                                |
+| Change public or admin screen layout                              | `src/frontend/screens/public` or `admin` |
+| Reuse a form, header, card or interactive control                 | `src/frontend/components`                |
+| Format displayed dates, durations or labels                       | `src/frontend/lib`                       |
+| Send a browser HTTP request                                       | `src/frontend/api`                       |
+| Load screen data with staff authorization                         | `src/backend/queries`                    |
+| Handle a staff form submission                                    | `src/backend/actions`                    |
+| Handle a public form/API request or webhook                       | `src/backend/http/handlers`              |
+| Change a permission-aware workflow                                | `src/backend/services`                   |
+| Read/write D1                                                     | `src/backend/repositories`               |
+| Verify staff identity or permissions                              | `src/backend/auth`                       |
+| Call PayMongo or another approved provider                        | `src/backend/integrations`               |
+| Verify bots or protect submission limits                          | `src/backend/security`                   |
+| Access validated Cloudflare bindings                              | `src/backend/cloudflare`                 |
+| Guard localhost-only developer access and seed its local identity | `src/backend/development`                |
+| Share a schema, type or safe constant                             | `src/shared`                             |
+| Change the active database schema                                 | `migrations/d1`                          |
 
 ## Dependency direction
 
@@ -73,6 +73,13 @@ Framework layouts, error boundaries, the not-found view, CSS entry and legacy
 redirect routes remain in `app`; they are small routing concerns rather than
 database/business modules. Static assets remain in root `public`.
 
+### Brand assets
+
+`public/brand/lcm-mark.webp` is the optimized logo used by the public header.
+The original church-provided `lcm-mark.png` remains in the repository as the
+source asset and must not be used directly in page UI: its 19,600 × 19,600
+pixel dimensions are unnecessarily large for web delivery.
+
 ## Keep related things together
 
 Group screens by audience and feature, actions/queries/services by workflow,
@@ -92,17 +99,17 @@ mode; preview and production are rejected by the same guard.
 
 ## Refactor map
 
-| Previous location | Current location |
-| --- | --- |
-| `src/components` | `src/frontend/components` |
-| Page UI in `src/app/**/page.tsx` | `src/frontend/screens` (thin route entries retained) |
-| Request implementations in `src/app/**/route.ts` | `src/backend/http/handlers` |
-| `src/server` | `src/backend` |
-| `src/features/*/actions.ts` | `src/backend/actions` |
-| `src/features/auth/staff-context.ts` | `src/backend/auth/staff-context.ts` |
-| Feature schemas, labels and policies | `src/shared` |
-| `src/lib/public-content-cache.ts` | `src/backend/queries/public-content-cache.ts` |
-| `src/lib/public-format.ts` | `src/frontend/lib/public-format.ts` |
+| Previous location                                | Current location                                     |
+| ------------------------------------------------ | ---------------------------------------------------- |
+| `src/components`                                 | `src/frontend/components`                            |
+| Page UI in `src/app/**/page.tsx`                 | `src/frontend/screens` (thin route entries retained) |
+| Request implementations in `src/app/**/route.ts` | `src/backend/http/handlers`                          |
+| `src/server`                                     | `src/backend`                                        |
+| `src/features/*/actions.ts`                      | `src/backend/actions`                                |
+| `src/features/auth/staff-context.ts`             | `src/backend/auth/staff-context.ts`                  |
+| Feature schemas, labels and policies             | `src/shared`                                         |
+| `src/lib/public-content-cache.ts`                | `src/backend/queries/public-content-cache.ts`        |
+| `src/lib/public-format.ts`                       | `src/frontend/lib/public-format.ts`                  |
 
 ## Verification
 

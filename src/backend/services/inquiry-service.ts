@@ -71,8 +71,12 @@ export class InquiryService {
     });
     const [updates, assignees] = await Promise.all([
       this.dependencies.repository.listUpdates(inquiry.id),
-      actor.permissions.includes(inquiryPermission(inquiry.inquiryType, "assign"))
-        ? this.dependencies.repository.listEligibleAssignees(inquiry.inquiryType)
+      actor.permissions.includes(
+        inquiryPermission(inquiry.inquiryType, "assign"),
+      )
+        ? this.dependencies.repository.listEligibleAssignees(
+            inquiry.inquiryType,
+          )
         : Promise.resolve([]),
     ]);
     return { inquiry, updates, assignees };
@@ -159,10 +163,8 @@ export class InquiryService {
       );
     }
     const now = this.now().toISOString();
-    const candidates = await this.dependencies.repository.findRetentionCandidates(
-      now,
-      limit,
-    );
+    const candidates =
+      await this.dependencies.repository.findRetentionCandidates(now, limit);
     for (const id of candidates) {
       await this.dependencies.repository.applyRetention(id, now);
     }
