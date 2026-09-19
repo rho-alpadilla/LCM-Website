@@ -7,68 +7,69 @@ import { siteConfig } from "@/shared/config/site";
 export default function HomePage() {
   return (
     <PublicPage>
-      <section className="relative isolate overflow-hidden bg-[linear-gradient(120deg,#020617_0%,#1111a8_60%,#080c35_100%)] text-white">
-        <div
-          aria-hidden="true"
-          className="absolute -top-32 -right-28 h-80 w-80 rounded-full bg-yellow-300/15 blur-3xl"
-        />
-        <div className="relative mx-auto grid min-h-[72vh] max-w-7xl items-center gap-12 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[1.25fr_0.75fr]">
-          <div>
-            <p className="text-sm font-bold tracking-[0.2em] text-yellow-300 uppercase">
-              Love God. Love people.
+      <section className="border-b border-slate-950 bg-[#fffdf8]">
+        <div className="mx-auto grid max-w-7xl lg:grid-cols-[minmax(0,1.1fr)_minmax(20rem,0.9fr)]">
+          <div className="px-4 py-16 sm:px-6 sm:py-24 lg:border-r lg:border-slate-950">
+            <p className="text-xs font-black tracking-[0.2em] text-green-700 uppercase">
+              Lifechangers Ministry · Baguio City
             </p>
-            <h1 className="mt-5 max-w-4xl text-4xl font-black tracking-tight text-balance sm:text-6xl lg:text-7xl">
-              {siteConfig.name}
+            <h1 className="mt-6 max-w-3xl text-5xl font-black tracking-[-0.06em] text-slate-950 sm:text-7xl lg:text-8xl">
+              Love God.
+              <br />
+              Love people.
             </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-200 sm:text-xl">
+            <p className="mt-7 max-w-xl text-lg leading-8 text-slate-700 sm:text-xl">
               {siteConfig.description}
             </p>
-            <div className="mt-9 flex flex-wrap gap-3">
+            <div className="mt-10 flex flex-wrap gap-3">
               <Link
-                className="rounded-xl bg-yellow-300 px-5 py-3 font-black text-slate-950 shadow-lg shadow-yellow-300/10 transition hover:-translate-y-0.5 hover:bg-yellow-200 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-yellow-300"
+                className="border border-slate-950 bg-[#1111a8] px-5 py-3 font-black text-white transition-[background-color,transform] duration-150 ease-out hover:bg-blue-800 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-800 active:scale-[0.98]"
                 href={"/sermons" as Route}
               >
                 Watch a sermon
               </Link>
               <Link
-                className="rounded-xl border border-white/40 bg-white/5 px-5 py-3 font-bold text-white transition hover:-translate-y-0.5 hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+                className="border border-slate-950 bg-yellow-300 px-5 py-3 font-black text-slate-950 transition-[background-color,transform] duration-150 ease-out hover:bg-yellow-200 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-800 active:scale-[0.98]"
                 href={"/activities" as Route}
               >
-                View calendar
+                See what’s happening
               </Link>
+            </div>
+            <div className="mt-12 grid max-w-xl grid-cols-3 gap-3 border-t border-slate-950 pt-5 text-sm font-bold text-slate-700">
               <Link
-                className="rounded-xl border border-white/40 bg-white/5 px-5 py-3 font-bold text-white transition hover:-translate-y-0.5 hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
-                href={"/prayer" as Route}
+                className="hover:text-blue-800 hover:underline"
+                href="/prayer"
               >
-                Request prayer
+                Prayer
               </Link>
               <Link
-                className="rounded-xl border border-white/40 bg-white/5 px-5 py-3 font-bold text-white transition hover:-translate-y-0.5 hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
-                href={"/join" as Route}
+                className="hover:text-blue-800 hover:underline"
+                href="/join"
               >
                 Join a ministry
               </Link>
+              <Link
+                className="hover:text-blue-800 hover:underline"
+                href="/contact"
+              >
+                Contact us
+              </Link>
             </div>
           </div>
-          <figure className="relative hidden aspect-[4/5] overflow-hidden rounded-[2rem] border border-white/20 bg-slate-950/25 shadow-2xl shadow-slate-950/30 lg:block">
-            <div
-              aria-hidden="true"
-              className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,239,0,0.18),transparent_32%),linear-gradient(145deg,rgba(17,17,168,0.55),rgba(2,6,23,0.88))]"
-            />
-            <div className="relative flex h-full flex-col justify-between p-8">
-              <p className="w-fit rounded-full border border-white/25 bg-slate-950/35 px-3 py-1 text-xs font-black tracking-[0.16em] text-yellow-300 uppercase">
+          <figure className="relative min-h-[26rem] border-t border-slate-950 bg-[#1111a8] p-4 sm:p-6 lg:min-h-full lg:border-t-0">
+            <div className="flex h-full min-h-[23rem] flex-col justify-between border border-white/70 p-6 text-white sm:p-8">
+              <p className="w-fit bg-yellow-300 px-3 py-1 text-xs font-black tracking-[0.16em] text-slate-950 uppercase">
                 Church photography
               </p>
-              <div className="border-l-2 border-yellow-300 pl-5">
-                <p className="text-xs font-bold tracking-[0.16em] text-slate-300 uppercase">
+              <div>
+                <p className="text-xs font-black tracking-[0.16em] text-blue-100 uppercase">
                   Temporary visual placeholder
                 </p>
-                <h2 className="mt-3 text-3xl leading-10 font-black text-white">
-                  Official Lifechangers Ministry photos will be added here.
+                <h2 className="mt-3 max-w-md text-3xl leading-10 font-black tracking-[-0.035em]">
+                  This space is for the real people and life of LCM.
                 </h2>
-                <p className="mt-4 max-w-sm leading-7 text-slate-200">
-                  This space is reserved for authentic photos from church life,
-                  worship, and community outreach.
+                <p className="mt-4 max-w-sm leading-7 text-blue-100">
+                  Official church photos will replace this temporary visual.
                 </p>
               </div>
             </div>
@@ -81,50 +82,56 @@ export default function HomePage() {
       </section>
 
       <section
-        className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20"
+        className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24"
         aria-labelledby="connect-title"
       >
-        <p className="text-sm font-bold tracking-[0.2em] text-blue-800 uppercase">
-          Explore
-        </p>
-        <h2
-          className="mt-2 max-w-xl text-3xl font-black tracking-tight text-slate-950 sm:text-4xl"
-          id="connect-title"
-        >
-          Connect with church life
-        </h2>
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {publicDestinations.map((item) => (
-            <Link
-              className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 p-5 transition hover:-translate-y-1 hover:border-blue-300 hover:bg-white hover:shadow-lg hover:shadow-blue-950/5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-800"
-              href={item.href as Route}
-              key={item.href}
+        <div className="grid gap-8 border-b border-slate-950 pb-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-end">
+          <div>
+            <p className="text-xs font-black tracking-[0.2em] text-red-700 uppercase">
+              Start here
+            </p>
+            <h2
+              className="mt-3 max-w-md text-4xl font-black tracking-[-0.045em] text-slate-950 sm:text-5xl"
+              id="connect-title"
             >
-              <span
-                aria-hidden="true"
-                className={`absolute top-0 left-0 h-1 w-full ${item.accentClass}`}
-              />
-              <span className="flex items-center justify-between gap-4 font-black text-slate-950">
-                {item.label}
-                <span className="text-xl text-blue-800 transition group-hover:translate-x-1">
-                  →
-                </span>
-              </span>
-              <span className="mt-2 block text-sm leading-6 text-slate-600">
-                {item.description}
-              </span>
-            </Link>
-          ))}
+              Church life is meant to be shared.
+            </h2>
+          </div>
+          <p className="max-w-xl text-lg leading-8 text-slate-700">
+            Find a message to watch, a ministry to join, a gathering to attend,
+            or a way to connect with the church.
+          </p>
         </div>
-        <div className="mt-8 flex flex-wrap gap-3">
+        <ol className="grid border-l border-slate-950 sm:grid-cols-2 lg:grid-cols-3">
+          {publicDestinations.map((item) => (
+            <li className="border-r border-b border-slate-950" key={item.href}>
+              <Link
+                className="group block h-full bg-[#fffdf8] p-6 transition-colors duration-150 ease-out hover:bg-slate-950 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-800 sm:p-7"
+                href={item.href as Route}
+              >
+                <span className={`block h-1 w-10 ${item.accentClass}`} />
+                <span className="mt-8 flex items-start justify-between gap-4 text-2xl font-black tracking-[-0.035em]">
+                  {item.label}
+                  <span aria-hidden="true" className="text-xl">
+                    ↗
+                  </span>
+                </span>
+                <span className="mt-3 block max-w-xs text-sm leading-6 text-slate-600 transition-colors duration-150 ease-out group-hover:text-slate-300">
+                  {item.description}
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ol>
+        <div className="mt-10 flex flex-wrap gap-3">
           <Link
-            className="rounded-xl bg-blue-800 px-5 py-3 font-bold text-white shadow-lg shadow-blue-950/10 transition hover:-translate-y-0.5 hover:bg-blue-900"
+            className="border border-slate-950 bg-green-700 px-5 py-3 font-black text-white transition-[background-color,transform] duration-150 ease-out hover:bg-green-800 active:scale-[0.98]"
             href={"/contact" as Route}
           >
             Contact the church
           </Link>
           <Link
-            className="rounded-xl border border-slate-300 bg-white px-5 py-3 font-bold text-slate-900 transition hover:-translate-y-0.5 hover:border-slate-950"
+            className="border border-slate-950 bg-[#fffdf8] px-5 py-3 font-black text-slate-950 transition-[background-color,transform] duration-150 ease-out hover:bg-yellow-300 active:scale-[0.98]"
             href={"/give" as Route}
           >
             Give tithes &amp; offerings

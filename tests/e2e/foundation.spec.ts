@@ -20,13 +20,16 @@ test("shows the confirmed church identity", async ({ page }) => {
   await page.goto("/");
 
   await expect(
-    page.getByRole("heading", { name: "Lifechangers Ministry Incorporated" }),
+    page.getByRole("link", { name: /Lifechangers Ministry Incorporated/ }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Love God. Love people." }),
   ).toBeVisible();
   await expect(
     page.getByRole("link", { name: "Watch a sermon" }),
   ).toBeVisible();
   await expect(
-    page.getByRole("link", { name: "View calendar", exact: true }),
+    page.getByRole("link", { name: "See what’s happening", exact: true }),
   ).toBeVisible();
 });
 

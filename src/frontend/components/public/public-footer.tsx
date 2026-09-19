@@ -5,7 +5,7 @@ import { siteConfig } from "@/shared/config/site";
 
 export function PublicFooter() {
   return (
-    <footer className="border-t border-slate-800 bg-slate-950 text-slate-300">
+    <footer className="border-t-4 border-blue-800 bg-[#071331] text-slate-300">
       <div aria-hidden="true" className="grid h-1 grid-cols-4">
         <span className="bg-blue-800" />
         <span className="bg-green-600" />
@@ -17,19 +17,21 @@ export function PublicFooter() {
           <div className="flex items-center gap-3">
             <Image
               alt=""
-              className="h-10 w-10 rounded-lg bg-white object-cover"
+              className="h-10 w-10 bg-white object-cover"
               height={40}
               src="/brand/lcm-mark.webp"
               width={40}
             />
             <p className="font-black text-white">{siteConfig.name}</p>
           </div>
-          <p className="mt-3 max-w-xs leading-6">
+          <p className="mt-3 max-w-xs leading-6 text-slate-300">
             To love God and to love people.
           </p>
         </div>
         <div>
-          <p className="font-bold text-yellow-300">Explore</p>
+          <p className="text-xs font-black tracking-[0.14em] text-yellow-300 uppercase">
+            Explore
+          </p>
           <ul className="mt-2 grid gap-1 leading-6">
             <li>
               <Link className="hover:text-white hover:underline" href="/about">
@@ -55,7 +57,9 @@ export function PublicFooter() {
           </ul>
         </div>
         <div>
-          <p className="font-bold text-yellow-300">Connect</p>
+          <p className="text-xs font-black tracking-[0.14em] text-yellow-300 uppercase">
+            Connect
+          </p>
           <address className="mt-2 leading-6 not-italic">
             {siteConfig.contact.address}
           </address>
@@ -73,7 +77,9 @@ export function PublicFooter() {
           </a>
         </div>
         <div>
-          <p className="font-bold text-yellow-300">Stay updated</p>
+          <p className="text-xs font-black tracking-[0.14em] text-yellow-300 uppercase">
+            Stay updated
+          </p>
           <a
             className="mt-2 inline-block underline"
             href={siteConfig.contact.facebookUrl}

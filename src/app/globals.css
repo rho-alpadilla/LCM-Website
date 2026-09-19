@@ -1,14 +1,15 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
+  --background: #f7f4ed;
   --foreground: #08111f;
-  --surface: #f6f8fc;
-  --border: #dbe3ef;
+  --surface: #fffdf8;
+  --border: #cad0d7;
   --brand-blue: #1111a8;
   --brand-green: #00a000;
   --brand-yellow: #ffef00;
   --brand-red: #d90000;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 * {
@@ -20,13 +21,7 @@ html {
 }
 
 body {
-  background:
-    radial-gradient(
-      circle at top right,
-      rgb(17 17 168 / 0.04),
-      transparent 28rem
-    ),
-    var(--background);
+  background: var(--background);
   color: var(--foreground);
   font-family: Inter, Aptos, "Segoe UI", Arial, Helvetica, sans-serif;
   margin: 0;
