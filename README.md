@@ -98,6 +98,15 @@ Use `pnpm format` only when you intentionally want Prettier to rewrite source
 formatting. `.editorconfig` and `.gitattributes` keep future edits consistent
 across Windows, macOS and Linux without rewriting existing files automatically.
 
+## Continuous integration
+
+GitHub Actions runs the same formatting, lint, typecheck, unit-test and
+production-build checks on pushes and pull requests targeting `master`. The
+workflow in `.github/workflows/quality.yml` is read-only: it does not deploy,
+connect to Cloudflare, access PayMongo or use any project secret. Browser E2E
+tests remain a local and release-readiness check until the church approves the
+extra CI runtime.
+
 `/api/health` verifies that required Cloudflare bindings exist and that D1 can
 answer a minimal query. It returns only a generic status and never exposes
 resource names, account identifiers, or provider error details.
