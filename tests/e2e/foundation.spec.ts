@@ -33,28 +33,54 @@ test("shows the confirmed church identity", async ({ page }) => {
 test("groups public navigation without removing routes", async ({ page }) => {
   await page.goto("/");
 
-  await page.getByText("Our Church", { exact: true }).click();
+  const mobileMenu = page.getByText("Menu", { exact: true });
+  if (await mobileMenu.isVisible()) {
+    await mobileMenu.click();
+    const navigation = page.getByLabel("Mobile navigation");
+
+    for (const label of [
+      "About",
+      "Contact",
+      "Ministries",
+      "Calendar",
+      "Announcements",
+      "Bulletins",
+      "Messages",
+      "Prayer",
+      "Give",
+    ]) {
+      await expect(
+        navigation.getByRole("link", { name: label, exact: true }),
+      ).toBeVisible();
+    }
+
+    return;
+  }
+
+  const navigation = page.getByLabel("Main navigation");
+
+  await navigation.getByText("Our Church", { exact: true }).click();
   await expect(
-    page.getByRole("link", { name: "About", exact: true }),
+    navigation.getByRole("link", { name: "About", exact: true }),
   ).toBeVisible();
   await expect(
-    page.getByRole("link", { name: "Contact", exact: true }),
+    navigation.getByRole("link", { name: "Contact", exact: true }),
   ).toBeVisible();
 
-  await page.getByText("Get Connected", { exact: true }).click();
+  await navigation.getByText("Get Connected", { exact: true }).click();
   await expect(
-    page.getByRole("link", { name: "Ministries", exact: true }),
+    navigation.getByRole("link", { name: "Ministries", exact: true }),
   ).toBeVisible();
   await expect(
-    page.getByRole("link", { name: "Calendar", exact: true }),
+    navigation.getByRole("link", { name: "Calendar", exact: true }),
   ).toBeVisible();
 
-  await page.getByText("Updates", { exact: true }).click();
+  await navigation.getByText("Updates", { exact: true }).click();
   await expect(
-    page.getByRole("link", { name: "Announcements", exact: true }),
+    navigation.getByRole("link", { name: "Announcements", exact: true }),
   ).toBeVisible();
   await expect(
-    page.getByRole("link", { name: "Bulletins", exact: true }),
+    navigation.getByRole("link", { name: "Bulletins", exact: true }),
   ).toBeVisible();
 });
 
