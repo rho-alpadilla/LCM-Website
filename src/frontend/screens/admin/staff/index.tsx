@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 import { AdminHeader } from "@/frontend/components/admin/admin-header";
-import { getStaffWorkspace } from "@/backend/queries/admin-staff";
+import { getStaffWorkspace } from "@/backend/queries/staff/admin-directory";
 import {
   assignRoleAction,
   inviteStaffAction,

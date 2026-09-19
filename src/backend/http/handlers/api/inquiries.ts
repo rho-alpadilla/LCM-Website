@@ -5,12 +5,12 @@ import {
   readLimitedJson,
   requireSameOrigin,
 } from "@/backend/http/request-security";
-import { InquiryRepository } from "@/backend/repositories/inquiry-repository";
+import { InquiryRepository } from "@/backend/repositories/inquiries/repository";
 import {
   anonymousRateLimitKey,
   verifyTurnstile,
 } from "@/backend/security/turnstile";
-import { InquiryService } from "@/backend/services/inquiry-service";
+import { InquiryService } from "@/backend/services/inquiries/service";
 import { publicInquirySchema } from "@/shared/inquiries/schemas";
 
 const submissionSchema = publicInquirySchema.extend({

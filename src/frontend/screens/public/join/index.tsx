@@ -1,9 +1,9 @@
-import { VisitorInquiryForm } from "@/frontend/components/public/visitor-inquiry-form";
+import { VisitorInquiryForm } from "@/frontend/components/public/inquiries/visitor-inquiry-form";
 import {
   PageIntro,
   PublicPage,
 } from "@/frontend/components/public/public-page";
-import { getPublicMinistries } from "@/backend/queries/public-content-cache";
+import { getPublicMinistries } from "@/backend/queries/content/public-cache";
 
 export default async function JoinMinistryPage({
   selectedMinistrySlug,

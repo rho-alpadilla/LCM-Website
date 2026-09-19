@@ -7,7 +7,7 @@ import {
   PageIntro,
   PublicPage,
 } from "@/frontend/components/public/public-page";
-import { getPublicAnnouncements } from "@/backend/queries/public-content-cache";
+import { getPublicAnnouncements } from "@/backend/queries/content/public-cache";
 import { formatPublicDate } from "@/frontend/lib/public-format";
 
 export default async function AnnouncementsPage() {

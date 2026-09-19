@@ -10,7 +10,7 @@ import { requireCloudflareBindings } from "@/backend/cloudflare/bindings";
 import {
   AccessControlRepository,
   type StaffContext,
-} from "@/backend/repositories/access-control-repository";
+} from "@/backend/repositories/staff/access-control-repository";
 import { localDevelopmentAdministrator } from "@/backend/development/local-administrator";
 
 export type { StaffContext };

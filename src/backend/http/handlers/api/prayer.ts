@@ -5,12 +5,12 @@ import {
   readLimitedJson,
   requireSameOrigin,
 } from "@/backend/http/request-security";
-import { PrayerRepository } from "@/backend/repositories/prayer-repository";
+import { PrayerRepository } from "@/backend/repositories/prayer/repository";
 import {
   anonymousRateLimitKey,
   verifyTurnstile,
 } from "@/backend/security/turnstile";
-import { PrayerService } from "@/backend/services/prayer-service";
+import { PrayerService } from "@/backend/services/prayer/service";
 
 const nullableText = (maximum: number) =>
   z

@@ -3,8 +3,8 @@ import {
   PageIntro,
   PublicPage,
 } from "@/frontend/components/public/public-page";
-import { MonthlyActivityPlanner } from "@/frontend/components/public/monthly-activity-planner";
-import { getPublicUpcomingOccurrences } from "@/backend/queries/public-activities";
+import { MonthlyActivityPlanner } from "@/frontend/components/public/activities/monthly-planner";
+import { getPublicUpcomingOccurrences } from "@/backend/queries/content/public-activities";
 import {
   activityTypeLabel,
   formatPublicDate,

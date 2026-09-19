@@ -1,10 +1,10 @@
 import "server-only";
 
 import { ApplicationError } from "@/shared/errors/application-error";
-import type { StaffContext } from "@/backend/repositories/access-control-repository";
-import { AccessControlRepository } from "@/backend/repositories/access-control-repository";
+import type { StaffContext } from "@/backend/repositories/staff/access-control-repository";
+import { AccessControlRepository } from "@/backend/repositories/staff/access-control-repository";
 import { localDevelopmentAdministrator } from "@/backend/development/local-administrator";
-import { AccessControlService } from "@/backend/services/access-control-service";
+import { AccessControlService } from "@/backend/services/staff/access-control-service";
 
 import { verifyCloudflareAccessHeaders } from "./cloudflare-access";
 

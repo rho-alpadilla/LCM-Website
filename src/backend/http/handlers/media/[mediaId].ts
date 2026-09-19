@@ -1,8 +1,8 @@
 import type { NextRequest } from "next/server";
 
 import { requireCloudflareBindings } from "@/backend/cloudflare/bindings";
-import { PublicContentRepository } from "@/backend/repositories/public-content-repository";
-import { PublicMediaService } from "@/backend/services/public-media-service";
+import { PublicContentRepository } from "@/backend/repositories/content/public-repository";
+import { PublicMediaService } from "@/backend/services/content/public-media-service";
 
 type Props = { params: Promise<{ mediaId: string }> };
 

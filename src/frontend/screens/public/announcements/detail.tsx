@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 
 import { ContentCover } from "@/frontend/components/public/content-cover";
 import { PublicPage } from "@/frontend/components/public/public-page";
-import { getPublicAnnouncement } from "@/backend/queries/public-content-cache";
+import { getPublicAnnouncement } from "@/backend/queries/content/public-cache";
 import { formatPublicDate } from "@/frontend/lib/public-format";
 
 export default async function AnnouncementPage({

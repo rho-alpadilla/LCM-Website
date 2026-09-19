@@ -3,10 +3,10 @@
 // @ts-ignore -- generated build output is intentionally absent in a clean checkout.
 import openNextWorker from "./.open-next/worker.js";
 
-import { InquiryRepository } from "./src/backend/repositories/inquiry-repository";
-import { InquiryService } from "./src/backend/services/inquiry-service";
-import { PrayerRepository } from "./src/backend/repositories/prayer-repository";
-import { PrayerService } from "./src/backend/services/prayer-service";
+import { InquiryRepository } from "./src/backend/repositories/inquiries/repository";
+import { InquiryService } from "./src/backend/services/inquiries/service";
+import { PrayerRepository } from "./src/backend/repositories/prayer/repository";
+import { PrayerService } from "./src/backend/services/prayer/service";
 
 export default {
   fetch: openNextWorker.fetch,

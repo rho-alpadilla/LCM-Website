@@ -2,13 +2,15 @@ import Link from "next/link";
 import type { Route } from "next";
 
 import { AdminHeader } from "@/frontend/components/admin/admin-header";
-import { getContentWorkspace } from "@/backend/queries/admin-content";
+import { getContentWorkspace } from "@/backend/queries/content/admin-workspace";
 import { createContentAction } from "@/backend/actions/content";
 import {
   contentStatusLabels,
   contentTypeLabels,
   manageableContentTypes,
 } from "@/shared/content/options";
+
+import { formInputClass, FormField } from "./components/form-field";
 
 const messages: Record<string, string> = {
   invalid_content:
@@ -174,39 +176,43 @@ export default async function ContentPage({ searchParams }: Props) {
               action={createContentAction}
               className="mt-6 grid gap-5 sm:grid-cols-2"
             >
-              <Field label="Content type">
-                <select className={inputClass} name="contentType" required>
+              <FormField label="Content type">
+                <select className={formInputClass} name="contentType" required>
                   {manageableTypes.map((type) => (
                     <option key={type} value={type}>
                       {contentTypeLabels[type]}
                     </option>
                   ))}
                 </select>
-              </Field>
-              <Field label="Title">
+              </FormField>
+              <FormField label="Title">
                 <input
-                  className={inputClass}
+                  className={formInputClass}
                   maxLength={180}
                   name="title"
                   required
                 />
-              </Field>
-              <Field
+              </FormField>
+              <FormField
                 label="Web address slug"
                 hint="Lowercase letters, numbers, and hyphens only."
               >
                 <input
-                  className={inputClass}
+                  className={formInputClass}
                   maxLength={180}
                   name="slug"
                   pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
                   placeholder="sunday-celebration"
                   required
                 />
-              </Field>
-              <Field label="Short summary (optional)">
-                <input className={inputClass} maxLength={500} name="summary" />
-              </Field>
+              </FormField>
+              <FormField label="Short summary (optional)">
+                <input
+                  className={formInputClass}
+                  maxLength={500}
+                  name="summary"
+                />
+              </FormField>
               <button
                 className="rounded-xl bg-blue-800 px-5 py-3 font-bold text-white sm:col-span-2"
                 type="submit"
@@ -222,30 +228,6 @@ export default async function ContentPage({ searchParams }: Props) {
         </section>
       </main>
     </div>
-  );
-}
-
-const inputClass = "mt-2 w-full rounded-xl border border-slate-300 px-4 py-3";
-
-function Field({
-  label,
-  hint,
-  children,
-}: {
-  label: string;
-  hint?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <label className="block font-semibold text-slate-800">
-      {label}
-      {hint ? (
-        <span className="mt-1 block text-xs font-normal text-slate-500">
-          {hint}
-        </span>
-      ) : null}
-      {children}
-    </label>
   );
 }
 

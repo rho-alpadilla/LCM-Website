@@ -4,7 +4,7 @@ import type { Route } from "next";
 
 import { ContentCover } from "@/frontend/components/public/content-cover";
 import { PublicPage } from "@/frontend/components/public/public-page";
-import { getPublicMinistry } from "@/backend/queries/public-content-cache";
+import { getPublicMinistry } from "@/backend/queries/content/public-cache";
 
 export default async function MinistryPage({
   params,

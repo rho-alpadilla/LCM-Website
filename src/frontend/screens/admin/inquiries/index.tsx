@@ -2,7 +2,7 @@ import type { Route } from "next";
 import Link from "next/link";
 
 import { AdminHeader } from "@/frontend/components/admin/admin-header";
-import { getInquiryQueue } from "@/backend/queries/admin-inquiries";
+import { getInquiryQueue } from "@/backend/queries/inquiries/admin-queue";
 import { inquiryTypeLabel } from "@/shared/inquiries/types";
 
 export default async function InquiryQueuePage() {

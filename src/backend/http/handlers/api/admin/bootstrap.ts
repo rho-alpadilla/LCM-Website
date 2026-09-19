@@ -10,8 +10,8 @@ import {
   readLimitedJson,
   requireSameOrigin,
 } from "@/backend/http/request-security";
-import { AccessControlRepository } from "@/backend/repositories/access-control-repository";
-import { AccessControlService } from "@/backend/services/access-control-service";
+import { AccessControlRepository } from "@/backend/repositories/staff/access-control-repository";
+import { AccessControlService } from "@/backend/services/staff/access-control-service";
 
 const bootstrapBodySchema = z.object({
   displayName: z.string().trim().min(2).max(120),

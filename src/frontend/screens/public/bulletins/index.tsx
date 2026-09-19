@@ -5,7 +5,7 @@ import {
   PublicPage,
 } from "@/frontend/components/public/public-page";
 import { publicMediaUrl } from "@/shared/media/public-url";
-import { getPublicBulletins } from "@/backend/queries/public-content-cache";
+import { getPublicBulletins } from "@/backend/queries/content/public-cache";
 import { formatPublicDate } from "@/frontend/lib/public-format";
 
 export default async function BulletinsPage() {

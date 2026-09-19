@@ -1,8 +1,8 @@
 import { requirePayMongoCloudflareBindings } from "@/backend/cloudflare/bindings";
 import { readLimitedText } from "@/backend/http/request-security";
 import { verifyPayMongoWebhook } from "@/backend/integrations/paymongo";
-import { GivingCheckoutRepository } from "@/backend/repositories/giving-checkout-repository";
-import { GivingCheckoutService } from "@/backend/services/giving-checkout-service";
+import { GivingCheckoutRepository } from "@/backend/repositories/giving/checkout-repository";
+import { GivingCheckoutService } from "@/backend/services/giving/checkout-service";
 
 const responseHeaders = {
   "Cache-Control": "no-store, max-age=0",

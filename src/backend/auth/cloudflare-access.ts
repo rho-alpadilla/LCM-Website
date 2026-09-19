@@ -8,7 +8,7 @@ import {
 import { z } from "zod";
 
 import { ApplicationError } from "@/shared/errors/application-error";
-import type { VerifiedStaffIdentity } from "@/backend/services/access-control-service";
+import type { VerifiedStaffIdentity } from "@/backend/services/staff/access-control-service";
 
 const ACCESS_ASSERTION_HEADER = "cf-access-jwt-assertion";
 const ACCESS_CERTS_PATH = "/cdn-cgi/access/certs";

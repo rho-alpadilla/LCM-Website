@@ -1,5 +1,5 @@
 import { AdminHeader } from "@/frontend/components/admin/admin-header";
-import { getMediaWorkspace } from "@/backend/queries/admin-media";
+import { getMediaWorkspace } from "@/backend/queries/media/admin-library";
 import { uploadMediaAction } from "@/backend/actions/media";
 import { formatMegabytes, mediaPolicy } from "@/shared/media/policy";
 

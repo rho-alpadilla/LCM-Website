@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 
 import { ContentCover } from "@/frontend/components/public/content-cover";
 import { PublicPage } from "@/frontend/components/public/public-page";
-import { getPublicSermon } from "@/backend/queries/public-content-cache";
+import { getPublicSermon } from "@/backend/queries/content/public-cache";
 import { formatDuration, formatPublicDate } from "@/frontend/lib/public-format";
 
 export default async function SermonPage({

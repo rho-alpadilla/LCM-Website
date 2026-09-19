@@ -123,31 +123,23 @@ test("does not expose an unreferenced R2 media id", async ({ request }) => {
   expect(response.headers()["cache-control"]).toBe("no-store");
 });
 
-test("keeps public visitors separate from staff authentication", async ({
-  page,
-}) => {
-  const response = await page.goto("/admin/login");
-
-  expect(response?.headers()["cache-control"]).toContain("no-cache");
-  expect(response?.headers()["x-robots-tag"]).toBe("noindex, nofollow");
-  await expect(
-    page.getByRole("heading", { name: "Secure sign-in" }),
-  ).toBeVisible();
-  await expect(
-    page.getByText(/Staff authentication is handled by Cloudflare Access/),
-  ).toBeVisible();
-  await expect(page.getByText(/No password fallback is enabled/)).toBeVisible();
-  await expect(page.getByRole("textbox")).toHaveCount(0);
-});
-
-test("does not grant local developer access in a production build", async ({
+// Production and preview denial is verified in local-mode.test.ts. This suite
+// intentionally runs next dev against the local D1/R2 environment.
+test("uses an explicitly labelled local administrator for local E2E", async ({
   page,
 }) => {
   await page.goto("/admin");
 
-  await expect(page).toHaveURL(/\/admin\/login\?error=configuration$/);
+  await expect(page).toHaveURL(/\/admin$/);
   await expect(
-    page.getByRole("heading", { name: "Secure sign-in" }),
+    page.getByRole("heading", {
+      name: "Welcome, LOCAL DEVELOPMENT — System Administrator",
+    }),
+  ).toBeVisible();
+  await expect(
+    page.getByText(
+      "Local development mode — synthetic System Administrator, local D1/R2 only. PayMongo is unavailable.",
+    ),
   ).toBeVisible();
 });
 

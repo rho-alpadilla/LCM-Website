@@ -1,7 +1,9 @@
 # Frontend
 
 - `screens/public/` and `screens/admin/`: screen presentation, grouped by feature.
-- `components/`: reusable public and staff UI; interactive components explicitly use `"use client"`.
+- `components/`: reusable public and staff UI. Feature-specific public
+  components live under `activities`, `giving`, `inquiries`, or `prayer`;
+  content editor pieces stay with the admin content screen.
 - `lib/`: display formatting, not business rules or data access.
 - `api/`: browser HTTP requests, separate from form rendering and interaction state.
 - `types/`: browser-only ambient declarations.

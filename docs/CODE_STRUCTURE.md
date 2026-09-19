@@ -19,11 +19,11 @@ approved in decision `0002`; it is not the `backend` folder in this website.
 | Reuse a form, header, card or interactive control                 | `src/frontend/components`                |
 | Format displayed dates, durations or labels                       | `src/frontend/lib`                       |
 | Send a browser HTTP request                                       | `src/frontend/api`                       |
-| Load screen data with staff authorization                         | `src/backend/queries`                    |
-| Handle a staff form submission                                    | `src/backend/actions`                    |
+| Load screen data with staff authorization                         | `src/backend/queries/<workflow>`         |
+| Handle a staff form submission                                    | `src/backend/actions/<workflow>`         |
 | Handle a public form/API request or webhook                       | `src/backend/http/handlers`              |
-| Change a permission-aware workflow                                | `src/backend/services`                   |
-| Read/write D1                                                     | `src/backend/repositories`               |
+| Change a permission-aware workflow                                | `src/backend/services/<workflow>`        |
+| Read/write D1                                                     | `src/backend/repositories/<workflow>`    |
 | Verify staff identity or permissions                              | `src/backend/auth`                       |
 | Call PayMongo or another approved provider                        | `src/backend/integrations`               |
 | Verify bots or protect submission limits                          | `src/backend/security`                   |
@@ -82,8 +82,11 @@ pixel dimensions are unnecessarily large for web delivery.
 
 ## Keep related things together
 
-Group screens by audience and feature, actions/queries/services by workflow,
-and unit tests beside the module they verify. Shared types live in `shared`,
+Group screens by audience and feature. Backend files are grouped by the church
+workflow they support: `content`, `prayer`, `inquiries`, `staff`, `media`, or
+`giving`. For example, content’s action adapter, editor query, service and D1
+repositories each live in a `content` folder within their respective layer.
+Unit tests sit beside the module they verify. Shared types live in `shared`,
 while persistence-only record shapes and repository ports stay in `backend`.
 Root `tests` holds architecture checks and cross-application browser tests.
 Avoid a generic dumping-ground `utils` folder or a single barrel exporting
@@ -108,7 +111,7 @@ mode; preview and production are rejected by the same guard.
 | `src/features/*/actions.ts`                      | `src/backend/actions`                                |
 | `src/features/auth/staff-context.ts`             | `src/backend/auth/staff-context.ts`                  |
 | Feature schemas, labels and policies             | `src/shared`                                         |
-| `src/lib/public-content-cache.ts`                | `src/backend/queries/public-content-cache.ts`        |
+| `src/lib/public-content-cache.ts`                | `src/backend/queries/content/public-cache.ts`        |
 | `src/lib/public-format.ts`                       | `src/frontend/lib/public-format.ts`                  |
 
 ## Verification

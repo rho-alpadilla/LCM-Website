@@ -1,6 +1,6 @@
 import "server-only";
 
-import { AccessControlRepository } from "@/backend/repositories/access-control-repository";
+import { AccessControlRepository } from "@/backend/repositories/staff/access-control-repository";
 import {
   localDevelopmentConfiguration,
   type LocalDevelopmentBindings,

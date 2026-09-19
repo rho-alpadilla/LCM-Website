@@ -6,7 +6,7 @@ import {
   assignInquiryAction,
   closeInquiryAction,
 } from "@/backend/actions/inquiries";
-import { getInquiryDetail } from "@/backend/queries/admin-inquiries";
+import { getInquiryDetail } from "@/backend/queries/inquiries/admin-queue";
 import { AdminHeader } from "@/frontend/components/admin/admin-header";
 import { inquiryPermission } from "@/shared/inquiries/schemas";
 import { inquiryTypeLabel } from "@/shared/inquiries/types";

@@ -2,7 +2,7 @@ import type { Route } from "next";
 import Link from "next/link";
 
 import { AdminHeader } from "@/frontend/components/admin/admin-header";
-import { getPrayerQueue } from "@/backend/queries/admin-prayer";
+import { getPrayerQueue } from "@/backend/queries/prayer/admin-queue";
 
 export default async function PrayerQueuePage() {
   const state = await getPrayerQueue();

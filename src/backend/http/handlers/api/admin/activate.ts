@@ -5,8 +5,8 @@ import {
   privateJsonResponse,
 } from "@/backend/http/responses";
 import { requireSameOrigin } from "@/backend/http/request-security";
-import { AccessControlRepository } from "@/backend/repositories/access-control-repository";
-import { AccessControlService } from "@/backend/services/access-control-service";
+import { AccessControlRepository } from "@/backend/repositories/staff/access-control-repository";
+import { AccessControlService } from "@/backend/services/staff/access-control-service";
 
 export async function POST(request: Request) {
   try {

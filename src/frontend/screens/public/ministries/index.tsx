@@ -7,7 +7,7 @@ import {
   PageIntro,
   PublicPage,
 } from "@/frontend/components/public/public-page";
-import { getPublicMinistries } from "@/backend/queries/public-content-cache";
+import { getPublicMinistries } from "@/backend/queries/content/public-cache";
 
 export default async function MinistriesPage() {
   const ministries = await getPublicMinistries();

@@ -1,4 +1,4 @@
-import { GivingForm } from "@/frontend/components/public/giving-form";
+import { GivingForm } from "@/frontend/components/public/giving/form";
 import {
   PageIntro,
   PublicPage,

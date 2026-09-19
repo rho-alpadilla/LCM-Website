@@ -1,4 +1,4 @@
-import { PrayerRequestForm } from "@/frontend/components/public/prayer-request-form";
+import { PrayerRequestForm } from "@/frontend/components/public/prayer/request-form";
 import {
   PageIntro,
   PublicPage,

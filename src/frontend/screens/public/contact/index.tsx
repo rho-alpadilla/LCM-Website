@@ -1,4 +1,4 @@
-import { VisitorInquiryForm } from "@/frontend/components/public/visitor-inquiry-form";
+import { VisitorInquiryForm } from "@/frontend/components/public/inquiries/visitor-inquiry-form";
 import {
   PageIntro,
   PublicPage,

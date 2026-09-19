@@ -1,6 +1,6 @@
 import { AdminHeader } from "@/frontend/components/admin/admin-header";
-import { PrayerContactReveal } from "@/frontend/components/admin/prayer-contact-reveal";
-import { getPrayerDetail } from "@/backend/queries/admin-prayer";
+import { PrayerContactReveal } from "@/frontend/screens/admin/prayer/components/contact-reveal";
+import { getPrayerDetail } from "@/backend/queries/prayer/admin-queue";
 import {
   addPrayerUpdateAction,
   assignPrayerAction,

@@ -7,7 +7,7 @@ import {
   PageIntro,
   PublicPage,
 } from "@/frontend/components/public/public-page";
-import { getPublicSermons } from "@/backend/queries/public-content-cache";
+import { getPublicSermons } from "@/backend/queries/content/public-cache";
 import { formatDuration, formatPublicDate } from "@/frontend/lib/public-format";
 
 export default async function SermonsPage() {

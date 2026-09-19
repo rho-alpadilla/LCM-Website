@@ -8,8 +8,8 @@ import {
   roleChangeSchema,
   suspensionSchema,
 } from "@/shared/staff/schemas";
-import { AccessControlRepository } from "@/backend/repositories/access-control-repository";
-import { AccessControlService } from "@/backend/services/access-control-service";
+import { AccessControlRepository } from "@/backend/repositories/staff/access-control-repository";
+import { AccessControlService } from "@/backend/services/staff/access-control-service";
 
 const values = (formData: FormData) => Object.fromEntries(formData.entries());
 
