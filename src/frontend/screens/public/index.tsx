@@ -1,4 +1,5 @@
 import type { Route } from "next";
+import Image from "next/image";
 import Link from "next/link";
 
 import { PublicPage } from "@/frontend/components/public/public-page";
@@ -6,78 +7,60 @@ import { siteConfig } from "@/shared/config/site";
 
 export default function HomePage() {
   return (
-    <PublicPage>
-      <section className="border-b border-slate-950 bg-[#fffdf8]">
-        <div className="mx-auto grid max-w-7xl lg:grid-cols-[minmax(0,1.1fr)_minmax(20rem,0.9fr)]">
-          <div className="px-4 py-16 sm:px-6 sm:py-24 lg:border-r lg:border-slate-950">
-            <p className="text-xs font-black tracking-[0.2em] text-green-700 uppercase">
+    <PublicPage headerVariant="hero">
+      <section className="relative isolate flex min-h-[42rem] overflow-hidden bg-slate-950 text-white sm:min-h-[44rem]">
+        <Image
+          alt="Lifechangers Ministry church family gathered together."
+          className="object-cover object-center"
+          fill
+          priority
+          sizes="100vw"
+          src="/images/home/lcm-church-family.jpg"
+        />
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 bg-[linear-gradient(180deg,rgba(2,6,23,0.48)_0%,rgba(2,6,23,0.15)_35%,rgba(2,6,23,0.82)_100%)]"
+        />
+        <div className="relative mx-auto flex w-full max-w-7xl items-end px-4 pt-32 pb-14 sm:px-6 sm:pt-36 sm:pb-20">
+          <div className="max-w-3xl">
+            <p className="text-xs font-black tracking-[0.2em] text-white/80 uppercase">
               Lifechangers Ministry · Baguio City
             </p>
-            <h1 className="mt-6 max-w-3xl text-5xl font-black tracking-[-0.06em] text-slate-950 sm:text-7xl lg:text-8xl">
+            <h1 className="mt-5 text-5xl leading-[0.94] font-black tracking-[-0.055em] text-balance sm:text-7xl lg:text-8xl">
               Love God.
               <br />
               Love people.
             </h1>
-            <p className="mt-7 max-w-xl text-lg leading-8 text-slate-700 sm:text-xl">
+            <p className="mt-6 max-w-xl text-lg leading-8 text-white/90 sm:text-xl">
               {siteConfig.description}
             </p>
-            <div className="mt-10 flex flex-wrap gap-3">
+            <div className="mt-9 flex flex-wrap gap-3">
               <Link
-                className="border border-slate-950 bg-[#1111a8] px-5 py-3 font-black text-white transition-[background-color,transform] duration-150 ease-out hover:bg-blue-800 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-800 active:scale-[0.98]"
+                className="border border-white bg-white px-5 py-3 font-black text-slate-950 transition-[background-color,transform] duration-150 ease-out hover:bg-white/85 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white active:scale-[0.98]"
                 href={"/sermons" as Route}
               >
                 Watch a sermon
               </Link>
               <Link
-                className="border border-slate-950 bg-yellow-300 px-5 py-3 font-black text-slate-950 transition-[background-color,transform] duration-150 ease-out hover:bg-yellow-200 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-800 active:scale-[0.98]"
+                className="border border-white/80 bg-slate-950/10 px-5 py-3 font-black text-white transition-[background-color,transform] duration-150 ease-out hover:bg-white/15 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white active:scale-[0.98]"
                 href={"/activities" as Route}
               >
                 See what’s happening
               </Link>
             </div>
-            <div className="mt-12 grid max-w-xl grid-cols-3 gap-3 border-t border-slate-950 pt-5 text-sm font-bold text-slate-700">
-              <Link
-                className="hover:text-blue-800 hover:underline"
-                href="/prayer"
-              >
-                Prayer
-              </Link>
-              <Link
-                className="hover:text-blue-800 hover:underline"
-                href="/join"
-              >
-                Join a ministry
-              </Link>
-              <Link
-                className="hover:text-blue-800 hover:underline"
-                href="/contact"
-              >
-                Contact us
-              </Link>
-            </div>
+            <ul className="mt-10 flex flex-wrap gap-x-5 gap-y-2 text-sm font-bold text-white/90">
+              {quickLinks.map((item) => (
+                <li key={item.href}>
+                  <Link
+                    className="underline decoration-white/50 underline-offset-4 transition-colors duration-150 ease-out hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+                    href={item.href as Route}
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
-          <figure className="relative min-h-[26rem] border-t border-slate-950 bg-[#1111a8] p-4 sm:p-6 lg:min-h-full lg:border-t-0">
-            <div className="flex h-full min-h-[23rem] flex-col justify-between border border-white/70 p-6 text-white sm:p-8">
-              <p className="w-fit bg-yellow-300 px-3 py-1 text-xs font-black tracking-[0.16em] text-slate-950 uppercase">
-                Church photography
-              </p>
-              <div>
-                <p className="text-xs font-black tracking-[0.16em] text-blue-100 uppercase">
-                  Temporary visual placeholder
-                </p>
-                <h2 className="mt-3 max-w-md text-3xl leading-10 font-black tracking-[-0.035em]">
-                  This space is for the real people and life of LCM.
-                </h2>
-                <p className="mt-4 max-w-sm leading-7 text-blue-100">
-                  Official church photos will replace this temporary visual.
-                </p>
-              </div>
-            </div>
-            <figcaption className="sr-only">
-              Temporary church photography placeholder. Official church photos
-              will replace this visual.
-            </figcaption>
-          </figure>
         </div>
       </section>
 
@@ -85,9 +68,9 @@ export default function HomePage() {
         className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24"
         aria-labelledby="connect-title"
       >
-        <div className="grid gap-8 border-b border-slate-950 pb-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-end">
+        <div className="grid gap-8 border-b border-slate-300 pb-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-end">
           <div>
-            <p className="text-xs font-black tracking-[0.2em] text-red-700 uppercase">
+            <p className="text-xs font-black tracking-[0.2em] text-blue-800 uppercase">
               Start here
             </p>
             <h2
@@ -102,22 +85,23 @@ export default function HomePage() {
             or a way to connect with the church.
           </p>
         </div>
-        <ol className="grid border-l border-slate-950 sm:grid-cols-2 lg:grid-cols-3">
+        <ol className="mt-2 grid sm:grid-cols-2 lg:grid-cols-3">
           {publicDestinations.map((item) => (
-            <li className="border-r border-b border-slate-950" key={item.href}>
+            <li className="border-b border-slate-300" key={item.href}>
               <Link
-                className="group block h-full bg-[#fffdf8] p-6 transition-colors duration-150 ease-out hover:bg-slate-950 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-800 sm:p-7"
+                className="group flex h-full items-start justify-between gap-4 py-6 pr-4 transition-colors duration-150 ease-out hover:text-blue-800 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-800 sm:py-7 lg:pr-7"
                 href={item.href as Route}
               >
-                <span className={`block h-1 w-10 ${item.accentClass}`} />
-                <span className="mt-8 flex items-start justify-between gap-4 text-2xl font-black tracking-[-0.035em]">
-                  {item.label}
-                  <span aria-hidden="true" className="text-xl">
-                    ↗
+                <span>
+                  <span className="block text-2xl font-black tracking-[-0.035em]">
+                    {item.label}
+                  </span>
+                  <span className="mt-2 block max-w-xs text-sm leading-6 text-slate-600 transition-colors duration-150 ease-out group-hover:text-slate-700">
+                    {item.description}
                   </span>
                 </span>
-                <span className="mt-3 block max-w-xs text-sm leading-6 text-slate-600 transition-colors duration-150 ease-out group-hover:text-slate-300">
-                  {item.description}
+                <span aria-hidden="true" className="mt-1 text-xl">
+                  ↗
                 </span>
               </Link>
             </li>
@@ -125,13 +109,13 @@ export default function HomePage() {
         </ol>
         <div className="mt-10 flex flex-wrap gap-3">
           <Link
-            className="border border-slate-950 bg-green-700 px-5 py-3 font-black text-white transition-[background-color,transform] duration-150 ease-out hover:bg-green-800 active:scale-[0.98]"
+            className="border border-slate-950 bg-slate-950 px-5 py-3 font-black text-white transition-[background-color,transform] duration-150 ease-out hover:bg-slate-700 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-800 active:scale-[0.98]"
             href={"/contact" as Route}
           >
             Contact the church
           </Link>
           <Link
-            className="border border-slate-950 bg-[#fffdf8] px-5 py-3 font-black text-slate-950 transition-[background-color,transform] duration-150 ease-out hover:bg-yellow-300 active:scale-[0.98]"
+            className="border border-slate-950 bg-transparent px-5 py-3 font-black text-slate-950 transition-[background-color,transform] duration-150 ease-out hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-800 active:scale-[0.98]"
             href={"/give" as Route}
           >
             Give tithes &amp; offerings
@@ -147,36 +131,36 @@ const publicDestinations = [
     href: "/sermons",
     label: "Sermons",
     description: "Watch published messages from the church.",
-    accentClass: "bg-blue-800",
   },
   {
     href: "/ministries",
     label: "Ministries",
     description: "Discover places to connect, grow, and serve.",
-    accentClass: "bg-green-600",
   },
   {
     href: "/activities",
     label: "Church calendar",
     description: "See services and upcoming church gatherings by month.",
-    accentClass: "bg-yellow-300",
   },
   {
     href: "/announcements",
     label: "Announcements",
     description: "Read current news and important updates.",
-    accentClass: "bg-red-700",
   },
   {
     href: "/bulletins",
     label: "Bulletins",
     description: "Download approved church bulletins.",
-    accentClass: "bg-blue-800",
   },
   {
     href: "/about",
     label: "About LCM",
     description: "Read our vision, mission, goals, passion, and values.",
-    accentClass: "bg-green-600",
   },
+] as const;
+
+const quickLinks = [
+  { href: "/prayer", label: "Request prayer" },
+  { href: "/join", label: "Join a ministry" },
+  { href: "/contact", label: "Contact the church" },
 ] as const;

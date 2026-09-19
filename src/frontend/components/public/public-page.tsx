@@ -1,18 +1,24 @@
 import type { ReactNode } from "react";
 
 import { PublicFooter } from "./public-footer";
-import { PublicHeader } from "./public-header";
+import { PublicHeader, type PublicHeaderVariant } from "./public-header";
 
-export function PublicPage({ children }: { children: ReactNode }) {
+export function PublicPage({
+  children,
+  headerVariant = "default",
+}: {
+  children: ReactNode;
+  headerVariant?: PublicHeaderVariant;
+}) {
   return (
-    <div className="flex min-h-screen flex-col bg-[#f7f4ed] text-slate-950">
+    <div className="relative flex min-h-screen flex-col bg-[#f7f4ed] text-slate-950">
       <a
         className="sr-only z-50 rounded-md bg-white px-4 py-3 font-bold text-blue-900 shadow-lg focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
         href="#main-content"
       >
         Skip to main content
       </a>
-      <PublicHeader />
+      <PublicHeader variant={headerVariant} />
       <main className="flex-1" id="main-content">
         {children}
       </main>

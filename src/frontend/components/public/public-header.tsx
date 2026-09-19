@@ -5,6 +5,7 @@ import Link from "next/link";
 import { siteConfig } from "@/shared/config/site";
 
 type NavigationLink = { href: Route; label: string };
+export type PublicHeaderVariant = "default" | "hero";
 
 const navigationGroups: Array<{
   label: string;
@@ -39,12 +40,26 @@ const directNavigation: NavigationLink[] = [
   { href: "/give", label: "Give" },
 ];
 
-export function PublicHeader() {
+export function PublicHeader({
+  variant = "default",
+}: {
+  variant?: PublicHeaderVariant;
+}) {
+  const isHero = variant === "hero";
+
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-950 bg-[#f7f4ed]">
+    <header
+      className={
+        isHero
+          ? "absolute inset-x-0 top-0 z-40 border-b border-white/20 bg-slate-950/20 text-white backdrop-blur-[2px]"
+          : "sticky top-0 z-40 border-b border-slate-950 bg-[#f7f4ed]"
+      }
+    >
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
         <Link
-          className="flex min-w-0 items-center gap-3 text-slate-950"
+          className={`flex min-w-0 items-center gap-3 ${
+            isHero ? "text-white" : "text-slate-950"
+          }`}
           href="/"
         >
           <Image
@@ -59,26 +74,40 @@ export function PublicHeader() {
             <span className="block truncate text-sm font-black tracking-[-0.025em] sm:text-base">
               {siteConfig.name}
             </span>
-            <span className="block text-[0.65rem] font-black tracking-[0.18em] text-slate-600 uppercase">
+            <span
+              className={`block text-[0.65rem] font-black tracking-[0.18em] uppercase ${
+                isHero ? "text-white/75" : "text-slate-600"
+              }`}
+            >
               Church without walls
             </span>
           </span>
         </Link>
-        <PublicDesktopNavigation />
-        <PublicMobileNavigation />
+        <PublicDesktopNavigation isHero={isHero} />
+        <PublicMobileNavigation isHero={isHero} />
       </div>
     </header>
   );
 }
 
-function PublicDesktopNavigation() {
+function PublicDesktopNavigation({ isHero }: { isHero: boolean }) {
   return (
     <nav aria-label="Main navigation" className="hidden lg:block">
-      <ul className="flex items-center gap-1 text-xs font-black tracking-[0.08em] text-slate-800 uppercase">
+      <ul
+        className={`flex items-center gap-1 text-xs font-black tracking-[0.08em] uppercase ${
+          isHero ? "text-white" : "text-slate-800"
+        }`}
+      >
         {navigationGroups.map((group) => (
           <li className="relative" key={group.label}>
             <details className="group">
-              <summary className="flex cursor-pointer list-none items-center gap-1 px-3 py-2 transition-colors duration-150 ease-out hover:text-blue-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800 [&::-webkit-details-marker]:hidden">
+              <summary
+                className={`flex cursor-pointer list-none items-center gap-1 px-3 py-2 transition-colors duration-150 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 [&::-webkit-details-marker]:hidden ${
+                  isHero
+                    ? "hover:bg-white/10 focus-visible:outline-white"
+                    : "hover:text-blue-800 focus-visible:outline-blue-800"
+                }`}
+              >
                 {group.label}
                 <ChevronDown />
               </summary>
@@ -102,8 +131,12 @@ function PublicDesktopNavigation() {
             <Link
               className={
                 item.href === "/give"
-                  ? "ml-2 border border-slate-950 bg-red-700 px-3 py-2 text-white transition-[background-color,transform] duration-150 ease-out hover:bg-red-800 active:scale-[0.98]"
-                  : "px-3 py-2 transition-colors duration-150 ease-out hover:text-blue-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800"
+                  ? isHero
+                    ? "ml-2 border border-white/70 bg-white/10 px-3 py-2 text-white transition-[background-color,transform] duration-150 ease-out hover:bg-white hover:text-slate-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:scale-[0.98]"
+                    : "ml-2 border border-slate-950 bg-red-700 px-3 py-2 text-white transition-[background-color,transform] duration-150 ease-out hover:bg-red-800 active:scale-[0.98]"
+                  : isHero
+                    ? "px-3 py-2 transition-colors duration-150 ease-out hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                    : "px-3 py-2 transition-colors duration-150 ease-out hover:text-blue-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800"
               }
               href={item.href}
             >
@@ -116,10 +149,16 @@ function PublicDesktopNavigation() {
   );
 }
 
-function PublicMobileNavigation() {
+function PublicMobileNavigation({ isHero }: { isHero: boolean }) {
   return (
     <details className="group relative lg:hidden">
-      <summary className="flex cursor-pointer list-none items-center gap-2 border border-slate-950 bg-[#fffdf8] px-3 py-2 text-xs font-black tracking-[0.08em] text-slate-900 uppercase transition-[background-color,transform] duration-150 ease-out hover:bg-yellow-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800 active:scale-[0.98] [&::-webkit-details-marker]:hidden">
+      <summary
+        className={`flex cursor-pointer list-none items-center gap-2 border px-3 py-2 text-xs font-black tracking-[0.08em] uppercase transition-[background-color,transform] duration-150 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.98] [&::-webkit-details-marker]:hidden ${
+          isHero
+            ? "border-white/70 bg-slate-950/20 text-white hover:bg-white/10 focus-visible:outline-white"
+            : "border-slate-950 bg-[#fffdf8] text-slate-900 hover:bg-yellow-300 focus-visible:outline-blue-800"
+        }`}
+      >
         Menu
         <ChevronDown />
       </summary>
