@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 
 import { siteConfig } from "@/shared/config/site";
 
+import { allura, montserrat } from "./fonts";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -19,7 +20,7 @@ type RootLayoutProps = Readonly<{
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
-    <html lang="en">
+    <html className={`${montserrat.variable} ${allura.variable}`} lang="en">
       <body>{children}</body>
     </html>
   );

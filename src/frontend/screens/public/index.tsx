@@ -31,6 +31,9 @@ export default function HomePage() {
               <br />
               Love people.
             </h1>
+            <p className="font-script mt-3 text-4xl leading-none text-white/90 sm:text-5xl">
+              Church without walls
+            </p>
             <p className="mt-6 max-w-xl text-lg leading-8 text-white/90 sm:text-xl">
               {siteConfig.description}
             </p>
