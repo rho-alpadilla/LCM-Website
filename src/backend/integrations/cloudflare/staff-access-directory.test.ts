@@ -117,4 +117,19 @@ describe("Cloudflare staff Access directory", () => {
       createStaffAccessDirectory({ APP_ENVIRONMENT: "preview" }),
     ).toThrow(/automation is not configured/i);
   });
+
+  it("reports rejected Access policy credentials without exposing provider details", async () => {
+    const directory = createStaffAccessDirectory(
+      configuredEnvironment,
+      vi
+        .fn()
+        .mockResolvedValue(
+          Response.json({ success: false }, { status: 403 }),
+        ) as typeof fetch,
+    );
+
+    await expect(directory.allowEmail("person@example.com")).rejects.toThrow(
+      /rejected the staff policy credentials/i,
+    );
+  });
 });

@@ -198,6 +198,18 @@ class CloudflareStaffAccessDirectory implements StaffAccessDirectory {
     }
 
     const parsed = providerResponseSchema.safeParse(payload);
+    if (response.status === 401 || response.status === 403) {
+      throw new ApplicationError(
+        "INTERNAL_ERROR",
+        "Cloudflare Access rejected the staff policy credentials.",
+      );
+    }
+    if (response.status === 404) {
+      throw new ApplicationError(
+        "INTERNAL_ERROR",
+        "The configured Cloudflare Access policy could not be found.",
+      );
+    }
     if (!response.ok || !parsed.success || !parsed.data.success) {
       throw new ApplicationError(
         "INTERNAL_ERROR",

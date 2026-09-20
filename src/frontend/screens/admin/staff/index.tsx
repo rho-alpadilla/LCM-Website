@@ -19,8 +19,24 @@ const messages: Record<string, string> = {
 };
 
 const errors: Record<string, string> = {
+  elevated_role_reason_required:
+    "System Administrator and Core Leader access require a reason of at least 10 characters.",
+  staff_email_exists:
+    "This email already has an active account or a pending staff account. Use a different email, or review the existing record below.",
   staff_setup_required:
     "Staff sign-in setup is not ready. Complete the one-time Cloudflare Access connection first.",
+  staff_access_authorization_failed:
+    "Cloudflare rejected the website's staff-access permission. No staff account was created. Check the restricted Cloudflare Access token, then retry.",
+  staff_access_policy_missing:
+    "The configured Cloudflare staff policy could not be found. No staff account was created. Check the policy connection, then retry.",
+  staff_access_policy_invalid:
+    "The Cloudflare staff policy has an unsupported rule. No staff account was created. It must be an Allow policy containing only exact staff email addresses.",
+  staff_access_unreachable:
+    "Cloudflare Access could not be reached. No staff account was created; wait a moment and retry once.",
+  staff_access_update_failed:
+    "Cloudflare could not update the secure staff sign-in list. No staff account was created. Check the policy setup, then retry.",
+  invitation_failed:
+    "The staff account was not created. A safe diagnostic was recorded; review the Worker logs before retrying.",
 };
 
 type Props = {

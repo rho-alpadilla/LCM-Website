@@ -2,7 +2,6 @@
 
 import { redirect } from "next/navigation";
 
-import { ApplicationError } from "@/shared/errors/application-error";
 import { requireActiveStaffSession } from "@/backend/auth/staff-context";
 import {
   invitationSchema,
@@ -15,6 +14,10 @@ import {
 } from "@/backend/integrations/cloudflare/staff-access-directory";
 import { AccessControlRepository } from "@/backend/repositories/staff/access-control-repository";
 import { AccessControlService } from "@/backend/services/staff/access-control-service";
+import {
+  getStaffInvitationFailureCode,
+  logStaffInvitationFailure,
+} from "./staff-invitation-feedback";
 
 const values = (formData: FormData) => Object.fromEntries(formData.entries());
 
@@ -52,13 +55,8 @@ export async function inviteStaffAction(formData: FormData) {
         console.error("Failed to undo a Cloudflare Access staff email change.");
       }
     }
-    if (
-      error instanceof ApplicationError &&
-      error.message === "Staff account automation is not configured."
-    ) {
-      redirect("/admin/staff?error=staff_setup_required");
-    }
-    redirect("/admin/staff?error=invitation_failed");
+    logStaffInvitationFailure(error);
+    redirect(`/admin/staff?error=${getStaffInvitationFailureCode(error)}`);
   }
   redirect("/admin/staff?message=account_created");
 }
