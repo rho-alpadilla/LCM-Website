@@ -5,8 +5,8 @@ Zero-subscription-first, upgrade-ready church outreach platform built with Next.
 ## Current Status
 
 Phases 1 through 4 are complete in the local codebase. Admin pages use
-Cloudflare Access identity plus D1 invitations, activation, roles, suspension,
-and audit records. The public site reads only published content, expands
+Cloudflare Access identity plus D1 staff provisioning, automatic first-sign-in
+activation, roles, suspension, and audit records. The public site reads only published content, expands
 upcoming activities, and delivers approved R2 files through protected routes.
 Phase 5 protected prayer workflows and the minimal PayMongo hosted-checkout
 flow are implemented locally. Cloudflare Access is active for the temporary

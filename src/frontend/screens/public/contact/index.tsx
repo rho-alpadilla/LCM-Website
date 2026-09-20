@@ -15,17 +15,17 @@ export default function ContactPage() {
         title="Contact the church"
       />
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-[0.75fr_1.25fr]">
-        <aside className="rounded-3xl bg-slate-950 p-6 text-slate-200 sm:p-8">
-          <h2 className="text-2xl font-black text-white">
+        <aside className="rounded-2xl bg-slate-950 p-6 text-slate-200 sm:p-8">
+          <h2 className="text-2xl font-semibold text-white">
             Lifechangers Ministry Incorporated
           </h2>
           <dl className="mt-6 grid gap-5 text-sm leading-6">
             <div>
-              <dt className="font-bold text-yellow-300">Address</dt>
+              <dt className="font-bold text-[#dce8d8]">Address</dt>
               <dd className="mt-1">{siteConfig.contact.address}</dd>
             </div>
             <div>
-              <dt className="font-bold text-yellow-300">Phone</dt>
+              <dt className="font-bold text-[#dce8d8]">Phone</dt>
               <dd className="mt-1">
                 <a
                   className="underline"
@@ -36,7 +36,7 @@ export default function ContactPage() {
               </dd>
             </div>
             <div>
-              <dt className="font-bold text-yellow-300">Email</dt>
+              <dt className="font-bold text-[#dce8d8]">Email</dt>
               <dd className="mt-1">
                 <a
                   className="underline"
@@ -47,7 +47,7 @@ export default function ContactPage() {
               </dd>
             </div>
             <div>
-              <dt className="font-bold text-yellow-300">Facebook</dt>
+              <dt className="font-bold text-[#dce8d8]">Facebook</dt>
               <dd className="mt-1">
                 <a
                   className="underline"

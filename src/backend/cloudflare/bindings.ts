@@ -16,7 +16,12 @@ type RequiredBindingName = (typeof requiredBindingNames)[number];
 export type RequiredCloudflareBindings = Pick<
   CloudflareEnv,
   RequiredBindingName
->;
+> & {
+  APP_ENVIRONMENT?: unknown;
+  CLOUDFLARE_ACCESS_ACCOUNT_ID?: unknown;
+  CLOUDFLARE_ACCESS_POLICY_ID?: unknown;
+  CLOUDFLARE_ACCESS_API_TOKEN?: unknown;
+};
 
 export type PrayerCloudflareBindings = RequiredCloudflareBindings &
   Pick<CloudflareEnv, "PRAYER_SUBMISSION_RATE_LIMITER"> & {

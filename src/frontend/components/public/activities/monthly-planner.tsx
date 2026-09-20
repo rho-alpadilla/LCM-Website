@@ -58,7 +58,7 @@ export function MonthlyActivityPlanner({
 
   return (
     <section
-      className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6"
+      className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6"
       aria-labelledby="planner-title"
     >
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -67,14 +67,13 @@ export function MonthlyActivityPlanner({
             Monthly planner
           </p>
           <h2
-            className="mt-2 text-2xl font-black text-slate-950"
+            className="mt-2 text-2xl font-semibold text-slate-950"
             id="planner-title"
           >
             Church calendar
           </h2>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
-            Select a day to see its published activities. Private ministry
-            locations stay protected.
+            Select a day to see what’s happening.
           </p>
         </div>
         <div className="flex gap-2" aria-label="Calendar months">
@@ -96,7 +95,7 @@ export function MonthlyActivityPlanner({
           </button>
         </div>
       </div>
-      <p className="mt-6 text-center text-lg font-black text-slate-950">
+      <p className="mt-6 text-center text-lg font-semibold text-slate-950">
         {formatMonth(activeMonth)}
       </p>
       <div
@@ -128,12 +127,12 @@ export function MonthlyActivityPlanner({
             <button
               aria-label={`${formatDay(day)}${dayOccurrences.length ? `, ${dayOccurrences.length} activities` : ""}`}
               aria-pressed={selected}
-              className={`min-h-22 rounded-lg border p-1 text-left transition sm:min-h-26 sm:p-2 ${selected ? "border-blue-800 bg-blue-50 ring-2 ring-blue-800" : "border-slate-200 hover:border-blue-300"}`}
+              className={`min-h-22 rounded-lg border p-1 text-left transition sm:min-h-26 sm:p-2 ${selected ? "border-[#244d3d] bg-[#edf0e9] ring-2 ring-[#244d3d]" : "border-slate-200 hover:border-blue-300"}`}
               key={day}
               onClick={() => setSelectedDate(day)}
               type="button"
             >
-              <span className="grid h-6 w-6 place-items-center rounded-full text-xs font-black text-slate-700">
+              <span className="grid h-6 w-6 place-items-center rounded-full text-xs font-semibold text-slate-700">
                 {Number(day.slice(-2))}
               </span>
               <span className="mt-1 grid gap-1">
@@ -147,7 +146,7 @@ export function MonthlyActivityPlanner({
                   </span>
                 ))}
                 {dayOccurrences.length > 2 ? (
-                  <span className="text-[10px] font-bold text-blue-800">
+                  <span className="text-[10px] font-bold text-[#244d3d]">
                     +{dayOccurrences.length - 2} more
                   </span>
                 ) : null}
@@ -158,7 +157,9 @@ export function MonthlyActivityPlanner({
       </div>
 
       <div className="mt-6 rounded-2xl bg-slate-50 p-4" aria-live="polite">
-        <h3 className="font-black text-slate-950">{formatDay(selectedDate)}</h3>
+        <h3 className="font-semibold text-slate-950">
+          {formatDay(selectedDate)}
+        </h3>
         {activeOccurrences.length ? (
           <ul className="mt-4 grid gap-3">
             {activeOccurrences.map((occurrence) => (
@@ -178,7 +179,7 @@ export function MonthlyActivityPlanner({
                     </span>
                   ) : null}
                 </div>
-                <p className="mt-2 font-black text-slate-950">
+                <p className="mt-2 font-semibold text-slate-950">
                   {occurrence.activity.title}
                 </p>
                 <p className="mt-1 text-sm text-slate-600">

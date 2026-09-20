@@ -33,7 +33,7 @@ export default async function MinistriesPage() {
                       {ministry.shortName}
                     </p>
                   ) : null}
-                  <h2 className="mt-2 text-xl font-black text-slate-950">
+                  <h2 className="mt-2 text-xl font-semibold text-slate-950">
                     <Link href={`/ministries/${ministry.slug}` as Route}>
                       {ministry.title}
                     </Link>
@@ -44,7 +44,7 @@ export default async function MinistriesPage() {
                     </p>
                   ) : null}
                   <Link
-                    className="mt-5 inline-block font-bold text-blue-800 underline"
+                    className="mt-5 inline-block font-bold text-[#244d3d] underline"
                     href={
                       `/join?ministry=${encodeURIComponent(ministry.slug)}` as Route
                     }

@@ -51,7 +51,7 @@ export function GivingForm({ siteKey }: { siteKey: string | null }) {
         />
       ) : null}
       <form
-        className="grid gap-6 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8"
+        className="grid gap-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8"
         onSubmit={submit}
       >
         <label className="font-bold text-slate-900">
@@ -116,7 +116,7 @@ export function GivingForm({ siteKey }: { siteKey: string | null }) {
         )}
 
         <button
-          className="rounded-xl bg-blue-800 px-5 py-3 font-bold text-white disabled:cursor-not-allowed disabled:opacity-50"
+          className="rounded-xl bg-[#244d3d] px-5 py-3 font-bold text-white disabled:cursor-not-allowed disabled:opacity-50"
           disabled={!siteKey || status.kind === "submitting"}
           type="submit"
         >

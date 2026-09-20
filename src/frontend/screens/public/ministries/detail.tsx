@@ -17,13 +17,13 @@ export default async function MinistryPage({
   return (
     <PublicPage>
       <article className="mx-auto max-w-4xl px-4 py-12 sm:px-6 sm:py-16">
-        <div className="overflow-hidden rounded-3xl border border-slate-200">
+        <div className="overflow-hidden rounded-2xl border border-slate-200">
           <ContentCover image={ministry.coverImage} priority />
           <div className="p-6 sm:p-10">
             {ministry.shortName ? (
               <p className="font-bold text-green-700">{ministry.shortName}</p>
             ) : null}
-            <h1 className="mt-2 text-4xl font-black text-slate-950 sm:text-5xl">
+            <h1 className="mt-2 text-4xl font-semibold text-slate-950 sm:text-5xl">
               {ministry.title}
             </h1>
             <div className="mt-7 leading-8 whitespace-pre-line text-slate-700">
@@ -31,12 +31,12 @@ export default async function MinistryPage({
             </div>
             {ministry.contactEmail || ministry.contactPhone ? (
               <div className="mt-9 rounded-2xl bg-slate-100 p-5">
-                <h2 className="font-black text-slate-950">
+                <h2 className="font-semibold text-slate-950">
                   Connect with this ministry
                 </h2>
                 {ministry.contactEmail ? (
                   <a
-                    className="mt-2 block text-blue-800 underline"
+                    className="mt-2 block text-[#244d3d] underline"
                     href={`mailto:${ministry.contactEmail}`}
                   >
                     {ministry.contactEmail}
@@ -44,7 +44,7 @@ export default async function MinistryPage({
                 ) : null}
                 {ministry.contactPhone ? (
                   <a
-                    className="mt-2 block text-blue-800 underline"
+                    className="mt-2 block text-[#244d3d] underline"
                     href={`tel:${ministry.contactPhone}`}
                   >
                     {ministry.contactPhone}
@@ -53,7 +53,7 @@ export default async function MinistryPage({
               </div>
             ) : null}
             <Link
-              className="mt-6 inline-block rounded-xl bg-blue-800 px-5 py-3 font-bold text-white"
+              className="mt-6 inline-block rounded-xl bg-[#244d3d] px-5 py-3 font-bold text-white"
               href={
                 `/join?ministry=${encodeURIComponent(ministry.slug)}` as Route
               }

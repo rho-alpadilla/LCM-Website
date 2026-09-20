@@ -20,7 +20,7 @@ export default function GivingSuccessPage() {
           PayMongo reference.
         </p>
         <Link
-          className="mt-6 inline-flex rounded-xl bg-blue-800 px-5 py-3 font-bold text-white"
+          className="mt-6 inline-flex rounded-xl bg-[#244d3d] px-5 py-3 font-bold text-white"
           href="/"
         >
           Return to home

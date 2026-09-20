@@ -1,20 +1,11 @@
 import { z } from "zod";
 
-import {
-  inviteRoleOptions,
-  roleOptions,
-  type RoleCode,
-} from "@/shared/staff/roles";
+import { roleOptions, type RoleCode } from "@/shared/staff/roles";
 
 const roleCodes = roleOptions.map(([code]) => code) as [
   RoleCode,
   ...RoleCode[],
 ];
-const inviteRoleCodes = inviteRoleOptions.map(([code]) => code) as [
-  Exclude<RoleCode, "core_leader">,
-  ...Exclude<RoleCode, "core_leader">[],
-];
-
 export const invitationSchema = z.object({
   email: z
     .string()
@@ -25,7 +16,7 @@ export const invitationSchema = z.object({
   displayName: z.string().trim().min(2).max(120),
   phone: z.string().trim().max(40).optional().default(""),
   jobTitle: z.string().trim().max(120).optional().default(""),
-  roleCode: z.enum(inviteRoleCodes),
+  roleCode: z.enum(roleCodes),
   reason: z.string().trim().max(500).optional().default(""),
 });
 

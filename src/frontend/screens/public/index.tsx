@@ -1,127 +1,109 @@
-import type { Route } from "next";
 import Image from "next/image";
 import Link from "next/link";
-
 import { PublicPage } from "@/frontend/components/public/public-page";
-import { siteConfig } from "@/shared/config/site";
+
+const churchLinks = [
+  {
+    href: "/ministries",
+    title: "Find your ministry",
+    detail: "Connect. Grow. Serve.",
+  },
+  {
+    href: "/activities",
+    title: "Church calendar",
+    detail: "Make room for community.",
+  },
+  {
+    href: "/announcements",
+    title: "Latest updates",
+    detail: "Stay connected to church life.",
+  },
+] as const;
 
 export default function HomePage() {
   return (
     <PublicPage headerVariant="hero">
-      <section className="relative isolate flex min-h-[42rem] overflow-hidden bg-slate-950 text-white sm:min-h-[44rem]">
+      <section className="home-hero" aria-labelledby="home-title">
         <Image
           alt="Lifechangers Ministry church family gathered together."
-          className="object-cover object-center"
-          fill
-          priority
-          sizes="100vw"
           src="/images/home/lcm-church-family.jpg"
+          fill
+          preload
+          sizes="100vw"
+          className="home-hero-photo"
         />
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 bg-[linear-gradient(180deg,rgba(2,6,23,0.48)_0%,rgba(2,6,23,0.15)_35%,rgba(2,6,23,0.82)_100%)]"
-        />
-        <div className="relative mx-auto flex w-full max-w-7xl items-end px-4 pt-32 pb-14 sm:px-6 sm:pt-36 sm:pb-20">
-          <div className="max-w-3xl">
-            <p className="text-xs font-black tracking-[0.2em] text-white/80 uppercase">
-              Lifechangers Ministry · Baguio City
-            </p>
-            <h1 className="mt-5 text-5xl leading-[0.94] font-black tracking-[-0.055em] text-balance sm:text-7xl lg:text-8xl">
-              Love God.
-              <br />
-              Love people.
-            </h1>
-            <p className="font-script mt-3 text-4xl leading-none text-white/90 sm:text-5xl">
-              Church without walls
-            </p>
-            <p className="mt-6 max-w-xl text-lg leading-8 text-white/90 sm:text-xl">
-              {siteConfig.description}
-            </p>
-            <div className="mt-9 flex flex-wrap gap-3">
-              <Link
-                className="border border-white bg-white px-5 py-3 font-black text-slate-950 transition-[background-color,transform] duration-150 ease-out hover:bg-white/85 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white active:scale-[0.98]"
-                href={"/sermons" as Route}
-              >
-                Watch a sermon
-              </Link>
-              <Link
-                className="border border-white/80 bg-slate-950/10 px-5 py-3 font-black text-white transition-[background-color,transform] duration-150 ease-out hover:bg-white/15 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white active:scale-[0.98]"
-                href={"/activities" as Route}
-              >
-                See what’s happening
-              </Link>
-            </div>
-            <ul className="mt-10 flex flex-wrap gap-x-5 gap-y-2 text-sm font-bold text-white/90">
-              {quickLinks.map((item) => (
-                <li key={item.href}>
-                  <Link
-                    className="underline decoration-white/50 underline-offset-4 transition-colors duration-150 ease-out hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
-                    href={item.href as Route}
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+        <div className="home-hero-shade" aria-hidden="true" />
+        <div className="home-hero-content">
+          <p className="home-hero-eyebrow">
+            Lifechangers Ministry · Baguio City
+          </p>
+          <h1 id="home-title">
+            Love God.
+            <br />
+            <span>Love people.</span>
+          </h1>
+          <p className="home-hero-script">Church without walls</p>
+          <div className="home-hero-actions">
+            <Link className="public-button public-button-light" href="/sermons">
+              <PlayIcon />
+              Watch a sermon
+            </Link>
+            <Link
+              className="public-button public-button-glass"
+              href="/activities"
+            >
+              See what’s happening<span aria-hidden="true">↗</span>
+            </Link>
           </div>
+        </div>
+        <div className="home-hero-bottom">
+          <span>One church. One family.</span>
+          <a href="#church-life" aria-label="Explore church life">
+            Explore <span aria-hidden="true">↓</span>
+          </a>
         </div>
       </section>
 
       <section
-        className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24"
-        aria-labelledby="connect-title"
+        className="public-container home-church-life"
+        id="church-life"
+        aria-labelledby="church-life-title"
       >
-        <div className="grid gap-8 border-b border-slate-300 pb-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-end">
+        <div className="home-section-heading">
           <div>
-            <p className="text-xs font-black tracking-[0.2em] text-blue-800 uppercase">
-              Start here
-            </p>
-            <h2
-              className="mt-3 max-w-md text-4xl font-black tracking-[-0.045em] text-slate-950 sm:text-5xl"
-              id="connect-title"
-            >
-              Church life is meant to be shared.
-            </h2>
+            <p className="public-eyebrow">Life at LCM</p>
+            <h2 id="church-life-title">Faith, lived together.</h2>
           </div>
-          <p className="max-w-xl text-lg leading-8 text-slate-700">
-            Find a message to watch, a ministry to join, a gathering to attend,
-            or a way to connect with the church.
-          </p>
+          <Link className="public-text-link" href="/about">
+            Our story <span aria-hidden="true">↗</span>
+          </Link>
         </div>
-        <ol className="mt-2 grid sm:grid-cols-2 lg:grid-cols-3">
-          {publicDestinations.map((item) => (
-            <li className="border-b border-slate-300" key={item.href}>
-              <Link
-                className="group flex h-full items-start justify-between gap-4 py-6 pr-4 transition-colors duration-150 ease-out hover:text-blue-800 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-800 sm:py-7 lg:pr-7"
-                href={item.href as Route}
-              >
-                <span>
-                  <span className="block text-2xl font-black tracking-[-0.035em]">
-                    {item.label}
-                  </span>
-                  <span className="mt-2 block max-w-xs text-sm leading-6 text-slate-600 transition-colors duration-150 ease-out group-hover:text-slate-700">
-                    {item.description}
-                  </span>
-                </span>
-                <span aria-hidden="true" className="mt-1 text-xl">
+        <div className="home-church-links">
+          {churchLinks.map((item, index) => (
+            <Link className="home-church-link" href={item.href} key={item.href}>
+              <span className="home-link-number" aria-hidden="true">
+                0{index + 1}
+              </span>
+              <h3>{item.title}</h3>
+              <span className="home-link-bottom">
+                <span>{item.detail}</span>
+                <span className="home-link-arrow" aria-hidden="true">
                   ↗
                 </span>
-              </Link>
-            </li>
+              </span>
+            </Link>
           ))}
-        </ol>
-        <div className="mt-10 flex flex-wrap gap-3">
-          <Link
-            className="border border-slate-950 bg-slate-950 px-5 py-3 font-black text-white transition-[background-color,transform] duration-150 ease-out hover:bg-slate-700 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-800 active:scale-[0.98]"
-            href={"/contact" as Route}
-          >
-            Contact the church
-          </Link>
-          <Link
-            className="border border-slate-950 bg-transparent px-5 py-3 font-black text-slate-950 transition-[background-color,transform] duration-150 ease-out hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-800 active:scale-[0.98]"
-            href={"/give" as Route}
-          >
-            Give tithes &amp; offerings
+        </div>
+      </section>
+
+      <section className="home-prayer" aria-labelledby="home-prayer-title">
+        <div className="public-container home-prayer-inner">
+          <div>
+            <p className="public-eyebrow">Here for you</p>
+            <h2 id="home-prayer-title">Let’s pray together.</h2>
+          </div>
+          <Link className="public-button public-button-dark" href="/prayer">
+            Request prayer <span aria-hidden="true">↗</span>
           </Link>
         </div>
       </section>
@@ -129,41 +111,16 @@ export default function HomePage() {
   );
 }
 
-const publicDestinations = [
-  {
-    href: "/sermons",
-    label: "Sermons",
-    description: "Watch published messages from the church.",
-  },
-  {
-    href: "/ministries",
-    label: "Ministries",
-    description: "Discover places to connect, grow, and serve.",
-  },
-  {
-    href: "/activities",
-    label: "Church calendar",
-    description: "See services and upcoming church gatherings by month.",
-  },
-  {
-    href: "/announcements",
-    label: "Announcements",
-    description: "Read current news and important updates.",
-  },
-  {
-    href: "/bulletins",
-    label: "Bulletins",
-    description: "Download approved church bulletins.",
-  },
-  {
-    href: "/about",
-    label: "About LCM",
-    description: "Read our vision, mission, goals, passion, and values.",
-  },
-] as const;
-
-const quickLinks = [
-  { href: "/prayer", label: "Request prayer" },
-  { href: "/join", label: "Join a ministry" },
-  { href: "/contact", label: "Contact the church" },
-] as const;
+function PlayIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      width="14"
+      height="14"
+      viewBox="0 0 16 16"
+      fill="currentColor"
+    >
+      <path d="M4 2.5a.5.5 0 0 1 .76-.43l9 5.5a.5.5 0 0 1 0 .86l-9 5.5A.5.5 0 0 1 4 13.5z" />
+    </svg>
+  );
+}

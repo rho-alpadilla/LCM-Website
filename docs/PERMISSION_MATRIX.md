@@ -60,10 +60,8 @@ by hiding controls in the interface.
 
 - Every staff member has an individual Cloudflare Access identity and D1 staff
   profile. Shared keys and shared credentials are prohibited.
-- Core Leader and System Administrator assignments require a reason of at least
-  ten characters and an audit event.
-- Core Leader cannot be an invitation's initial role; it is an explicit later
-  elevation by a System Administrator.
+- System Administrator and Core Leader creation or later assignment require a
+  reason of at least ten characters and an audit event.
 - At least one active System Administrator must remain.
 - Permission checks occur on the trusted server for every protected operation.
 - Content Publisher may approve their own content as explicitly approved by the

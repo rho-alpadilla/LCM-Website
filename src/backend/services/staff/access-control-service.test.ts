@@ -240,7 +240,7 @@ describe("AccessControlService", () => {
     );
   });
 
-  it("blocks duplicate and unreasoned elevated invitations", async () => {
+  it("blocks duplicate and unreasoned elevated staff accounts", async () => {
     const duplicateService = new AccessControlService(
       createRepositoryStub({
         emailHasStaffProfile: vi.fn().mockResolvedValue(true),
@@ -265,6 +265,40 @@ describe("AccessControlService", () => {
         reason: "short",
       }),
     ).rejects.toMatchObject({ code: "VALIDATION_FAILED" });
+
+    await expect(
+      elevatedService.createInvitation({
+        actorStaffId: "5d3a2ee4-7f94-4e95-ae5b-5c0650b8749e",
+        email: "core-leader@example.com",
+        displayName: "Core Leader",
+        roleCode: "core_leader",
+        reason: "short",
+      }),
+    ).rejects.toMatchObject({ code: "VALIDATION_FAILED" });
+  });
+
+  it("allows a reasoned Core Leader account to be created directly", async () => {
+    const createInvitation = vi.fn().mockResolvedValue(undefined);
+    const service = new AccessControlService(
+      createRepositoryStub({ createInvitation }),
+      {
+        createId: () => "core-leader-account-id",
+        now: () => new Date("2026-09-20T00:00:00.000Z"),
+      },
+    );
+
+    await expect(
+      service.createInvitation({
+        actorStaffId: "5d3a2ee4-7f94-4e95-ae5b-5c0650b8749e",
+        email: "core-leader@example.com",
+        displayName: "Trusted Core Leader",
+        roleCode: "core_leader",
+        reason: "Approved for trusted pastoral leadership.",
+      }),
+    ).resolves.toEqual({ invitationId: "core-leader-account-id" });
+    expect(createInvitation).toHaveBeenCalledWith(
+      expect.objectContaining({ roleCode: "core_leader" }),
+    );
   });
 
   it("activates only an invitation matching the verified email", async () => {

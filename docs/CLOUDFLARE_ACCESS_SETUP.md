@@ -2,11 +2,11 @@
 
 ## Status
 
-The application-side Access verifier, D1 invitations, first-login activation,
-role administration, suspension, and audit writes are implemented and tested.
-Preview Access is active on the temporary `workers.dev` hostname. Production
-Access remains intentionally unconfigured until the church owns its final
-domain and completes production cutover.
+The application-side Access verifier, D1 staff provisioning, automatic
+first-login activation, role administration, suspension, and audit writes are
+implemented and tested. Preview Access is active on the temporary `workers.dev`
+hostname. Production Access remains intentionally unconfigured until the church
+owns its final domain and completes production cutover.
 
 ## What Access Protects
 
@@ -21,17 +21,20 @@ The public website remains outside this Access application. Existing
 therefore fail closed when used outside an Access-protected request; they are
 not public browser entry points.
 
-## Initial Policy
+## Managed Staff Policy
 
-Use an Allow policy containing only the exact email address of the approved
-first System Administrator. Do not use either of these broad Include rules:
+Create one dedicated reusable Allow policy for the website staff directory. It
+must contain only exact email Include rules, starting with the first System
+Administrator. Do not add other Include rule types and do not use either of
+these broad Include rules:
 
 - `Everyone`
 - `Login Methods: One-time PIN` without an exact email restriction
 
-After the first administrator is bootstrapped, add each approved staff email
-individually. A matching Access login proves identity only; D1 roles and
-permissions still decide what that person may do inside the administration area.
+Attach this policy only to the LCM staff Access application. The Worker updates
+its exact-email list when a System Administrator creates or suspends a staff
+account. A matching Access login proves identity only; D1 roles and permissions
+still decide what that person may do inside the administration area.
 
 ## Preview Sign-in Method
 
@@ -51,11 +54,16 @@ of `wrangler.jsonc`:
 
 - `ACCESS_TEAM_DOMAIN`: `https://muddy-queen-9afb.cloudflareaccess.com`
 - `ACCESS_AUD`: the preview application's Audience tag
+- `CLOUDFLARE_ACCESS_ACCOUNT_ID`: the Cloudflare account ID for the Access API
+- `CLOUDFLARE_ACCESS_POLICY_ID`: the dedicated reusable staff policy ID
 
 Keep preview and production application audience values separate. The
 production values remain blank until a distinct production Access application
-exists. Regenerate types and run the complete verification suite after changing
-Wrangler config.
+exists. Set `CLOUDFLARE_ACCESS_API_TOKEN` as a Worker secret, never as a
+`wrangler.jsonc` value or local source file. The token needs the Cloudflare
+`Access: Apps and Policies Write` permission for this account. Configure
+separate IDs and secrets for preview and production. Regenerate types and run
+the complete verification suite after changing Wrangler config.
 
 ## Bootstrap Procedure
 
@@ -67,23 +75,25 @@ Wrangler config.
    protected bootstrap operation.
 4. Confirm the new D1 profile has the `system_admin` role and an audit record.
 5. Confirm a second bootstrap attempt is denied.
-6. Begin adding additional approved staff emails individually.
+6. Connect the dedicated reusable staff policy before creating additional staff
+   accounts from the LCM dashboard.
 
-## Staff Invitation Procedure
+## Staff Account Procedure
 
-1. A permitted administrator records the person's exact email, display name,
-   initial role, and any required assignment reason in **Staff and roles**.
-2. The website stores a pending D1 invitation. It does not claim to send an
-   email because outbound email is not part of the no-cost launch scope.
-3. A System Administrator adds that same exact email to the Access Allow policy
-   and tells the person to open the protected admin address.
-4. Access verifies the person. The website then shows the pending role before
-   the person confirms activation.
-5. Activation creates the staff profile, assigns the approved role, closes the
-   invitation, and appends an audit event in one D1 transaction.
+1. A permitted administrator enters the person's exact email, display name,
+   role, and any required assignment reason in **Staff and roles**.
+2. The website adds the email to its dedicated Access policy and records the
+   pending staff account. It does not claim to send email because outbound email
+   is not part of the no-cost launch scope.
+3. The administrator shares the protected admin address with the staff member.
+4. The staff member signs in with the One-time PIN sent to that email address.
+5. The verified first sign-in activates the D1 staff profile, assigns the
+   approved role, and appends an audit event in one transaction. There is no
+   separate activation button.
 
-Removing a person from D1 blocks application authorization immediately. Remove
-their email from the Access policy as a second provider-side revocation step.
+Suspending a person removes their email from the managed Access policy and
+blocks D1 authorization. Do not manually edit that policy for ordinary staff
+changes; use the website dashboard instead.
 
 The D1 transaction and database trigger protect against two people completing
 bootstrap simultaneously.
@@ -98,10 +108,9 @@ bootstrap simultaneously.
 - Valid active staff with `admin.access` may read the protected session endpoint.
 - Protected responses use `private, no-store` caching.
 - Bootstrap rejects cross-origin requests and oversized or invalid JSON.
-- A pending invitation activates only for the exact verified email.
-- Duplicate invitations and direct Core Leader invitations are rejected.
-- Core Leader assignment requires an existing Leader role and a documented
-  reason.
+- A pending account activates only for the exact verified email.
+- Duplicate staff accounts are rejected.
+- System Administrator and Core Leader creation require a documented reason.
 - The final active System Administrator cannot be suspended or lose that role.
 
 ## Rollback

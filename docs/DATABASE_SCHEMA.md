@@ -19,8 +19,8 @@ Core tables:
 - `role_permissions`: reviewed permission grants.
 - `staff_profiles`: one profile per verified Cloudflare Access identity.
 - `staff_roles`: append-oriented assignments and reasoned revocations.
-- `staff_invitations`: exact-email onboarding; Core Leader is excluded as an
-  initial invitation role.
+- `staff_invitations`: exact-email staff onboarding and first-sign-in activation.
+  System Administrator and Core Leader records require a documented reason.
 - `system_bootstrap`: one-time first-administrator state.
 - `audit_logs`: metadata for security, publishing and prayer operations. Prayer
   text is never copied into the audit log.

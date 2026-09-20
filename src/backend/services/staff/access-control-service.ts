@@ -46,7 +46,7 @@ const invitationSchema = z.object({
     .max(120)
     .optional()
     .transform((value) => value || null),
-  roleCode: roleCodeSchema.exclude(["core_leader"]),
+  roleCode: roleCodeSchema,
   reason: z.string().trim().max(500).optional().default(""),
 });
 
@@ -167,22 +167,7 @@ export class AccessControlService {
   }
 
   async createInvitation(rawInput: CreateInvitationInput) {
-    const input = invitationSchema.parse(rawInput);
-    if (input.roleCode === "system_admin" && input.reason.length < 10) {
-      throw new ApplicationError(
-        "VALIDATION_FAILED",
-        "System Administrator invitations require a reason of at least 10 characters.",
-      );
-    }
-    if (
-      (await this.repository.emailHasStaffProfile(input.email)) ||
-      (await this.repository.findPendingInvitationByEmail(input.email))
-    ) {
-      throw new ApplicationError(
-        "VALIDATION_FAILED",
-        "That email already has an account or pending invitation.",
-      );
-    }
+    const input = await this.validateStaffAccountCreation(rawInput);
 
     const invitationId = this.createId();
     await this.repository.createInvitation({
@@ -199,6 +184,29 @@ export class AccessControlService {
       createdAt: this.now().toISOString(),
     });
     return { invitationId };
+  }
+
+  async validateStaffAccountCreation(rawInput: CreateInvitationInput) {
+    const input = invitationSchema.parse(rawInput);
+    if (
+      ["system_admin", "core_leader"].includes(input.roleCode) &&
+      input.reason.length < 10
+    ) {
+      throw new ApplicationError(
+        "VALIDATION_FAILED",
+        "Elevated roles require a reason of at least 10 characters.",
+      );
+    }
+    if (
+      (await this.repository.emailHasStaffProfile(input.email)) ||
+      (await this.repository.findPendingInvitationByEmail(input.email))
+    ) {
+      throw new ApplicationError(
+        "VALIDATION_FAILED",
+        "That email already has an account or pending invitation.",
+      );
+    }
+    return input;
   }
 
   async activatePendingInvitation(rawIdentity: VerifiedStaffIdentity) {

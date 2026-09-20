@@ -8,6 +8,8 @@
     "APP_ENVIRONMENT": "local",
     "ACCESS_TEAM_DOMAIN": "",
     "ACCESS_AUD": "",
+    "CLOUDFLARE_ACCESS_ACCOUNT_ID": "",
+    "CLOUDFLARE_ACCESS_POLICY_ID": "",
     "TURNSTILE_HOSTNAMES": "localhost,127.0.0.1",
   },
   "assets": {
@@ -56,6 +58,8 @@
         "APP_ENVIRONMENT": "preview",
         "ACCESS_TEAM_DOMAIN": "https://muddy-queen-9afb.cloudflareaccess.com",
         "ACCESS_AUD": "e01d4ed2cef950a5e618cd93dbb8d5b68054c0c7c2fbba50a752bb5f57174dfe",
+        "CLOUDFLARE_ACCESS_ACCOUNT_ID": "52c15bd60a71661efb865aeafdd1c493",
+        "CLOUDFLARE_ACCESS_POLICY_ID": "15efabc5-cf0c-4207-aa54-dfe438e6e011",
         "TURNSTILE_HOSTNAMES": "",
       },
       "d1_databases": [
@@ -96,6 +100,8 @@
         "APP_ENVIRONMENT": "production",
         "ACCESS_TEAM_DOMAIN": "",
         "ACCESS_AUD": "",
+        "CLOUDFLARE_ACCESS_ACCOUNT_ID": "",
+        "CLOUDFLARE_ACCESS_POLICY_ID": "",
         "TURNSTILE_HOSTNAMES": "",
       },
       "d1_databases": [

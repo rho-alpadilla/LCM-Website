@@ -18,7 +18,7 @@ export default function PrayerPage() {
           className="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm leading-6 text-red-950"
           aria-labelledby="emergency-title"
         >
-          <h2 className="font-black" id="emergency-title">
+          <h2 className="font-semibold" id="emergency-title">
             This is not an emergency service
           </h2>
           <p className="mt-1">

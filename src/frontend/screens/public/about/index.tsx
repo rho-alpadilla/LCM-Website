@@ -24,24 +24,24 @@ export default function AboutPage() {
       />
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
         <section className="grid gap-6 lg:grid-cols-2">
-          <article className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-            <p className="text-sm font-bold tracking-[0.2em] text-green-700 uppercase">
+          <article className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8">
+            <p className="text-xs font-semibold tracking-[0.14em] text-green-700 uppercase">
               Vision
             </p>
-            <p className="mt-4 text-2xl leading-9 font-black text-slate-950">
+            <p className="mt-4 text-2xl leading-9 font-semibold text-slate-950">
               To see a multitude of Christ’s Lifechangers among campuses and
               barangays through the Family Cell Groups—transforming lives,
               families and nations.
             </p>
           </article>
-          <article className="rounded-3xl bg-blue-900 p-6 text-white shadow-sm sm:p-8">
-            <p className="text-sm font-bold tracking-[0.2em] text-yellow-300 uppercase">
+          <article className="rounded-2xl bg-[#244d3d] p-6 text-white sm:p-8">
+            <p className="text-xs font-semibold tracking-[0.14em] text-[#dce8d8] uppercase">
               Mission
             </p>
-            <p className="mt-4 text-2xl leading-9 font-black">
+            <p className="mt-4 text-2xl leading-9 font-semibold">
               To win souls and make disciples.
             </p>
-            <p className="mt-5 leading-7 text-blue-100">
+            <p className="mt-5 leading-7 text-[#dce8d8]">
               Matthew 28:19–20 calls us to make disciples of all nations,
               baptize them, and teach them to obey everything Jesus commanded.
             </p>
@@ -49,14 +49,14 @@ export default function AboutPage() {
         </section>
 
         <section
-          className="mt-8 rounded-3xl border border-slate-200 bg-slate-50 p-6 sm:p-8"
+          className="mt-8 rounded-2xl border border-slate-200 bg-slate-50 p-6 sm:p-8"
           aria-labelledby="goal-title"
         >
-          <p className="text-sm font-bold tracking-[0.2em] text-red-700 uppercase">
+          <p className="text-xs font-semibold tracking-[0.14em] text-[#244d3d] uppercase">
             Goal
           </p>
           <h2
-            className="mt-3 text-3xl font-black text-slate-950"
+            className="mt-3 text-3xl font-semibold text-slate-950"
             id="goal-title"
           >
             Agents of change at every level
@@ -78,23 +78,23 @@ export default function AboutPage() {
         </section>
 
         <section className="mt-8 grid gap-8 lg:grid-cols-[0.7fr_1.3fr]">
-          <article className="rounded-3xl bg-yellow-300 p-6 text-slate-950 sm:p-8">
-            <p className="text-sm font-bold tracking-[0.2em] uppercase">
+          <article className="rounded-2xl bg-[#edf0e9] p-6 text-slate-950 sm:p-8">
+            <p className="text-xs font-semibold tracking-[0.14em] uppercase">
               Passion
             </p>
-            <p className="mt-4 text-3xl leading-10 font-black">
+            <p className="mt-4 text-3xl leading-10 font-semibold">
               To love God and to love people.
             </p>
           </article>
           <article
-            className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8"
+            className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8"
             aria-labelledby="values-title"
           >
-            <p className="text-sm font-bold tracking-[0.2em] text-green-700 uppercase">
+            <p className="text-xs font-semibold tracking-[0.14em] text-green-700 uppercase">
               Core values
             </p>
             <h2
-              className="mt-3 text-3xl font-black text-slate-950"
+              className="mt-3 text-3xl font-semibold text-slate-950"
               id="values-title"
             >
               LIFETEAM
@@ -105,7 +105,7 @@ export default function AboutPage() {
                   className="flex gap-3 rounded-xl bg-slate-50 p-3"
                   key={`${letter}-${index}`}
                 >
-                  <dt className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-blue-900 font-black text-yellow-300">
+                  <dt className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[#244d3d] font-semibold text-[#dce8d8]">
                     {letter}
                   </dt>
                   <dd className="pt-1 text-sm leading-5 text-slate-700">
@@ -117,8 +117,8 @@ export default function AboutPage() {
           </article>
         </section>
 
-        <section className="mt-8 rounded-3xl bg-slate-950 p-6 text-slate-200 sm:p-8">
-          <p className="text-sm font-bold tracking-[0.2em] text-yellow-300 uppercase">
+        <section className="mt-8 rounded-2xl bg-slate-950 p-6 text-slate-200 sm:p-8">
+          <p className="text-xs font-semibold tracking-[0.14em] text-[#dce8d8] uppercase">
             Ministry verse
           </p>
           <blockquote className="mt-4 max-w-4xl text-xl leading-8 font-bold text-white">

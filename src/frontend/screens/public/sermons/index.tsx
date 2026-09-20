@@ -29,10 +29,10 @@ export default async function SermonsPage() {
               >
                 <ContentCover image={sermon.coverImage} />
                 <div className="p-5">
-                  <p className="text-sm font-bold text-blue-800">
+                  <p className="text-sm font-bold text-[#244d3d]">
                     {formatPublicDate(sermon.preachedAt)}
                   </p>
-                  <h2 className="mt-2 text-xl font-black text-slate-950">
+                  <h2 className="mt-2 text-xl font-semibold text-slate-950">
                     <Link href={`/sermons/${sermon.slug}` as Route}>
                       {sermon.title}
                     </Link>

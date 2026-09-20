@@ -9,8 +9,4 @@ export const roleOptions = [
 
 export type RoleCode = (typeof roleOptions)[number][0];
 
-export const inviteRoleOptions = roleOptions.filter(
-  ([code]) => code !== "core_leader",
-);
-
 export const roleLabel = new Map<string, string>(roleOptions);

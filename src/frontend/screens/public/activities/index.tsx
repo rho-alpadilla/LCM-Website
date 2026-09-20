@@ -26,7 +26,7 @@ export default async function ActivitiesPage() {
           initialMonth={currentManilaMonth()}
           occurrences={occurrences}
         />
-        <h2 className="mt-12 text-2xl font-black text-slate-950">
+        <h2 className="mt-12 text-2xl font-semibold text-slate-950">
           Upcoming activities
         </h2>
         {occurrences.length ? (
@@ -56,7 +56,7 @@ export default async function ActivitiesPage() {
                       </p>
                     ) : null}
                   </div>
-                  <h2 className="mt-2 text-2xl font-black text-slate-950">
+                  <h2 className="mt-2 text-2xl font-semibold text-slate-950">
                     {activity.title}
                   </h2>
                   {activity.summary ? (
@@ -102,7 +102,7 @@ export default async function ActivitiesPage() {
                   </dl>
                   {occurrence.publicNote ? (
                     <div className="mt-5 rounded-xl bg-amber-50 p-4 text-sm text-amber-950">
-                      <h3 className="font-black">Schedule update</h3>
+                      <h3 className="font-semibold">Schedule update</h3>
                       <p className="mt-1">{occurrence.publicNote}</p>
                     </div>
                   ) : null}
@@ -112,7 +112,7 @@ export default async function ActivitiesPage() {
                     <div className="mt-5 flex flex-wrap gap-3">
                       {activity.contactEmail ? (
                         <a
-                          className="font-bold text-blue-800 underline"
+                          className="font-bold text-[#244d3d] underline"
                           href={`mailto:${activity.contactEmail}`}
                         >
                           Email contact
@@ -120,7 +120,7 @@ export default async function ActivitiesPage() {
                       ) : null}
                       {activity.contactPhone ? (
                         <a
-                          className="font-bold text-blue-800 underline"
+                          className="font-bold text-[#244d3d] underline"
                           href={`tel:${activity.contactPhone}`}
                         >
                           Call contact
@@ -128,7 +128,7 @@ export default async function ActivitiesPage() {
                       ) : null}
                       {activity.registrationUrl ? (
                         <a
-                          className="font-bold text-blue-800 underline"
+                          className="font-bold text-[#244d3d] underline"
                           href={activity.registrationUrl}
                           rel="noopener noreferrer"
                           target="_blank"

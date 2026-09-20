@@ -29,10 +29,10 @@ export default async function AnnouncementsPage() {
               >
                 <ContentCover image={announcement.coverImage} />
                 <div className="p-5">
-                  <p className="text-sm font-bold text-red-700">
+                  <p className="text-sm font-bold text-[#244d3d]">
                     Posted {formatPublicDate(announcement.publishedAt)}
                   </p>
-                  <h2 className="mt-2 text-2xl font-black text-slate-950">
+                  <h2 className="mt-2 text-2xl font-semibold text-slate-950">
                     <Link href={`/announcements/${announcement.slug}` as Route}>
                       {announcement.title}
                     </Link>

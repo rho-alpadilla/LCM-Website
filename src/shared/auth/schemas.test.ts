@@ -39,13 +39,13 @@ describe("authentication validation", () => {
     expect(safeInternalPath("//attacker.example")).toBe("/admin");
   });
 
-  it("prevents Core Leader from being used as an initial invitation role", () => {
+  it("allows Core Leader to be selected when a System Administrator creates staff", () => {
     const result = invitationSchema.safeParse({
       email: "leader@example.com",
       displayName: "Trusted Leader",
       roleCode: "core_leader",
     });
 
-    expect(result.success).toBe(false);
+    expect(result.success).toBe(true);
   });
 });

@@ -17,13 +17,13 @@ export default async function SermonPage({
   return (
     <PublicPage>
       <article className="mx-auto max-w-4xl px-4 py-12 sm:px-6 sm:py-16">
-        <div className="overflow-hidden rounded-3xl border border-slate-200">
+        <div className="overflow-hidden rounded-2xl border border-slate-200">
           <ContentCover image={sermon.coverImage} priority />
           <div className="p-6 sm:p-10">
-            <p className="font-bold text-blue-800">
+            <p className="font-bold text-[#244d3d]">
               {formatPublicDate(sermon.preachedAt)}
             </p>
-            <h1 className="mt-3 text-4xl font-black tracking-tight text-slate-950 sm:text-5xl">
+            <h1 className="mt-3 text-4xl font-semibold tracking-tight text-slate-950 sm:text-5xl">
               {sermon.title}
             </h1>
             <dl className="mt-6 grid gap-3 text-slate-600 sm:grid-cols-2">
@@ -56,7 +56,7 @@ export default async function SermonPage({
               {sermon.body.text}
             </div>
             <a
-              className="mt-9 inline-flex rounded-xl bg-blue-800 px-5 py-3 font-bold text-white"
+              className="mt-9 inline-flex rounded-xl bg-[#244d3d] px-5 py-3 font-bold text-white"
               href={sermon.videoUrl}
               rel="noopener noreferrer"
               target="_blank"

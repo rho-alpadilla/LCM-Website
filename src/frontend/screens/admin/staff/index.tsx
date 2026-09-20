@@ -8,14 +8,19 @@ import {
   revokeRoleAction,
   suspendStaffAction,
 } from "@/backend/actions/staff";
-import { inviteRoleOptions, roleOptions } from "@/shared/staff/roles";
+import { roleOptions } from "@/shared/staff/roles";
 
 const messages: Record<string, string> = {
   account_suspended: "The account was suspended.",
-  invitation_recorded:
-    "Invitation recorded. Add the exact email to Cloudflare Access, then notify the person.",
+  account_created:
+    "Staff account created. Share the admin link; the person signs in with their email code.",
   role_assigned: "The role was assigned.",
   role_revoked: "The role was removed.",
+};
+
+const errors: Record<string, string> = {
+  staff_setup_required:
+    "Staff sign-in setup is not ready. Complete the one-time Cloudflare Access connection first.",
 };
 
 type Props = {
@@ -44,9 +49,9 @@ export default async function StaffPage({ searchParams }: Props) {
           Staff and roles
         </h1>
         <p className="mt-4 max-w-3xl leading-7 text-slate-600">
-          D1 controls permissions after Cloudflare Access verifies the person.
-          Core Leader can be added only to an existing Leader and grants highly
-          trusted senior-level access.
+          Create each staff account once here. The website sets up their secure
+          email sign-in automatically. Core Leader and System Administrator
+          access require a documented reason.
         </p>
 
         {messageCode ? (
@@ -62,20 +67,18 @@ export default async function StaffPage({ searchParams }: Props) {
             className="mt-6 rounded-xl bg-red-50 p-4 font-semibold text-red-800"
             role="alert"
           >
-            The change could not be completed. Check the account, role rules,
-            and required reason, then retry.
+            {errors[errorCode] ??
+              "The change could not be completed. Check the account, role rules, and required reason, then retry."}
           </p>
         ) : null}
 
         {state.context.permissions.includes("staff.invite") ? (
           <section className="mt-10 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8">
-            <h2 className="text-2xl font-black text-slate-950">
-              Record a staff invitation
-            </h2>
+            <h2 className="text-2xl font-black text-slate-950">Add staff</h2>
             <p className="mt-2 text-sm leading-6 text-amber-900">
-              This does not send email. After saving, a System Administrator
-              must add the exact email to the Cloudflare Access allowlist and
-              notify the person manually.
+              The person only needs to open the admin link and enter the email
+              code sent by Cloudflare. This website does not send invitation
+              emails, so share the link with them yourself.
             </p>
             <form
               action={inviteStaffAction}
@@ -110,9 +113,9 @@ export default async function StaffPage({ searchParams }: Props) {
               <Field label="Church role or title (optional)">
                 <input className={inputClass} maxLength={120} name="jobTitle" />
               </Field>
-              <Field label="Initial access role">
+              <Field label="Access role">
                 <select className={inputClass} name="roleCode" required>
-                  {inviteRoleOptions.map(([code, label]) => (
+                  {roleOptions.map(([code, label]) => (
                     <option key={code} value={code}>
                       {label}
                     </option>
@@ -124,14 +127,14 @@ export default async function StaffPage({ searchParams }: Props) {
                   className={inputClass}
                   maxLength={500}
                   name="reason"
-                  placeholder="Required for System Administrator"
+                  placeholder="Required for System Administrator or Core Leader"
                 />
               </Field>
               <button
                 className="rounded-xl bg-blue-800 px-5 py-3 font-bold text-white sm:col-span-2"
                 type="submit"
               >
-                Record invitation
+                Create staff account
               </button>
             </form>
           </section>
@@ -140,7 +143,7 @@ export default async function StaffPage({ searchParams }: Props) {
         {invitations.length ? (
           <section className="mt-10">
             <h2 className="text-2xl font-black text-slate-950">
-              Pending invitations
+              New staff accounts
             </h2>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               {invitations.map((invitation) => (
@@ -155,7 +158,7 @@ export default async function StaffPage({ searchParams }: Props) {
                     {invitation.email}
                   </p>
                   <p className="mt-3 text-sm font-semibold text-amber-900">
-                    {invitation.initialRoleName} · awaiting first sign-in
+                    {invitation.initialRoleName} · awaiting first email sign-in
                   </p>
                 </article>
               ))}

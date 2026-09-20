@@ -16,13 +16,13 @@ export default async function AnnouncementPage({
   return (
     <PublicPage>
       <article className="mx-auto max-w-4xl px-4 py-12 sm:px-6 sm:py-16">
-        <div className="overflow-hidden rounded-3xl border border-slate-200">
+        <div className="overflow-hidden rounded-2xl border border-slate-200">
           <ContentCover image={announcement.coverImage} priority />
           <div className="p-6 sm:p-10">
-            <p className="font-bold text-red-700">
+            <p className="font-bold text-[#244d3d]">
               Posted {formatPublicDate(announcement.publishedAt)}
             </p>
-            <h1 className="mt-3 text-4xl font-black text-slate-950 sm:text-5xl">
+            <h1 className="mt-3 text-4xl font-semibold text-slate-950 sm:text-5xl">
               {announcement.title}
             </h1>
             <div className="mt-7 leading-8 whitespace-pre-line text-slate-700">

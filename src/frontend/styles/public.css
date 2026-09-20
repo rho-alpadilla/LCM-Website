@@ -1,0 +1,570 @@
+.public-site {
+  --public-paper: #fafaf8;
+  --public-ink: #202722;
+  --public-muted: #59625b;
+  --public-line: #dedfd9;
+  --public-accent: #244d3d;
+  display: flex;
+  min-height: 100svh;
+  flex-direction: column;
+  background: var(--public-paper);
+  color: var(--public-ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+.public-container {
+  width: min(100% - 3rem, 75rem);
+  margin-inline: auto;
+}
+.public-site :focus-visible {
+  outline: 3px solid #326e55;
+  outline-offset: 5px;
+}
+.public-site a,
+.public-site summary,
+.public-site button {
+  touch-action: manipulation;
+}
+.public-eyebrow {
+  color: var(--public-muted);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.public-skip-link {
+  position: fixed;
+  left: 1rem;
+  top: -6rem;
+  z-index: 100;
+  padding: 1rem;
+  background: white;
+  color: #202722;
+  border-radius: 0.5rem;
+}
+.public-skip-link:focus {
+  top: 1rem;
+}
+.public-header {
+  position: relative;
+  z-index: 40;
+  background: var(--public-paper);
+}
+.public-header-inner {
+  display: flex;
+  min-height: 6rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+}
+.public-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+.public-brand-mark {
+  width: 2.4rem;
+  height: 2.4rem;
+  object-fit: cover;
+  border-radius: 0.25rem;
+}
+.public-brand-name {
+  display: block;
+  font-weight: 750;
+  font-size: 1.125rem;
+  letter-spacing: -0.05em;
+}
+.public-brand-caption {
+  display: block;
+  color: var(--public-muted);
+  font-size: 0.5625rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.public-desktop-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+  font-weight: 550;
+}
+.public-nav-group {
+  position: relative;
+}
+.public-nav-group summary,
+.public-mobile-nav summary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  gap: 0.5rem;
+  padding: 0.5rem 0.8rem;
+  cursor: pointer;
+  list-style: none;
+  border-radius: 0.5rem;
+}
+.public-site summary::-webkit-details-marker {
+  display: none;
+}
+.public-nav-link {
+  padding: 0.8rem;
+  border-radius: 0.5rem;
+}
+.public-dropdown {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  min-width: 12rem;
+  padding: 0.5rem;
+  border: 1px solid var(--public-line);
+  border-radius: 0.75rem;
+  background: white;
+  box-shadow: 0 12px 30px #20272212;
+}
+.public-dropdown a {
+  display: block;
+  padding: 0.8rem;
+  border-radius: 0.35rem;
+}
+.public-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3.25rem;
+  gap: 0.75rem;
+  padding: 0.85rem 1.4rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.4;
+  transition:
+    background-color 160ms ease,
+    transform 160ms var(--ease-out);
+}
+.public-button:active {
+  transform: scale(0.98);
+}
+.public-button-dark {
+  background: var(--public-ink);
+  color: #fff;
+}
+.public-button-light {
+  background: #fff;
+  color: #202722;
+}
+.public-button-glass {
+  background: #101c16a6;
+  color: white;
+  border-color: #ffffff70;
+}
+.public-nav-give {
+  margin-left: 1rem;
+  min-height: 2.65rem;
+  padding: 0.6rem 1.5rem;
+  font-size: 0.75rem;
+}
+.public-mobile-nav {
+  display: none;
+  position: relative;
+  font-size: 0.8125rem;
+}
+.public-mobile-panel {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 1rem);
+  width: min(22rem, calc(100vw - 3rem));
+  max-height: calc(100svh - 7rem);
+  overflow-y: auto;
+  padding: 1.5rem;
+  background: white;
+  border: 1px solid var(--public-line);
+  border-radius: 1rem;
+  box-shadow: 0 16px 40px #20272220;
+}
+.public-mobile-panel > div + div {
+  margin-top: 1.25rem;
+}
+.public-mobile-panel ul {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 0.5rem;
+}
+.public-mobile-panel a {
+  display: flex;
+  min-height: 2.75rem;
+  align-items: center;
+  padding: 0.4rem 0;
+}
+.public-mobile-actions {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid var(--public-line);
+  padding-top: 0.75rem;
+}
+.public-intro {
+  border-bottom: 1px solid var(--public-line);
+  padding-block: 4.5rem;
+}
+.public-intro h1 {
+  max-width: 55rem;
+  margin-top: 1.2rem;
+  font-size: clamp(2.2rem, 4.5vw, 4rem);
+  font-weight: 650;
+  line-height: 1.1;
+  letter-spacing: -0.055em;
+  text-wrap: balance;
+}
+.public-intro-description {
+  max-width: 42rem;
+  margin-top: 1.25rem;
+  color: var(--public-muted);
+  font-size: 1rem;
+  line-height: 1.85;
+}
+.public-empty {
+  padding: 3rem 2rem;
+  border: 1px solid var(--public-line);
+  border-radius: 0.75rem;
+  color: var(--public-muted);
+  background: #f1f2ee;
+  text-align: center;
+  line-height: 1.8;
+}
+.home-hero {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  min-height: min(47rem, 85svh);
+  align-items: center;
+  justify-content: center;
+  margin: 0 1.25rem;
+  padding: 5rem 1.5rem 7rem;
+  overflow: hidden;
+  border-radius: 1.2rem;
+  background: #202722;
+  color: white;
+}
+.home-hero-photo {
+  object-fit: cover;
+  object-position: center;
+}
+.home-hero-shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #0d19159e, #0d1915b8 45%, #0d1915ba);
+}
+.home-hero-content {
+  position: relative;
+  width: 100%;
+  text-align: center;
+}
+.home-hero-eyebrow {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+}
+.home-hero h1 {
+  margin-top: 1.8rem;
+  font-size: clamp(3.4rem, 6.4vw, 6.5rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.06em;
+}
+.home-hero h1 span {
+  font-weight: 500;
+}
+.home-hero-script {
+  margin-top: 1.4rem;
+  font-family: var(--font-allura), cursive;
+  font-size: clamp(2rem, 3vw, 3rem);
+  line-height: 1.2;
+}
+.home-hero-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 2.2rem;
+}
+.home-hero-bottom {
+  position: absolute;
+  inset: auto 2.5rem 1.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.6875rem;
+  letter-spacing: 0.025em;
+}
+.home-hero-bottom a {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-height: 2.75rem;
+}
+.home-hero :focus-visible {
+  outline-color: white;
+}
+.home-church-life {
+  padding-block: 6rem;
+  scroll-margin-top: 2rem;
+}
+.home-section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 2rem;
+}
+.home-section-heading h2,
+.home-prayer h2 {
+  margin-top: 0.9rem;
+  font-size: clamp(2rem, 3.4vw, 3.25rem);
+  font-weight: 600;
+  letter-spacing: -0.05em;
+  line-height: 1.15;
+}
+.public-text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 1.5rem;
+  min-height: 2.75rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.home-church-links {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2.5rem;
+  margin-top: 3.2rem;
+}
+.home-church-link {
+  padding-block: 1.5rem 0.5rem;
+  border-top: 1px solid var(--public-line);
+}
+.home-link-number {
+  font-size: 0.6875rem;
+  color: var(--public-muted);
+  font-variant-numeric: tabular-nums;
+}
+.home-church-link h3 {
+  margin-top: 2rem;
+  font-size: 1.4rem;
+  font-weight: 600;
+  letter-spacing: -0.045em;
+}
+.home-link-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.75rem;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: var(--public-muted);
+}
+.home-link-arrow {
+  display: grid;
+  width: 2.75rem;
+  height: 2.75rem;
+  flex-shrink: 0;
+  place-items: center;
+  border-radius: 50%;
+  background: #ebeee8;
+  color: #202722;
+  font-size: 1.2rem;
+  transition: background-color 160ms ease;
+}
+.home-prayer {
+  background: #edf0e9;
+  padding-block: 4rem;
+}
+.home-prayer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+}
+.public-footer {
+  padding-top: 4rem;
+  background: #202722;
+  color: #e3e7e1;
+}
+.public-footer-grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr 1.4fr;
+  gap: 2rem;
+  padding-bottom: 3rem;
+}
+.public-footer .public-eyebrow {
+  color: #bac5bb;
+}
+.public-footer-brand {
+  font-size: 1.7rem;
+  font-weight: 650;
+  letter-spacing: -0.06em;
+  color: white;
+}
+.public-footer-caption {
+  margin-top: 0.5rem;
+  font-size: 0.6875rem;
+}
+.public-footer-passion {
+  margin-top: 1.5rem;
+  max-width: 15rem;
+  font-size: 0.8125rem;
+  line-height: 1.8;
+  color: #bac5bb;
+}
+.public-footer-links {
+  margin-top: 1rem;
+  display: grid;
+  gap: 0.8rem;
+  font-size: 0.75rem;
+}
+.public-footer address {
+  margin-top: 1.25rem;
+  font-size: 0.75rem;
+  line-height: 1.9;
+  font-style: normal;
+}
+.public-footer-contact {
+  display: block;
+  margin-top: 0.85rem;
+  font-size: 0.75rem;
+  overflow-wrap: anywhere;
+}
+.public-footer-bottom {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  border-top: 1px solid #ffffff26;
+  padding-block: 1.5rem;
+  font-size: 0.6875rem;
+  color: #bac5bb;
+}
+.public-footer :focus-visible {
+  outline-color: white;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .public-nav-group summary:hover,
+  .public-nav-link:hover,
+  .public-dropdown a:hover {
+    background: #edf0e9;
+  }
+  .public-button-dark:hover {
+    background: #365442;
+  }
+  .public-button-light:hover {
+    background: #e7ece4;
+  }
+  .public-button-glass:hover {
+    background: #14271fe6;
+  }
+  .home-church-link:hover .home-link-arrow {
+    background: #d5dfd0;
+  }
+  .public-text-link:hover,
+  .public-footer a:hover,
+  .public-mobile-panel a:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+}
+@media (max-width: 1100px) {
+  .public-desktop-nav {
+    display: none;
+  }
+  .public-mobile-nav {
+    display: block;
+  }
+  .public-footer-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 3rem;
+  }
+}
+@media (max-width: 640px) {
+  .public-container {
+    width: calc(100% - 2.5rem);
+  }
+  .public-header-inner {
+    min-height: 5rem;
+    gap: 0.5rem;
+  }
+  .public-brand-caption {
+    font-size: 0.5rem;
+    letter-spacing: 0.08em;
+  }
+  .public-brand-name {
+    font-size: 1rem;
+  }
+  .public-brand-mark {
+    width: 2rem;
+    height: 2rem;
+  }
+  .home-hero {
+    margin-inline: 0.625rem;
+    min-height: 38rem;
+    padding: 4rem 1rem 6rem;
+    border-radius: 0.8rem;
+  }
+  .home-hero-eyebrow {
+    max-width: 16rem;
+    margin-inline: auto;
+    font-size: 0.625rem;
+    line-height: 1.8;
+  }
+  .home-hero h1 {
+    font-size: clamp(2.35rem, 12.5vw, 3.4rem);
+  }
+  .home-hero-actions {
+    flex-direction: column;
+    width: min(100%, 17rem);
+    margin-inline: auto;
+    margin-top: 2rem;
+  }
+  .home-hero-bottom {
+    inset-inline: 1.25rem;
+    bottom: 1rem;
+    font-size: 0.625rem;
+  }
+  .home-section-heading {
+    align-items: start;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .home-church-life {
+    padding-block: 3.5rem;
+  }
+  .home-church-links {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-top: 1.8rem;
+  }
+  .home-church-link h3 {
+    margin-top: 0.75rem;
+  }
+  .home-prayer {
+    padding-block: 3rem;
+  }
+  .home-prayer-inner {
+    align-items: start;
+    flex-direction: column;
+    gap: 1.75rem;
+  }
+  .public-intro {
+    padding-block: 3rem;
+  }
+  .public-footer-grid {
+    gap: 2.5rem 1.5rem;
+  }
+  .public-footer-grid > :first-child,
+  .public-footer-grid > :last-child {
+    grid-column: 1 / -1;
+  }
+}

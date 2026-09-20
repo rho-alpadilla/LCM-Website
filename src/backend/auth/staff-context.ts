@@ -11,6 +11,7 @@ import {
   AccessControlRepository,
   type StaffContext,
 } from "@/backend/repositories/staff/access-control-repository";
+import { AccessControlService } from "@/backend/services/staff/access-control-service";
 import { localDevelopmentAdministrator } from "@/backend/development/local-administrator";
 
 export type { StaffContext };
@@ -53,11 +54,31 @@ export async function getStaffAuthState() {
   }
 
   const repository = new AccessControlRepository(environment.DB);
-  const context = await repository.findStaffContextByAccessSubject(
+  let context = await repository.findStaffContextByAccessSubject(
     identity.accessSubject,
   );
   if (context && context.email.toLowerCase() !== identity.email) {
     return { kind: "denied" as const, identity };
+  }
+
+  let pendingInvitation = await repository.findPendingInvitationByEmail(
+    identity.email,
+  );
+  if (!context && pendingInvitation) {
+    try {
+      await new AccessControlService(repository).activatePendingInvitation(
+        identity,
+      );
+    } catch (error) {
+      context = await repository.findStaffContextByAccessSubject(
+        identity.accessSubject,
+      );
+      if (!context) throw error;
+    }
+    context = await repository.findStaffContextByAccessSubject(
+      identity.accessSubject,
+    );
+    pendingInvitation = null;
   }
 
   return {
@@ -66,9 +87,7 @@ export async function getStaffAuthState() {
     identity,
     context,
     bootstrapAvailable: await repository.isBootstrapAvailable(),
-    pendingInvitation: await repository.findPendingInvitationByEmail(
-      identity.email,
-    ),
+    pendingInvitation,
   };
 }
 
