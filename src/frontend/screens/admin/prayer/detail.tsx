@@ -1,6 +1,7 @@
 import { AdminHeader } from "@/frontend/components/admin/admin-header";
 import { PrayerContactReveal } from "@/frontend/screens/admin/prayer/components/contact-reveal";
 import { getPrayerDetail } from "@/backend/queries/prayer/admin-queue";
+import { getAdminNotificationSummary } from "@/backend/queries/admin/notifications";
 import {
   addPrayerUpdateAction,
   assignPrayerAction,
@@ -29,7 +30,10 @@ export default async function PrayerDetailPage({
 }: Props) {
   const { requestId } = await params;
   const query = await searchParams;
-  const state = await getPrayerDetail(requestId);
+  const [state, notifications] = await Promise.all([
+    getPrayerDetail(requestId),
+    getAdminNotificationSummary(),
+  ]);
   const { detail, assignees } = state;
   const { request, updates, assignments } = detail;
   const isClosed =
@@ -39,8 +43,8 @@ export default async function PrayerDetailPage({
   const error = typeof query.error === "string" ? errors[query.error] : null;
 
   return (
-    <div className="min-h-screen bg-slate-100">
-      <AdminHeader context={state.context} />
+    <div className="min-h-screen bg-slate-100 lg:pl-72">
+      <AdminHeader context={state.context} notifications={notifications} />
       <main className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
         <p className="text-sm font-bold tracking-[0.2em] text-blue-800 uppercase">
           Prayer request ·{" "}

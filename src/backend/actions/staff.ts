@@ -5,15 +5,15 @@ import { redirect } from "next/navigation";
 import { requireActiveStaffSession } from "@/backend/auth/staff-context";
 import {
   invitationCancellationSchema,
+  invitationProvisioningRetrySchema,
   invitationSchema,
   roleChangeSchema,
   suspensionSchema,
 } from "@/shared/staff/schemas";
-import {
-  createStaffAccessDirectory,
-  type StaffAccessDirectory,
-} from "@/backend/integrations/cloudflare/staff-access-directory";
+import { createStaffAccessDirectory } from "@/backend/integrations/cloudflare/staff-access-directory";
 import { AccessControlRepository } from "@/backend/repositories/staff/access-control-repository";
+import { NotificationRepository } from "@/backend/repositories/admin/notification-repository";
+import { NotificationService } from "@/backend/services/admin/notification-service";
 import { AccessControlService } from "@/backend/services/staff/access-control-service";
 import {
   getStaffInvitationCancellationFailureCode,
@@ -28,6 +28,32 @@ function serviceFor(database: D1Database) {
   return new AccessControlService(new AccessControlRepository(database));
 }
 
+async function notifyStaffProvisioning(
+  database: D1Database,
+  recipientStaffId: string,
+  status: "ready" | "needs_attention",
+) {
+  try {
+    await new NotificationService(new NotificationRepository(database)).notify({
+      recipientStaffId,
+      category: "staff",
+      title:
+        status === "ready"
+          ? "Staff sign-in is ready"
+          : "Staff sign-in needs attention",
+      body:
+        status === "ready"
+          ? "The staff member can now use the admin link and their email code."
+          : "The staff record is saved. Review its setup status and retry securely from Staff & access.",
+      href: "/admin/staff",
+    });
+  } catch {
+    // Notifications are a convenience layer. A provisioning result and its
+    // security audit are already committed before this best-effort alert.
+    console.error("Failed to create a staff provisioning notification.");
+  }
+}
+
 export async function inviteStaffAction(formData: FormData) {
   const parsed = invitationSchema.safeParse(values(formData));
   if (!parsed.success) {
@@ -36,32 +62,103 @@ export async function inviteStaffAction(formData: FormData) {
   const state = await requireActiveStaffSession("staff.invite");
   const service = serviceFor(state.environment.DB);
   await service.requirePermission(state.identity, "staff.roles.manage");
-  let directory: StaffAccessDirectory | null = null;
-  let accessWasAdded = false;
+  let invitationId: string;
   try {
-    await service.validateStaffAccountCreation({
+    ({ invitationId } = await service.createInvitation({
       actorStaffId: state.context.id,
       ...parsed.data,
-    });
-    directory = createStaffAccessDirectory(state.environment);
-    ({ added: accessWasAdded } = await directory.allowEmail(parsed.data.email));
-    await service.createInvitation({
-      actorStaffId: state.context.id,
-      ...parsed.data,
-    });
+    }));
   } catch (error) {
-    if (accessWasAdded && directory) {
-      try {
-        await directory.removeEmail(parsed.data.email);
-      } catch {
-        // D1 never activates without a matching record, so this remains safe.
-        console.error("Failed to undo a Cloudflare Access staff email change.");
-      }
-    }
     logStaffInvitationFailure(error);
     redirect(`/admin/staff?error=${getStaffInvitationFailureCode(error)}`);
   }
+
+  try {
+    await createStaffAccessDirectory(state.environment).allowEmail(
+      parsed.data.email,
+    );
+    await service.recordInvitationProvisioning({
+      actorStaffId: state.context.id,
+      invitationId,
+      status: "ready",
+      failureCode: null,
+    });
+    await notifyStaffProvisioning(
+      state.environment.DB,
+      state.context.id,
+      "ready",
+    );
+  } catch (error) {
+    try {
+      await service.recordInvitationProvisioning({
+        actorStaffId: state.context.id,
+        invitationId,
+        status: "needs_attention",
+        failureCode: getStaffInvitationFailureCode(error),
+      });
+    } catch {
+      // The invitation remains in its safe setting_up state and can be retried
+      // from Staff after a transient D1 issue clears.
+      console.error("Failed to record staff Access provisioning status.");
+    }
+    await notifyStaffProvisioning(
+      state.environment.DB,
+      state.context.id,
+      "needs_attention",
+    );
+    logStaffInvitationFailure(error);
+    redirect("/admin/staff?message=account_created_needs_setup");
+  }
   redirect("/admin/staff?message=account_created");
+}
+
+export async function retryStaffInvitationAccessAction(formData: FormData) {
+  const parsed = invitationProvisioningRetrySchema.safeParse(values(formData));
+  if (!parsed.success) redirect("/admin/staff?error=invalid_invitation_retry");
+
+  const state = await requireActiveStaffSession("staff.invite");
+  const service = serviceFor(state.environment.DB);
+  await service.requirePermission(state.identity, "staff.roles.manage");
+  const invitation = await new AccessControlRepository(
+    state.environment.DB,
+  ).findPendingInvitationById(parsed.data.invitationId);
+  if (!invitation) redirect("/admin/staff?error=invitation_not_pending");
+
+  try {
+    await createStaffAccessDirectory(state.environment).allowEmail(
+      invitation.email,
+    );
+    await service.recordInvitationProvisioning({
+      actorStaffId: state.context.id,
+      invitationId: invitation.id,
+      status: "ready",
+      failureCode: null,
+    });
+    await notifyStaffProvisioning(
+      state.environment.DB,
+      state.context.id,
+      "ready",
+    );
+  } catch (error) {
+    try {
+      await service.recordInvitationProvisioning({
+        actorStaffId: state.context.id,
+        invitationId: invitation.id,
+        status: "needs_attention",
+        failureCode: getStaffInvitationFailureCode(error),
+      });
+    } catch {
+      console.error("Failed to record staff Access retry status.");
+    }
+    await notifyStaffProvisioning(
+      state.environment.DB,
+      state.context.id,
+      "needs_attention",
+    );
+    logStaffInvitationFailure(error);
+    redirect("/admin/staff?message=staff_access_needs_attention");
+  }
+  redirect("/admin/staff?message=staff_access_ready");
 }
 
 export async function cancelStaffInvitationAction(formData: FormData) {

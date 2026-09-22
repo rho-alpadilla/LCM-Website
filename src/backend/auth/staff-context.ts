@@ -64,7 +64,7 @@ export async function getStaffAuthState() {
   let pendingInvitation = await repository.findPendingInvitationByEmail(
     identity.email,
   );
-  if (!context && pendingInvitation) {
+  if (!context && pendingInvitation?.accessProvisioningStatus === "ready") {
     try {
       await new AccessControlService(repository).activatePendingInvitation(
         identity,
@@ -107,7 +107,9 @@ export async function requireActiveStaffSession(
   if (state.kind === "denied") redirect("/admin/access-denied");
   if (!state.context) {
     if (state.bootstrapAvailable) redirect("/admin/bootstrap");
-    if (state.pendingInvitation) redirect("/admin/activate" as Route);
+    if (state.pendingInvitation?.accessProvisioningStatus === "ready") {
+      redirect("/admin/activate" as Route);
+    }
     redirect("/admin/access-denied");
   }
 

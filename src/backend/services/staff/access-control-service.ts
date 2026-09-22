@@ -70,6 +70,18 @@ const invitationCancellationSchema = z.object({
   reason: z.string().trim().min(10).max(500),
 });
 
+const invitationProvisioningSchema = z.object({
+  actorStaffId: z.uuid(),
+  invitationId: z.uuid(),
+  status: z.enum(["ready", "needs_attention"]),
+  failureCode: z
+    .string()
+    .regex(/^[a-z][a-z0-9_]*$/)
+    .max(80)
+    .nullable()
+    .default(null),
+});
+
 export type VerifiedStaffIdentity = z.infer<typeof verifiedIdentitySchema>;
 export type BootstrapAdministratorInput = z.infer<
   typeof bootstrapAdministratorSchema
@@ -79,6 +91,9 @@ export type RoleMutationInput = z.input<typeof roleMutationSchema>;
 export type SuspendStaffInput = z.input<typeof suspensionSchema>;
 export type CancelInvitationInput = z.input<
   typeof invitationCancellationSchema
+>;
+export type InvitationProvisioningInput = z.input<
+  typeof invitationProvisioningSchema
 >;
 
 type AccessControlServiceDependencies = {
@@ -227,7 +242,7 @@ export class AccessControlService {
         "This identity is already registered.",
       );
     }
-    const invitation = await this.repository.findPendingInvitationByEmail(
+    const invitation = await this.repository.findReadyInvitationByEmail(
       identity.email,
     );
     if (!invitation) {
@@ -248,6 +263,36 @@ export class AccessControlService {
       createdAt: this.now().toISOString(),
     });
     return { staffId };
+  }
+
+  async recordInvitationProvisioning(rawInput: InvitationProvisioningInput) {
+    const input = invitationProvisioningSchema.parse(rawInput);
+    if (
+      (input.status === "ready" && input.failureCode !== null) ||
+      (input.status === "needs_attention" && input.failureCode === null)
+    ) {
+      throw new ApplicationError(
+        "VALIDATION_FAILED",
+        "Staff Access provisioning status is invalid.",
+      );
+    }
+
+    const invitation = await this.repository.findPendingInvitationById(
+      input.invitationId,
+    );
+    if (!invitation) {
+      throw new ApplicationError(
+        "NOT_FOUND",
+        "The pending staff invitation was not found.",
+      );
+    }
+
+    await this.repository.updateInvitationProvisioning({
+      ...input,
+      auditLogId: this.createId(),
+      correlationId: this.createId(),
+      createdAt: this.now().toISOString(),
+    });
   }
 
   async cancelInvitation(

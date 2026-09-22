@@ -162,13 +162,40 @@ test("uses an explicitly labelled local administrator for local E2E", async ({
   await expect(page).toHaveURL(/\/admin$/);
   await expect(
     page.getByRole("heading", {
-      name: "Welcome, LOCAL DEVELOPMENT — System Administrator",
+      name: "Good to see you, LOCAL.",
     }),
   ).toBeVisible();
   await expect(
     page.getByText(
       "Local development mode — synthetic System Administrator, local D1/R2 only. PayMongo is unavailable.",
     ),
+  ).toBeVisible();
+});
+
+test("shows role-aware admin navigation without exposing unavailable areas", async ({
+  page,
+}) => {
+  await page.goto("/admin");
+
+  const desktopNavigation = page.getByRole("navigation", {
+    name: "Administration",
+  });
+  if (await desktopNavigation.isVisible()) {
+    await expect(
+      desktopNavigation.getByRole("link", { name: "Dashboard" }),
+    ).toBeVisible();
+    await expect(
+      desktopNavigation.getByRole("link", { name: "Staff & access" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("complementary").getByLabel("Notifications"),
+    ).toBeVisible();
+    return;
+  }
+
+  await page.getByText("Menu", { exact: true }).click();
+  await expect(
+    page.getByRole("link", { name: "Staff & access" }),
   ).toBeVisible();
 });
 

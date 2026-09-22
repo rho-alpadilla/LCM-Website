@@ -3,6 +3,7 @@ import type { Route } from "next";
 
 import { AdminHeader } from "@/frontend/components/admin/admin-header";
 import { getContentWorkspace } from "@/backend/queries/content/admin-workspace";
+import { getAdminNotificationSummary } from "@/backend/queries/admin/notifications";
 import { createContentAction } from "@/backend/actions/content";
 import {
   contentStatusLabels,
@@ -24,9 +25,10 @@ type Props = {
 };
 
 export default async function ContentPage({ searchParams }: Props) {
-  const [state, parameters] = await Promise.all([
+  const [state, parameters, notifications] = await Promise.all([
     getContentWorkspace(),
     searchParams,
+    getAdminNotificationSummary(),
   ]);
   const { content } = state;
   const manageableTypes = manageableContentTypes(state.context.permissions);
@@ -37,8 +39,8 @@ export default async function ContentPage({ searchParams }: Props) {
     typeof parameters.error === "string" ? parameters.error : "";
 
   return (
-    <div className="min-h-screen bg-slate-100">
-      <AdminHeader context={state.context} />
+    <div className="min-h-screen bg-slate-100 lg:pl-72">
+      <AdminHeader context={state.context} notifications={notifications} />
       <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
         <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
           <div>

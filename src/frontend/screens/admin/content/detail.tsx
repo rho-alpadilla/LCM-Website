@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { getContentEditor } from "@/backend/queries/content/admin-workspace";
+import { getAdminNotificationSummary } from "@/backend/queries/admin/notifications";
 import { AdminHeader } from "@/frontend/components/admin/admin-header";
 import {
   contentStatusLabels,
@@ -27,7 +28,10 @@ export default async function ContentEditorPage({
   searchParams,
 }: ContentEditorPageProps) {
   const [{ contentId }, parameters] = await Promise.all([params, searchParams]);
-  const state = await loadEditorState(contentId);
+  const [state, notifications] = await Promise.all([
+    loadEditorState(contentId),
+    getAdminNotificationSummary(),
+  ]);
   const { editor, references, mediaAssets } = state;
   const { content, subtype } = editor;
   const messageCode = readQueryValue(parameters.message);
@@ -37,8 +41,8 @@ export default async function ContentEditorPage({
   );
 
   return (
-    <div className="min-h-screen bg-slate-100">
-      <AdminHeader context={state.context} />
+    <div className="min-h-screen bg-slate-100 lg:pl-72">
+      <AdminHeader context={state.context} notifications={notifications} />
       <main className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
         <Link
           className="font-semibold text-blue-800"

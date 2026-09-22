@@ -2,11 +2,11 @@
 
 ## Status
 
-The application-side Access verifier, D1 staff provisioning, automatic
-first-login activation, role administration, suspension, and audit writes are
-implemented and tested. Preview Access is active on the temporary `workers.dev`
-hostname. Production Access remains intentionally unconfigured until the church
-owns its final domain and completes production cutover.
+The application-side Access verifier, recoverable D1 staff provisioning,
+automatic first-login activation, role administration, suspension, and audit
+writes are implemented and tested. Preview Access is active on the temporary
+`workers.dev` hostname. Production Access remains intentionally unconfigured
+until the church owns its final domain and completes production cutover.
 
 ## What Access Protects
 
@@ -81,13 +81,17 @@ the complete verification suite after changing Wrangler config.
 ## Staff Account Procedure
 
 1. A permitted administrator enters the person's exact email, display name,
-   role, and any required assignment reason in **Staff and roles**.
-2. The website adds the email to its dedicated Access policy and records the
-   pending staff account. It does not claim to send email because outbound email
-   is not part of the no-cost launch scope.
-3. The administrator shares the protected admin address with the staff member.
-4. The staff member signs in with the One-time PIN sent to that email address.
-5. The verified first sign-in activates the D1 staff profile, assigns the
+   role, and any required assignment reason in **Staff & access**.
+2. The website first records a pending account with a visible sign-in setup
+   state, then adds the email to its dedicated Access policy. It does not claim
+   to send email because outbound email is not part of the no-cost launch scope.
+3. If Cloudflare rejects or cannot reach the policy, the pending account stays
+   visible as **secure sign-in needs attention**. Correct the connection and use
+   **Retry secure sign-in setup**; do not create a duplicate account.
+4. When the state is ready, the administrator shares the protected admin
+   address with the staff member.
+5. The staff member signs in with the One-time PIN sent to that email address.
+6. The verified first sign-in activates the D1 staff profile, assigns the
    approved role, and appends an audit event in one transaction. There is no
    separate activation button.
 

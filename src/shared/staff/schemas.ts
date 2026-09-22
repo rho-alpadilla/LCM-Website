@@ -35,3 +35,7 @@ export const invitationCancellationSchema = z.object({
   invitationId: z.uuid(),
   reason: z.string().trim().min(10).max(500),
 });
+
+export const invitationProvisioningRetrySchema = z.object({
+  invitationId: z.uuid(),
+});

@@ -2,11 +2,13 @@ import type { ReactNode } from "react";
 
 import { AdminHeader } from "@/frontend/components/admin/admin-header";
 import { getStaffWorkspace } from "@/backend/queries/staff/admin-directory";
+import { getAdminNotificationSummary } from "@/backend/queries/admin/notifications";
 import {
   assignRoleAction,
   cancelStaffInvitationAction,
   inviteStaffAction,
   revokeRoleAction,
+  retryStaffInvitationAccessAction,
   suspendStaffAction,
 } from "@/backend/actions/staff";
 import { roleOptions } from "@/shared/staff/roles";
@@ -14,9 +16,15 @@ import { roleOptions } from "@/shared/staff/roles";
 const messages: Record<string, string> = {
   account_suspended: "The account was suspended.",
   account_created:
-    "Staff account created. Share the admin link; the person signs in with their email code.",
+    "Staff account created and secure email sign-in is ready. Share the admin link with them.",
+  account_created_needs_setup:
+    "The staff account was saved, but secure sign-in needs attention. Use Retry setup below after reviewing the Cloudflare connection.",
   invitation_cancelled:
     "The pending invitation was cancelled. A new invitation can be created later if needed.",
+  staff_access_needs_attention:
+    "Secure sign-in still needs attention. The staff account remains saved; retry after correcting the Cloudflare Access connection.",
+  staff_access_ready:
+    "Secure sign-in is ready. The person can now use the admin link and their email code.",
   role_assigned: "The role was assigned.",
   role_revoked: "The role was removed.",
 };
@@ -24,6 +32,8 @@ const messages: Record<string, string> = {
 const errors: Record<string, string> = {
   invalid_invitation_cancellation:
     "Enter a cancellation reason with at least 10 characters, then retry.",
+  invalid_invitation_retry:
+    "This staff setup record is invalid. Refresh and retry.",
   invitation_not_pending:
     "This invitation is no longer pending. Refresh the page to review the current staff list.",
   invitation_cancellation_failed:
@@ -35,17 +45,17 @@ const errors: Record<string, string> = {
   staff_setup_required:
     "Staff sign-in setup is not ready. Complete the one-time Cloudflare Access connection first.",
   staff_access_authorization_failed:
-    "Cloudflare rejected the website's staff-access permission. No staff account was created. Check the restricted Cloudflare Access token, then retry.",
+    "Cloudflare rejected the website's staff-access permission. The staff account was not saved.",
   staff_access_policy_missing:
-    "The configured Cloudflare staff policy could not be found. No staff account was created. Check the policy connection, then retry.",
+    "The configured Cloudflare staff policy could not be found. The staff account was not saved.",
   staff_access_policy_invalid:
-    "The Cloudflare staff policy has an unsupported rule. No staff account was created. It must be an Allow policy containing only exact staff email addresses.",
+    "The Cloudflare staff policy has an unsupported rule. The staff account was not saved. It must be an Allow policy containing only exact staff email addresses.",
   staff_access_unreachable:
-    "Cloudflare Access could not be reached. No staff account was created; wait a moment and retry once.",
+    "Cloudflare Access could not be reached. The staff account was not saved; wait a moment and retry once.",
   staff_access_update_failed:
-    "Cloudflare could not update the secure staff sign-in list. No staff account was created. Check the policy setup, then retry.",
+    "Cloudflare could not update the secure staff sign-in list. The staff account was not saved.",
   invitation_failed:
-    "The staff account was not created. A safe diagnostic was recorded; review the Worker logs before retrying.",
+    "The staff account was not saved. A safe diagnostic was recorded; review the Worker logs before retrying.",
 };
 
 type Props = {
@@ -53,9 +63,10 @@ type Props = {
 };
 
 export default async function StaffPage({ searchParams }: Props) {
-  const [state, parameters] = await Promise.all([
+  const [state, parameters, notifications] = await Promise.all([
     getStaffWorkspace(),
     searchParams,
+    getAdminNotificationSummary(),
   ]);
   const { staff, invitations } = state;
   const messageCode =
@@ -65,10 +76,11 @@ export default async function StaffPage({ searchParams }: Props) {
   const canCancelInvitations =
     state.context.permissions.includes("staff.invite") &&
     state.context.permissions.includes("staff.roles.manage");
+  const canManageProvisioning = canCancelInvitations;
 
   return (
-    <div className="min-h-screen bg-slate-100">
-      <AdminHeader context={state.context} />
+    <div className="min-h-screen bg-slate-100 lg:pl-72">
+      <AdminHeader context={state.context} notifications={notifications} />
       <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
         <p className="text-sm font-bold tracking-[0.2em] text-blue-800 uppercase">
           System administration
@@ -77,9 +89,10 @@ export default async function StaffPage({ searchParams }: Props) {
           Staff and roles
         </h1>
         <p className="mt-4 max-w-3xl leading-7 text-slate-600">
-          Create each staff account once here. The website sets up their secure
-          email sign-in automatically. Core Leader and System Administrator
-          access require a documented reason.
+          Create each staff account once here. The account is saved before
+          secure email sign-in is connected, so a setup issue can be safely
+          retried instead of losing the record. Core Leader and System
+          Administrator access require a documented reason.
         </p>
 
         {messageCode ? (
@@ -186,8 +199,34 @@ export default async function StaffPage({ searchParams }: Props) {
                     {invitation.email}
                   </p>
                   <p className="mt-3 text-sm font-semibold text-amber-900">
-                    {invitation.initialRoleName} · awaiting first email sign-in
+                    {invitation.initialRoleName} ·{" "}
+                    {provisioningLabel(invitation.accessProvisioningStatus)}
                   </p>
+                  {invitation.accessProvisioningStatus !== "ready" ? (
+                    <p className="mt-2 text-sm leading-6 text-amber-950">
+                      The account is saved. Secure sign-in is not available
+                      until this setup is ready.
+                    </p>
+                  ) : null}
+                  {canManageProvisioning &&
+                  invitation.accessProvisioningStatus !== "ready" ? (
+                    <form
+                      action={retryStaffInvitationAccessAction}
+                      className="mt-4"
+                    >
+                      <input
+                        name="invitationId"
+                        type="hidden"
+                        value={invitation.id}
+                      />
+                      <button
+                        className="rounded-xl bg-blue-800 px-4 py-2 font-bold text-white"
+                        type="submit"
+                      >
+                        Retry secure sign-in setup
+                      </button>
+                    </form>
+                  ) : null}
                   {canCancelInvitations ? (
                     <details className="mt-5 border-t border-amber-200 pt-4">
                       <summary className="cursor-pointer font-bold text-red-800">
@@ -354,6 +393,12 @@ export default async function StaffPage({ searchParams }: Props) {
 }
 
 const inputClass = "mt-2 w-full rounded-xl border border-slate-300 px-4 py-3";
+
+function provisioningLabel(status: string) {
+  if (status === "ready") return "awaiting first email sign-in";
+  if (status === "needs_attention") return "secure sign-in needs attention";
+  return "secure sign-in setup in progress";
+}
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (

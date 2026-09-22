@@ -22,6 +22,10 @@ export type PendingInvitation = {
   initialRoleName: string;
   assignmentReason: string | null;
   invitedBy: string;
+  accessProvisioningStatus: "setting_up" | "ready" | "needs_attention";
+  accessProvisioningErrorCode: string | null;
+  accessProvisioningAttempts: number;
+  accessProvisioningUpdatedAt: string | null;
   createdAt: string;
 };
 
@@ -70,6 +74,16 @@ export type CancelInvitationRecord = {
   createdAt: string;
 };
 
+export type UpdateInvitationProvisioningRecord = {
+  invitationId: string;
+  actorStaffId: string;
+  status: "ready" | "needs_attention";
+  failureCode: string | null;
+  auditLogId: string;
+  correlationId: string;
+  createdAt: string;
+};
+
 export type RoleMutationRecord = {
   staffId: string;
   roleCode: string;
@@ -108,10 +122,14 @@ export interface AccessControlRepositoryPort {
   findPendingInvitationByEmail(
     email: string,
   ): Promise<PendingInvitation | null>;
+  findReadyInvitationByEmail(email: string): Promise<PendingInvitation | null>;
   findPendingInvitationById(
     invitationId: string,
   ): Promise<PendingInvitation | null>;
   createInvitation(record: CreateInvitationRecord): Promise<void>;
+  updateInvitationProvisioning(
+    record: UpdateInvitationProvisioningRecord,
+  ): Promise<void>;
   activateInvitation(record: ActivateInvitationRecord): Promise<void>;
   cancelInvitation(record: CancelInvitationRecord): Promise<void>;
   listStaffDirectory(): Promise<{
@@ -148,6 +166,10 @@ type InvitationRow = {
   initial_role_name: string;
   assignment_reason: string | null;
   invited_by: string;
+  access_provisioning_status: PendingInvitation["accessProvisioningStatus"];
+  access_provisioning_error_code: string | null;
+  access_provisioning_attempts: number;
+  access_provisioning_updated_at: string | null;
   created_at: string;
 };
 type CodeRow = { code: string };
@@ -157,7 +179,10 @@ const invitationSelect = `
   SELECT invitation.id, invitation.email, invitation.display_name,
          invitation.phone, invitation.job_title, invitation.initial_role_code,
          role.name AS initial_role_name, invitation.assignment_reason,
-         invitation.invited_by, invitation.created_at
+         invitation.invited_by, invitation.access_provisioning_status,
+         invitation.access_provisioning_error_code,
+         invitation.access_provisioning_attempts,
+         invitation.access_provisioning_updated_at, invitation.created_at
   FROM staff_invitations AS invitation
   JOIN roles AS role ON role.code = invitation.initial_role_code`;
 
@@ -172,6 +197,10 @@ function mapInvitation(row: InvitationRow): PendingInvitation {
     initialRoleName: row.initial_role_name,
     assignmentReason: row.assignment_reason,
     invitedBy: row.invited_by,
+    accessProvisioningStatus: row.access_provisioning_status,
+    accessProvisioningErrorCode: row.access_provisioning_error_code,
+    accessProvisioningAttempts: row.access_provisioning_attempts,
+    accessProvisioningUpdatedAt: row.access_provisioning_updated_at,
     createdAt: row.created_at,
   };
 }
@@ -313,6 +342,18 @@ export class AccessControlRepository implements AccessControlRepositoryPort {
     return row ? mapInvitation(row) : null;
   }
 
+  async findReadyInvitationByEmail(email: string) {
+    const row = await this.database
+      .prepare(
+        `${invitationSelect} WHERE invitation.email = ?1 COLLATE NOCASE
+          AND invitation.status = 'pending'
+          AND invitation.access_provisioning_status = 'ready'`,
+      )
+      .bind(email)
+      .first<InvitationRow>();
+    return row ? mapInvitation(row) : null;
+  }
+
   async findPendingInvitationById(invitationId: string) {
     const row = await this.database
       .prepare(
@@ -329,8 +370,9 @@ export class AccessControlRepository implements AccessControlRepositoryPort {
         .prepare(
           `INSERT INTO staff_invitations
           (id, email, display_name, phone, job_title, initial_role_code,
-           assignment_reason, invited_by, status, created_at)
-         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, 'pending', ?9)`,
+           assignment_reason, invited_by, status, access_provisioning_status,
+           access_provisioning_attempts, created_at)
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, 'pending', 'setting_up', 0, ?9)`,
         )
         .bind(
           record.invitationId,
@@ -358,6 +400,44 @@ export class AccessControlRepository implements AccessControlRepositoryPort {
         createdAt: record.createdAt,
       }),
     ]);
+  }
+
+  async updateInvitationProvisioning(
+    record: UpdateInvitationProvisioningRecord,
+  ) {
+    const [mutation] = await this.database.batch([
+      this.database
+        .prepare(
+          `UPDATE staff_invitations
+           SET access_provisioning_status = ?2,
+               access_provisioning_error_code = ?3,
+               access_provisioning_attempts = access_provisioning_attempts + 1,
+               access_provisioning_updated_at = ?4
+           WHERE id = ?1 AND status = 'pending'`,
+        )
+        .bind(
+          record.invitationId,
+          record.status,
+          record.failureCode,
+          record.createdAt,
+        ),
+      this.changedRowAuditStatement({
+        id: record.auditLogId,
+        actorStaffId: record.actorStaffId,
+        action:
+          record.status === "ready"
+            ? "staff.invitation_access_ready"
+            : "staff.invitation_access_needs_attention",
+        resourceType: "staff_invitation",
+        resourceId: record.invitationId,
+        metadata: { failureCode: record.failureCode },
+        correlationId: record.correlationId,
+        createdAt: record.createdAt,
+      }),
+    ]);
+    if (mutation.meta.changes !== 1) {
+      throw new Error("The pending staff invitation no longer exists.");
+    }
   }
 
   async activateInvitation(record: ActivateInvitationRecord) {

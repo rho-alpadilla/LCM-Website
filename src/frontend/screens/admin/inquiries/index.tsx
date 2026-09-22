@@ -3,14 +3,18 @@ import Link from "next/link";
 
 import { AdminHeader } from "@/frontend/components/admin/admin-header";
 import { getInquiryQueue } from "@/backend/queries/inquiries/admin-queue";
+import { getAdminNotificationSummary } from "@/backend/queries/admin/notifications";
 import { inquiryTypeLabel } from "@/shared/inquiries/types";
 
 export default async function InquiryQueuePage() {
-  const state = await getInquiryQueue();
+  const [state, notifications] = await Promise.all([
+    getInquiryQueue(),
+    getAdminNotificationSummary(),
+  ]);
 
   return (
-    <div className="min-h-screen bg-slate-100">
-      <AdminHeader context={state.context} />
+    <div className="min-h-screen bg-slate-100 lg:pl-72">
+      <AdminHeader context={state.context} notifications={notifications} />
       <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
         <p className="text-sm font-bold tracking-[0.2em] text-blue-800 uppercase">
           Visitor follow-up

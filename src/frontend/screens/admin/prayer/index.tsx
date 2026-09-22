@@ -3,14 +3,18 @@ import Link from "next/link";
 
 import { AdminHeader } from "@/frontend/components/admin/admin-header";
 import { getPrayerQueue } from "@/backend/queries/prayer/admin-queue";
+import { getAdminNotificationSummary } from "@/backend/queries/admin/notifications";
 
 export default async function PrayerQueuePage() {
-  const state = await getPrayerQueue();
+  const [state, notifications] = await Promise.all([
+    getPrayerQueue(),
+    getAdminNotificationSummary(),
+  ]);
   const { requests } = state;
 
   return (
-    <div className="min-h-screen bg-slate-100">
-      <AdminHeader context={state.context} />
+    <div className="min-h-screen bg-slate-100 lg:pl-72">
+      <AdminHeader context={state.context} notifications={notifications} />
       <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
         <p className="text-sm font-bold tracking-[0.2em] text-blue-800 uppercase">
           Sensitive ministry workspace

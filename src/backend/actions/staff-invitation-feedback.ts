@@ -64,11 +64,26 @@ export function getStaffInvitationCancellationFailureCode(
  * email addresses, token values, or provider responses to the log stream.
  */
 export function logStaffInvitationFailure(error: unknown) {
+  const cause = error instanceof ApplicationError ? error.cause : null;
+  const providerDiagnostic =
+    cause &&
+    typeof cause === "object" &&
+    "providerStatus" in cause &&
+    typeof cause.providerStatus === "number"
+      ? {
+          providerStatus: cause.providerStatus,
+          providerCode:
+            "providerCode" in cause && typeof cause.providerCode === "number"
+              ? cause.providerCode
+              : null,
+        }
+      : undefined;
   console.error("Staff account creation failed.", {
     failure: getStaffInvitationFailureCode(error),
     applicationErrorCode:
       error instanceof ApplicationError ? error.code : "UNEXPECTED_ERROR",
     errorName: error instanceof Error ? error.name : "UnknownError",
+    providerDiagnostic,
   });
 }
 

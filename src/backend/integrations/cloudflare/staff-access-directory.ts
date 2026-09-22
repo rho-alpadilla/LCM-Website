@@ -25,12 +25,22 @@ const emailSchema = z
 const providerResponseSchema = z.object({
   success: z.boolean(),
   result: z.unknown().optional(),
+  errors: z
+    .array(
+      z.object({
+        code: z.number().int().nonnegative().optional(),
+      }),
+    )
+    .optional(),
 });
 
 const policySchema = z.object({
   name: z.string().trim().min(1).max(255),
   decision: z.literal("allow"),
   include: z.array(z.unknown()).min(1),
+  exclude: z.array(z.unknown()).optional(),
+  require: z.array(z.unknown()).optional(),
+  session_duration: z.string().trim().min(1).max(255).optional(),
 });
 
 export type StaffAccessDirectoryEnvironment = {
@@ -50,6 +60,9 @@ type Configuration = z.infer<typeof configurationSchema>;
 type ManagedPolicy = {
   name: string;
   emails: string[];
+  exclude?: unknown[];
+  require?: unknown[];
+  sessionDuration?: string;
 };
 
 /**
@@ -91,7 +104,7 @@ class CloudflareStaffAccessDirectory implements StaffAccessDirectory {
     const policy = await this.getManagedPolicy();
     if (policy.emails.includes(email)) return { added: false };
 
-    await this.updateManagedPolicy(policy.name, [...policy.emails, email]);
+    await this.updateManagedPolicy(policy, [...policy.emails, email]);
     return { added: true };
   }
 
@@ -108,7 +121,7 @@ class CloudflareStaffAccessDirectory implements StaffAccessDirectory {
       );
     }
 
-    await this.updateManagedPolicy(policy.name, remainingEmails);
+    await this.updateManagedPolicy(policy, remainingEmails);
     return { removed: true };
   }
 
@@ -145,10 +158,16 @@ class CloudflareStaffAccessDirectory implements StaffAccessDirectory {
     return {
       name: parsedPolicy.data.name,
       emails: [...new Set(emails)].sort(),
+      exclude: parsedPolicy.data.exclude,
+      require: parsedPolicy.data.require,
+      sessionDuration: parsedPolicy.data.session_duration,
     };
   }
 
-  private async updateManagedPolicy(name: string, rawEmails: string[]) {
+  private async updateManagedPolicy(
+    policy: ManagedPolicy,
+    rawEmails: string[],
+  ) {
     const emails = [
       ...new Set(rawEmails.map((email) => emailSchema.parse(email))),
     ].sort();
@@ -156,9 +175,14 @@ class CloudflareStaffAccessDirectory implements StaffAccessDirectory {
       "PUT",
       `/accounts/${this.configuration.accountId}/access/policies/${this.configuration.policyId}`,
       {
-        name,
+        name: policy.name,
         decision: "allow",
         include: emails.map((email) => ({ email: { email } })),
+        ...(policy.exclude ? { exclude: policy.exclude } : {}),
+        ...(policy.require ? { require: policy.require } : {}),
+        ...(policy.sessionDuration
+          ? { session_duration: policy.sessionDuration }
+          : {}),
       },
     );
   }
@@ -215,6 +239,12 @@ class CloudflareStaffAccessDirectory implements StaffAccessDirectory {
       throw new ApplicationError(
         "INTERNAL_ERROR",
         "Cloudflare Access could not update the staff policy.",
+        {
+          providerStatus: response.status,
+          providerCode: parsed.success
+            ? (parsed.data.errors?.[0]?.code ?? null)
+            : null,
+        },
       );
     }
 

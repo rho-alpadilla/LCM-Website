@@ -93,6 +93,43 @@ describe("Cloudflare staff Access directory", () => {
     });
   });
 
+  it("preserves supported policy controls while changing only the email list", async () => {
+    const fetcher = vi
+      .fn()
+      .mockResolvedValueOnce(
+        Response.json({
+          success: true,
+          result: {
+            name: "LCM Website Staff",
+            decision: "allow",
+            include: [{ email: { email: "admin@example.com" } }],
+            require: [{ login_method: { id: "otp-method-id" } }],
+            session_duration: "24h",
+          },
+        }),
+      )
+      .mockResolvedValueOnce(Response.json({ success: true, result: {} }));
+    const directory = createStaffAccessDirectory(
+      configuredEnvironment,
+      fetcher as typeof fetch,
+    );
+
+    await directory.allowEmail("pastor@example.com");
+
+    expect(fetcher.mock.calls[1]?.[1]).toMatchObject({
+      body: JSON.stringify({
+        name: "LCM Website Staff",
+        decision: "allow",
+        include: [
+          { email: { email: "admin@example.com" } },
+          { email: { email: "pastor@example.com" } },
+        ],
+        require: [{ login_method: { id: "otp-method-id" } }],
+        session_duration: "24h",
+      }),
+    });
+  });
+
   it("fails closed when the policy includes a non-email rule", async () => {
     const fetcher = vi.fn().mockResolvedValue(
       Response.json({

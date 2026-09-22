@@ -39,6 +39,8 @@ tests/e2e/       Browser regression and accessibility tests
 
 Start with [the code structure guide](docs/CODE_STRUCTURE.md) to find the right
 place for a change. `pnpm lint` enforces the source dependency boundaries.
+For the safe first-administrator setup and normal staff onboarding flow, see
+[the admin operations guide](docs/ADMIN_OPERATIONS.md).
 
 ## Requirements
 

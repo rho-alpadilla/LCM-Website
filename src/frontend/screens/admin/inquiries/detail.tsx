@@ -7,6 +7,7 @@ import {
   closeInquiryAction,
 } from "@/backend/actions/inquiries";
 import { getInquiryDetail } from "@/backend/queries/inquiries/admin-queue";
+import { getAdminNotificationSummary } from "@/backend/queries/admin/notifications";
 import { AdminHeader } from "@/frontend/components/admin/admin-header";
 import { inquiryPermission } from "@/shared/inquiries/schemas";
 import { inquiryTypeLabel } from "@/shared/inquiries/types";
@@ -19,7 +20,10 @@ export default async function InquiryDetailPage({
   searchParams: Promise<{ message?: string; error?: string }>;
 }) {
   const [{ inquiryId }, result] = await Promise.all([params, searchParams]);
-  const state = await getInquiryDetail(inquiryId);
+  const [state, notifications] = await Promise.all([
+    getInquiryDetail(inquiryId),
+    getAdminNotificationSummary(),
+  ]);
   const { inquiry, updates, assignees } = state.detail;
   const canAssign = state.context.permissions.includes(
     inquiryPermission(inquiry.inquiryType, "assign"),
@@ -30,8 +34,8 @@ export default async function InquiryDetailPage({
   const open = inquiry.status === "open" || inquiry.status === "in_progress";
 
   return (
-    <div className="min-h-screen bg-slate-100">
-      <AdminHeader context={state.context} />
+    <div className="min-h-screen bg-slate-100 lg:pl-72">
+      <AdminHeader context={state.context} notifications={notifications} />
       <main className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
         <Link
           className="font-bold text-blue-800 underline"
