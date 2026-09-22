@@ -5,6 +5,7 @@ import type {
   AccessControlRepositoryPort,
   StaffContext,
 } from "@/backend/repositories/staff/access-control-repository";
+import type { StaffAccessDirectory } from "@/backend/integrations/cloudflare/staff-access-directory";
 
 const verifiedIdentitySchema = z.object({
   accessSubject: z.string().trim().min(1).max(255),
@@ -63,6 +64,12 @@ const suspensionSchema = z.object({
   reason: z.string().trim().min(10).max(500),
 });
 
+const invitationCancellationSchema = z.object({
+  actorStaffId: z.uuid(),
+  invitationId: z.uuid(),
+  reason: z.string().trim().min(10).max(500),
+});
+
 export type VerifiedStaffIdentity = z.infer<typeof verifiedIdentitySchema>;
 export type BootstrapAdministratorInput = z.infer<
   typeof bootstrapAdministratorSchema
@@ -70,6 +77,9 @@ export type BootstrapAdministratorInput = z.infer<
 export type CreateInvitationInput = z.input<typeof invitationSchema>;
 export type RoleMutationInput = z.input<typeof roleMutationSchema>;
 export type SuspendStaffInput = z.input<typeof suspensionSchema>;
+export type CancelInvitationInput = z.input<
+  typeof invitationCancellationSchema
+>;
 
 type AccessControlServiceDependencies = {
   createId?: () => string;
@@ -238,6 +248,47 @@ export class AccessControlService {
       createdAt: this.now().toISOString(),
     });
     return { staffId };
+  }
+
+  async cancelInvitation(
+    rawInput: CancelInvitationInput,
+    directory: StaffAccessDirectory,
+  ) {
+    const input = invitationCancellationSchema.parse(rawInput);
+    const invitation = await this.repository.findPendingInvitationById(
+      input.invitationId,
+    );
+    if (!invitation) {
+      throw new ApplicationError(
+        "NOT_FOUND",
+        "The pending staff invitation was not found.",
+      );
+    }
+
+    const { removed } = await directory.removeEmail(invitation.email);
+    try {
+      await this.repository.cancelInvitation({
+        invitationId: invitation.id,
+        actorStaffId: input.actorStaffId,
+        reason: input.reason,
+        auditLogId: this.createId(),
+        correlationId: this.createId(),
+        createdAt: this.now().toISOString(),
+      });
+    } catch (error) {
+      if (removed) {
+        try {
+          await directory.allowEmail(invitation.email);
+        } catch {
+          // The original mutation failure remains the useful error for the UI.
+          // The website still denies unactivated invitations at the app layer.
+          console.error(
+            "Failed to restore a staff email after cancellation failed.",
+          );
+        }
+      }
+      throw error;
+    }
   }
 
   async listStaffDirectory() {

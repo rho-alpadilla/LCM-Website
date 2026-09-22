@@ -30,3 +30,8 @@ export const suspensionSchema = z.object({
   staffId: z.uuid(),
   reason: z.string().trim().min(10).max(500),
 });
+
+export const invitationCancellationSchema = z.object({
+  invitationId: z.uuid(),
+  reason: z.string().trim().min(10).max(500),
+});

@@ -2,7 +2,10 @@ import { describe, expect, it } from "vitest";
 
 import { ApplicationError } from "@/shared/errors/application-error";
 
-import { getStaffInvitationFailureCode } from "./staff-invitation-feedback";
+import {
+  getStaffInvitationCancellationFailureCode,
+  getStaffInvitationFailureCode,
+} from "./staff-invitation-feedback";
 
 describe("staff invitation feedback", () => {
   it("gives an administrator a safe next step when the email is already pending", () => {
@@ -42,5 +45,16 @@ describe("staff invitation feedback", () => {
     expect(getStaffInvitationFailureCode(new Error("database details"))).toBe(
       "invitation_failed",
     );
+  });
+
+  it("explains when an invitation was already accepted or cancelled", () => {
+    expect(
+      getStaffInvitationCancellationFailureCode(
+        new ApplicationError(
+          "NOT_FOUND",
+          "The pending staff invitation was not found.",
+        ),
+      ),
+    ).toBe("invitation_not_pending");
   });
 });

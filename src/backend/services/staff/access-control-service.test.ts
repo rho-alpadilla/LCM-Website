@@ -3,10 +3,12 @@ import { describe, expect, it, vi } from "vitest";
 import type {
   AccessControlRepositoryPort,
   BootstrapAdministratorRecord,
+  CancelInvitationRecord,
   CreateInvitationRecord,
   PendingInvitation,
   StaffContext,
 } from "@/backend/repositories/staff/access-control-repository";
+import type { StaffAccessDirectory } from "@/backend/integrations/cloudflare/staff-access-directory";
 
 import { AccessControlService } from "./access-control-service";
 
@@ -20,8 +22,10 @@ function createRepositoryStub(
     activeStaffHasPermission: vi.fn().mockResolvedValue(false),
     emailHasStaffProfile: vi.fn().mockResolvedValue(false),
     findPendingInvitationByEmail: vi.fn().mockResolvedValue(null),
+    findPendingInvitationById: vi.fn().mockResolvedValue(null),
     createInvitation: vi.fn().mockResolvedValue(undefined),
     activateInvitation: vi.fn().mockResolvedValue(undefined),
+    cancelInvitation: vi.fn().mockResolvedValue(undefined),
     listStaffDirectory: vi
       .fn()
       .mockResolvedValue({ staff: [], invitations: [] }),
@@ -340,6 +344,127 @@ describe("AccessControlService", () => {
         accessSubject: "access-subject",
       }),
     );
+  });
+
+  it("cancels a pending invitation after removing its Access email", async () => {
+    const invitation: PendingInvitation = {
+      id: "5c0a1c85-ae2f-4255-8d73-a4dcf063a610",
+      email: "leader@example.com",
+      displayName: "Church Leader",
+      phone: null,
+      jobTitle: null,
+      initialRoleCode: "content_editor",
+      initialRoleName: "Content Editor",
+      assignmentReason: null,
+      invitedBy: "5d3a2ee4-7f94-4e95-ae5b-5c0650b8749e",
+      createdAt: "2026-09-10T00:00:00.000Z",
+    };
+    const cancelInvitation = vi
+      .fn<(record: CancelInvitationRecord) => Promise<void>>()
+      .mockResolvedValue(undefined);
+    const removeEmail = vi.fn().mockResolvedValue({ removed: true });
+    const directory = {
+      allowEmail: vi.fn().mockResolvedValue({ added: true }),
+      removeEmail,
+    } satisfies StaffAccessDirectory;
+    const identifiers = ["audit-id", "correlation-id"];
+    const service = new AccessControlService(
+      createRepositoryStub({
+        findPendingInvitationById: vi.fn().mockResolvedValue(invitation),
+        cancelInvitation,
+      }),
+      {
+        createId: () => identifiers.shift() ?? "unexpected-id",
+        now: () => new Date("2026-09-22T01:00:00.000Z"),
+      },
+    );
+
+    await expect(
+      service.cancelInvitation(
+        {
+          actorStaffId: "5d3a2ee4-7f94-4e95-ae5b-5c0650b8749e",
+          invitationId: invitation.id,
+          reason: "Duplicate invitation created during testing.",
+        },
+        directory,
+      ),
+    ).resolves.toBeUndefined();
+
+    expect(removeEmail).toHaveBeenCalledWith("leader@example.com");
+    expect(cancelInvitation).toHaveBeenCalledWith({
+      invitationId: invitation.id,
+      actorStaffId: "5d3a2ee4-7f94-4e95-ae5b-5c0650b8749e",
+      reason: "Duplicate invitation created during testing.",
+      auditLogId: "audit-id",
+      correlationId: "correlation-id",
+      createdAt: "2026-09-22T01:00:00.000Z",
+    });
+    expect(removeEmail.mock.invocationCallOrder[0]).toBeLessThan(
+      cancelInvitation.mock.invocationCallOrder[0] ?? Infinity,
+    );
+  });
+
+  it("leaves Access unchanged when the invitation is no longer pending", async () => {
+    const removeEmail = vi.fn();
+    const service = new AccessControlService(createRepositoryStub());
+    const directory = {
+      allowEmail: vi.fn(),
+      removeEmail,
+    } satisfies StaffAccessDirectory;
+
+    await expect(
+      service.cancelInvitation(
+        {
+          actorStaffId: "5d3a2ee4-7f94-4e95-ae5b-5c0650b8749e",
+          invitationId: "5c0a1c85-ae2f-4255-8d73-a4dcf063a610",
+          reason: "Duplicate invitation created during testing.",
+        },
+        directory,
+      ),
+    ).rejects.toMatchObject({ code: "NOT_FOUND" });
+
+    expect(removeEmail).not.toHaveBeenCalled();
+  });
+
+  it("restores the Access email if the D1 cancellation cannot be recorded", async () => {
+    const invitation: PendingInvitation = {
+      id: "5c0a1c85-ae2f-4255-8d73-a4dcf063a610",
+      email: "leader@example.com",
+      displayName: "Church Leader",
+      phone: null,
+      jobTitle: null,
+      initialRoleCode: "content_editor",
+      initialRoleName: "Content Editor",
+      assignmentReason: null,
+      invitedBy: "5d3a2ee4-7f94-4e95-ae5b-5c0650b8749e",
+      createdAt: "2026-09-10T00:00:00.000Z",
+    };
+    const allowEmail = vi.fn().mockResolvedValue({ added: true });
+    const service = new AccessControlService(
+      createRepositoryStub({
+        findPendingInvitationById: vi.fn().mockResolvedValue(invitation),
+        cancelInvitation: vi
+          .fn()
+          .mockRejectedValue(new Error("D1 unavailable")),
+      }),
+    );
+    const directory = {
+      allowEmail,
+      removeEmail: vi.fn().mockResolvedValue({ removed: true }),
+    } satisfies StaffAccessDirectory;
+
+    await expect(
+      service.cancelInvitation(
+        {
+          actorStaffId: "5d3a2ee4-7f94-4e95-ae5b-5c0650b8749e",
+          invitationId: invitation.id,
+          reason: "Duplicate invitation created during testing.",
+        },
+        directory,
+      ),
+    ).rejects.toThrow("D1 unavailable");
+
+    expect(allowEmail).toHaveBeenCalledWith("leader@example.com");
   });
 
   it("allows a reasoned Core Leader elevation without another prerequisite role", async () => {

@@ -61,6 +61,15 @@ export type ActivateInvitationRecord = {
   createdAt: string;
 };
 
+export type CancelInvitationRecord = {
+  invitationId: string;
+  actorStaffId: string;
+  reason: string;
+  auditLogId: string;
+  correlationId: string;
+  createdAt: string;
+};
+
 export type RoleMutationRecord = {
   staffId: string;
   roleCode: string;
@@ -99,8 +108,12 @@ export interface AccessControlRepositoryPort {
   findPendingInvitationByEmail(
     email: string,
   ): Promise<PendingInvitation | null>;
+  findPendingInvitationById(
+    invitationId: string,
+  ): Promise<PendingInvitation | null>;
   createInvitation(record: CreateInvitationRecord): Promise<void>;
   activateInvitation(record: ActivateInvitationRecord): Promise<void>;
+  cancelInvitation(record: CancelInvitationRecord): Promise<void>;
   listStaffDirectory(): Promise<{
     staff: StaffDirectoryEntry[];
     invitations: PendingInvitation[];
@@ -300,6 +313,16 @@ export class AccessControlRepository implements AccessControlRepositoryPort {
     return row ? mapInvitation(row) : null;
   }
 
+  async findPendingInvitationById(invitationId: string) {
+    const row = await this.database
+      .prepare(
+        `${invitationSelect} WHERE invitation.id = ?1 AND invitation.status = 'pending'`,
+      )
+      .bind(invitationId)
+      .first<InvitationRow>();
+    return row ? mapInvitation(row) : null;
+  }
+
   async createInvitation(record: CreateInvitationRecord) {
     await this.database.batch([
       this.database
@@ -394,6 +417,37 @@ export class AccessControlRepository implements AccessControlRepositoryPort {
         createdAt: record.createdAt,
       }),
     ]);
+  }
+
+  async cancelInvitation(record: CancelInvitationRecord) {
+    const [mutation] = await this.database.batch([
+      this.database
+        .prepare(
+          `UPDATE staff_invitations
+           SET status = 'cancelled', cancelled_by = ?2, cancelled_at = ?3,
+               cancellation_reason = ?4
+           WHERE id = ?1 AND status = 'pending'`,
+        )
+        .bind(
+          record.invitationId,
+          record.actorStaffId,
+          record.createdAt,
+          record.reason,
+        ),
+      this.changedRowAuditStatement({
+        id: record.auditLogId,
+        actorStaffId: record.actorStaffId,
+        action: "staff.invitation_cancelled",
+        resourceType: "staff_invitation",
+        resourceId: record.invitationId,
+        metadata: { reason: record.reason },
+        correlationId: record.correlationId,
+        createdAt: record.createdAt,
+      }),
+    ]);
+    if (mutation.meta.changes !== 1) {
+      throw new Error("The pending staff invitation no longer exists.");
+    }
   }
 
   async listStaffDirectory() {

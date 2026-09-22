@@ -42,7 +42,7 @@ export type StaffAccessDirectoryEnvironment = {
 
 export type StaffAccessDirectory = {
   allowEmail(email: string): Promise<{ added: boolean }>;
-  removeEmail(email: string): Promise<void>;
+  removeEmail(email: string): Promise<{ removed: boolean }>;
 };
 
 type Fetcher = typeof fetch;
@@ -98,7 +98,7 @@ class CloudflareStaffAccessDirectory implements StaffAccessDirectory {
   async removeEmail(rawEmail: string) {
     const email = emailSchema.parse(rawEmail);
     const policy = await this.getManagedPolicy();
-    if (!policy.emails.includes(email)) return;
+    if (!policy.emails.includes(email)) return { removed: false };
 
     const remainingEmails = policy.emails.filter((item) => item !== email);
     if (!remainingEmails.length) {
@@ -109,6 +109,7 @@ class CloudflareStaffAccessDirectory implements StaffAccessDirectory {
     }
 
     await this.updateManagedPolicy(policy.name, remainingEmails);
+    return { removed: true };
   }
 
   private async getManagedPolicy(): Promise<ManagedPolicy> {
@@ -225,5 +226,7 @@ const localDirectory: StaffAccessDirectory = {
   async allowEmail() {
     return { added: false };
   },
-  async removeEmail() {},
+  async removeEmail() {
+    return { removed: false };
+  },
 };

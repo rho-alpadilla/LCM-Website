@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 
 import { requireActiveStaffSession } from "@/backend/auth/staff-context";
 import {
+  invitationCancellationSchema,
   invitationSchema,
   roleChangeSchema,
   suspensionSchema,
@@ -15,7 +16,9 @@ import {
 import { AccessControlRepository } from "@/backend/repositories/staff/access-control-repository";
 import { AccessControlService } from "@/backend/services/staff/access-control-service";
 import {
+  getStaffInvitationCancellationFailureCode,
   getStaffInvitationFailureCode,
+  logStaffInvitationCancellationFailure,
   logStaffInvitationFailure,
 } from "./staff-invitation-feedback";
 
@@ -59,6 +62,32 @@ export async function inviteStaffAction(formData: FormData) {
     redirect(`/admin/staff?error=${getStaffInvitationFailureCode(error)}`);
   }
   redirect("/admin/staff?message=account_created");
+}
+
+export async function cancelStaffInvitationAction(formData: FormData) {
+  const parsed = invitationCancellationSchema.safeParse(values(formData));
+  if (!parsed.success) {
+    redirect("/admin/staff?error=invalid_invitation_cancellation");
+  }
+
+  const state = await requireActiveStaffSession("staff.invite");
+  const service = serviceFor(state.environment.DB);
+  await service.requirePermission(state.identity, "staff.roles.manage");
+  try {
+    await service.cancelInvitation(
+      {
+        actorStaffId: state.context.id,
+        ...parsed.data,
+      },
+      createStaffAccessDirectory(state.environment),
+    );
+  } catch (error) {
+    logStaffInvitationCancellationFailure(error);
+    redirect(
+      `/admin/staff?error=${getStaffInvitationCancellationFailureCode(error)}`,
+    );
+  }
+  redirect("/admin/staff?message=invitation_cancelled");
 }
 
 export async function assignRoleAction(formData: FormData) {

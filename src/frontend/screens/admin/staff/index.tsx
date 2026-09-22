@@ -4,6 +4,7 @@ import { AdminHeader } from "@/frontend/components/admin/admin-header";
 import { getStaffWorkspace } from "@/backend/queries/staff/admin-directory";
 import {
   assignRoleAction,
+  cancelStaffInvitationAction,
   inviteStaffAction,
   revokeRoleAction,
   suspendStaffAction,
@@ -14,11 +15,19 @@ const messages: Record<string, string> = {
   account_suspended: "The account was suspended.",
   account_created:
     "Staff account created. Share the admin link; the person signs in with their email code.",
+  invitation_cancelled:
+    "The pending invitation was cancelled. A new invitation can be created later if needed.",
   role_assigned: "The role was assigned.",
   role_revoked: "The role was removed.",
 };
 
 const errors: Record<string, string> = {
+  invalid_invitation_cancellation:
+    "Enter a cancellation reason with at least 10 characters, then retry.",
+  invitation_not_pending:
+    "This invitation is no longer pending. Refresh the page to review the current staff list.",
+  invitation_cancellation_failed:
+    "The invitation could not be cancelled. A safe diagnostic was recorded; wait a moment and retry once.",
   elevated_role_reason_required:
     "System Administrator and Core Leader access require a reason of at least 10 characters.",
   staff_email_exists:
@@ -53,6 +62,9 @@ export default async function StaffPage({ searchParams }: Props) {
     typeof parameters.message === "string" ? parameters.message : "";
   const errorCode =
     typeof parameters.error === "string" ? parameters.error : "";
+  const canCancelInvitations =
+    state.context.permissions.includes("staff.invite") &&
+    state.context.permissions.includes("staff.roles.manage");
 
   return (
     <div className="min-h-screen bg-slate-100">
@@ -176,6 +188,40 @@ export default async function StaffPage({ searchParams }: Props) {
                   <p className="mt-3 text-sm font-semibold text-amber-900">
                     {invitation.initialRoleName} · awaiting first email sign-in
                   </p>
+                  {canCancelInvitations ? (
+                    <details className="mt-5 border-t border-amber-200 pt-4">
+                      <summary className="cursor-pointer font-bold text-red-800">
+                        Cancel this invitation
+                      </summary>
+                      <form
+                        action={cancelStaffInvitationAction}
+                        className="mt-3"
+                      >
+                        <input
+                          name="invitationId"
+                          type="hidden"
+                          value={invitation.id}
+                        />
+                        <label className="block text-sm font-semibold text-slate-800">
+                          Why is this invitation being cancelled?
+                          <input
+                            className={inputClass}
+                            maxLength={500}
+                            minLength={10}
+                            name="reason"
+                            placeholder="At least 10 characters"
+                            required
+                          />
+                        </label>
+                        <button
+                          className="mt-3 rounded-xl border border-red-300 px-4 py-2 font-bold text-red-800"
+                          type="submit"
+                        >
+                          Cancel invitation
+                        </button>
+                      </form>
+                    </details>
+                  ) : null}
                 </article>
               ))}
             </div>

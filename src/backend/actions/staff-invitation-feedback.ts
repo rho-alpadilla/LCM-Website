@@ -12,6 +12,11 @@ export type StaffInvitationFailureCode =
   | "staff_access_update_failed"
   | "invitation_failed";
 
+export type StaffInvitationCancellationFailureCode =
+  | Exclude<StaffInvitationFailureCode, "invitation_failed">
+  | "invitation_not_pending"
+  | "invitation_cancellation_failed";
+
 const applicationErrorMessages: Record<string, StaffInvitationFailureCode> = {
   "Elevated roles require a reason of at least 10 characters.":
     "elevated_role_reason_required",
@@ -38,6 +43,22 @@ export function getStaffInvitationFailureCode(
   return applicationErrorMessages[error.message] ?? "invitation_failed";
 }
 
+export function getStaffInvitationCancellationFailureCode(
+  error: unknown,
+): StaffInvitationCancellationFailureCode {
+  if (
+    error instanceof ApplicationError &&
+    error.message === "The pending staff invitation was not found."
+  ) {
+    return "invitation_not_pending";
+  }
+
+  const sharedCode = getStaffInvitationFailureCode(error);
+  return sharedCode === "invitation_failed"
+    ? "invitation_cancellation_failed"
+    : sharedCode;
+}
+
 /**
  * Records a compact server-side diagnostic without writing form fields,
  * email addresses, token values, or provider responses to the log stream.
@@ -45,6 +66,15 @@ export function getStaffInvitationFailureCode(
 export function logStaffInvitationFailure(error: unknown) {
   console.error("Staff account creation failed.", {
     failure: getStaffInvitationFailureCode(error),
+    applicationErrorCode:
+      error instanceof ApplicationError ? error.code : "UNEXPECTED_ERROR",
+    errorName: error instanceof Error ? error.name : "UnknownError",
+  });
+}
+
+export function logStaffInvitationCancellationFailure(error: unknown) {
+  console.error("Staff invitation cancellation failed.", {
+    failure: getStaffInvitationCancellationFailureCode(error),
     applicationErrorCode:
       error instanceof ApplicationError ? error.code : "UNEXPECTED_ERROR",
     errorName: error instanceof Error ? error.name : "UnknownError",

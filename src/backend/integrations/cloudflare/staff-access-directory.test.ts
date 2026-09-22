@@ -80,7 +80,9 @@ describe("Cloudflare staff Access directory", () => {
       fetcher as typeof fetch,
     );
 
-    await directory.removeEmail("pastor@example.com");
+    await expect(directory.removeEmail("pastor@example.com")).resolves.toEqual({
+      removed: true,
+    });
 
     expect(fetcher.mock.calls[1]?.[1]).toMatchObject({
       body: JSON.stringify({
