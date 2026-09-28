@@ -42,6 +42,18 @@ export type PayMongoCloudflareBindings = RequiredCloudflareBindings &
     PAYMONGO_MODE?: "test" | "live";
   };
 
+export type StaffPasswordCloudflareBindings = RequiredCloudflareBindings &
+  Pick<CloudflareEnv, "STAFF_AUTHENTICATION"> & {
+    STAFF_AUTH_MODE?: unknown;
+    STAFF_AUTH_RATE_LIMIT_SECRET?: string;
+  };
+
+export function staffAuthenticationMode(
+  environment: Pick<StaffPasswordCloudflareBindings, "STAFF_AUTH_MODE">,
+) {
+  return environment.STAFF_AUTH_MODE === "password" ? "password" : "access";
+}
+
 type D1HealthProbe = {
   prepare(query: string): {
     first<Result>(): Promise<Result | null>;
@@ -106,6 +118,23 @@ export async function requirePayMongoCloudflareBindings(): Promise<PayMongoCloud
   }
   assertPayMongoUnavailableInLocalDevelopment(env);
   return env as PayMongoCloudflareBindings;
+}
+
+export async function requireStaffPasswordCloudflareBindings(): Promise<StaffPasswordCloudflareBindings> {
+  const { env } = await getCloudflareContext({ async: true });
+  validateCloudflareBindings(env);
+  const environment = env as StaffPasswordCloudflareBindings;
+  if (
+    staffAuthenticationMode(environment) !== "password" ||
+    !environment.STAFF_AUTHENTICATION ||
+    !environment.STAFF_AUTH_RATE_LIMIT_SECRET
+  ) {
+    throw new ApplicationError(
+      "INTERNAL_ERROR",
+      "Password sign-in is not configured for this environment.",
+    );
+  }
+  return environment;
 }
 
 export async function checkD1Connection(

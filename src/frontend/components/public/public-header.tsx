@@ -2,6 +2,7 @@ import type { Route } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { siteConfig } from "@/shared/config/site";
+import { ThemeToggle } from "./theme-toggle";
 
 export type PublicHeaderVariant = "default" | "hero";
 
@@ -10,20 +11,15 @@ const navigationGroups = [
     label: "Our Church",
     links: [
       { href: "/about", label: "About" },
+      { href: "/ministries", label: "Ministries" },
+      { href: "/join", label: "Join a ministry" },
       { href: "/contact", label: "Contact" },
     ],
   },
   {
     label: "Get Connected",
     links: [
-      { href: "/ministries", label: "Ministries" },
-      { href: "/join", label: "Join a ministry" },
       { href: "/activities", label: "Calendar" },
-    ],
-  },
-  {
-    label: "Updates",
-    links: [
       { href: "/announcements", label: "Announcements" },
       { href: "/bulletins", label: "Bulletins" },
     ],
@@ -31,8 +27,9 @@ const navigationGroups = [
 ] as const;
 
 const directNavigation = [
-  { href: "/sermons", label: "Messages" },
+  { href: "/sermons", label: "Sermons" },
   { href: "/prayer", label: "Prayer" },
+  { href: "/resources", label: "Resources" },
   { href: "/give", label: "Give" },
 ] as const;
 
@@ -79,17 +76,14 @@ export function PublicHeader({
           ))}
           {directNavigation.map((item) => (
             <Link
-              className={
-                item.href === "/give"
-                  ? "public-button public-button-dark public-nav-give"
-                  : "public-nav-link"
-              }
-              href={item.href}
+              className="public-nav-link"
+              href={item.href as Route}
               key={item.href}
             >
               {item.label}
             </Link>
           ))}
+          <ThemeToggle />
         </nav>
         <details className="public-mobile-nav">
           <summary>
@@ -111,10 +105,11 @@ export function PublicHeader({
             ))}
             <div className="public-mobile-actions">
               {directNavigation.map((item) => (
-                <Link href={item.href} key={item.href}>
+                <Link href={item.href as Route} key={item.href}>
                   {item.label}
                 </Link>
               ))}
+              <ThemeToggle />
             </div>
           </nav>
         </details>

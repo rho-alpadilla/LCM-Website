@@ -7,6 +7,13 @@ dashboard. Job titles do not create permissions: Senior Pastor and Associate
 Pastor both receive the `pastor` role. The future ChMS has a separate role
 model.
 
+The password-authentication workflow in
+[ADR 0003](decisions/0003-staff-password-authentication.md) preserves this role
+matrix. `staff.credentials.manage` belongs only to System Administrators and
+allows credential issuance, assisted resets and session revocation. Its
+impersonation risk, current-password confirmation and audit requirements are
+documented in that decision.
+
 ## Roles
 
 | Role                 | Purpose                                                                        | Sensitive limits                                                 |
@@ -25,6 +32,7 @@ model.
 | Enter admin dashboard                                         |     Yes      |    Yes    |     Yes     |        Yes        |      Yes       |             Yes             |
 | Read staff directory                                          |     Yes      |    Yes    |     Yes     |        No         |       No       |             No              |
 | Invite/suspend staff and manage roles                         |     Yes      |    No     |     No      |        No         |       No       |             No              |
+| Create/reset password accounts and revoke sessions            |     Yes      |    No     |     No      |        No         |       No       |             No              |
 | Manage system settings/integrations                           |     Yes      | Read only |  Read only  |        No         |       No       |             No              |
 | Manage pages and ministries                                   |      No      |    Yes    |     Yes     |        No         |       No       |             No              |
 | Manage sermons, schedules, announcements, bulletins and media |      No      |    Yes    |     Yes     |        Yes        |      Yes       |             No              |
@@ -58,8 +66,8 @@ by hiding controls in the interface.
 
 ## Assignment Rules
 
-- Every staff member has an individual Cloudflare Access identity and D1 staff
-  profile. Shared keys and shared credentials are prohibited.
+- Every staff member has an individual Access identity or password identity and
+  D1 staff profile. Shared keys and shared credentials are prohibited.
 - System Administrator and Core Leader creation or later assignment require a
   reason of at least ten characters and an audit event.
 - At least one active System Administrator must remain.

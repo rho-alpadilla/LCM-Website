@@ -8,6 +8,7 @@ import { createContentAction } from "@/backend/actions/content";
 import {
   contentStatusLabels,
   contentTypeLabels,
+  manageableContentSections,
   manageableContentTypes,
 } from "@/shared/content/options";
 
@@ -32,8 +33,24 @@ export default async function ContentPage({ searchParams }: Props) {
   ]);
   const { content } = state;
   const manageableTypes = manageableContentTypes(state.context.permissions);
+  const manageableSections = manageableContentSections(
+    state.context.permissions,
+  );
+  const requestedSection =
+    typeof parameters.section === "string" ? parameters.section : "";
+  const selectedSection = manageableSections.find(
+    (section) => section.id === requestedSection,
+  );
+  const visibleContent = selectedSection
+    ? content.filter((item) =>
+        selectedSection.contentTypes.includes(item.contentType),
+      )
+    : content;
+  const creationTypes = selectedSection
+    ? selectedSection.contentTypes
+    : manageableTypes;
   const reviewQueue = state.context.permissions.includes("content.approve")
-    ? content.filter((item) => item.status === "pending_review")
+    ? visibleContent.filter((item) => item.status === "pending_review")
     : [];
   const errorCode =
     typeof parameters.error === "string" ? parameters.error : "";
@@ -48,11 +65,12 @@ export default async function ContentPage({ searchParams }: Props) {
               Publishing workspace
             </p>
             <h1 className="mt-3 text-3xl font-black text-slate-950 sm:text-4xl">
-              Content
+              {selectedSection?.label ?? "Content"}
             </h1>
             <p className="mt-3 max-w-2xl leading-7 text-slate-600">
-              Draft, review, approve, and publish only the ministry areas your
-              account is allowed to manage.
+              {selectedSection
+                ? `Create and manage ${selectedSection.label.toLowerCase()} that your account is allowed to update.`
+                : "Draft, review, approve, and publish only the website areas your account is allowed to manage."}
             </p>
           </div>
           <a
@@ -123,15 +141,16 @@ export default async function ContentPage({ searchParams }: Props) {
               className="text-2xl font-black text-slate-950"
               id="content-list-title"
             >
-              Recent content
+              Recent {selectedSection?.label.toLowerCase() ?? "content"}
             </h2>
             <span className="text-sm font-semibold text-slate-600">
-              {content.length} item{content.length === 1 ? "" : "s"}
+              {visibleContent.length} item
+              {visibleContent.length === 1 ? "" : "s"}
             </span>
           </div>
-          {content.length ? (
+          {visibleContent.length ? (
             <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {content.map((item) => (
+              {visibleContent.map((item) => (
                 <Link
                   className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-blue-300 hover:shadow-md"
                   href={`/admin/content/${item.id}` as Route}
@@ -158,8 +177,8 @@ export default async function ContentPage({ searchParams }: Props) {
             </div>
           ) : (
             <p className="mt-5 rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-slate-600">
-              No content is in your permitted ministry areas yet. Create the
-              first draft below.
+              No {selectedSection?.label.toLowerCase() ?? "content"} is in your
+              permitted areas yet. Create the first draft below.
             </p>
           )}
         </section>
@@ -168,19 +187,26 @@ export default async function ContentPage({ searchParams }: Props) {
           className="mt-12 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8"
           id="new-draft"
         >
-          <h2 className="text-2xl font-black text-slate-950">Create a draft</h2>
+          <h2 className="text-2xl font-black text-slate-950">
+            Create{" "}
+            {selectedSection ? selectedSection.label.toLowerCase() : "a draft"}
+          </h2>
           <p className="mt-2 text-sm leading-6 text-slate-600">
             Start with the title and web address. You’ll add the specific
             sermon, schedule, ministry, or bulletin details on the next screen.
           </p>
-          {manageableTypes.length ? (
+          {creationTypes.length ? (
             <form
               action={createContentAction}
               className="mt-6 grid gap-5 sm:grid-cols-2"
             >
-              <FormField label="Content type">
+              <FormField
+                label={
+                  creationTypes.length === 1 ? "Content type" : "Item type"
+                }
+              >
                 <select className={formInputClass} name="contentType" required>
-                  {manageableTypes.map((type) => (
+                  {creationTypes.map((type) => (
                     <option key={type} value={type}>
                       {contentTypeLabels[type]}
                     </option>

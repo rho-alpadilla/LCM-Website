@@ -1,0 +1,21 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "lcm-auth-feasibility-durable-20260922",
+  "main": "durable-probe.mjs",
+  "compatibility_date": "2026-09-22",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "preview_urls": false,
+  "alias": {
+    "@noble/hashes/argon2": "../../node_modules/.pnpm/@noble+hashes@1.8.0/node_modules/@noble/hashes/esm/argon2.js",
+  },
+  "durable_objects": {
+    "bindings": [
+      { "name": "SYNTHETIC_HASH", "class_name": "SyntheticHashCoordinator" },
+    ],
+  },
+  "migrations": [
+    { "tag": "probe-v1", "new_sqlite_classes": ["SyntheticHashCoordinator"] },
+  ],
+  "observability": { "enabled": true, "head_sampling_rate": 1 },
+}

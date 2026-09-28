@@ -6,10 +6,56 @@ export const contentTypeLabels: Record<ContentType, string> = {
   sermon: "Sermon",
   series: "Sermon series",
   speaker: "Speaker",
-  schedule: "Schedule or daily activity",
+  schedule: "Daily activity",
   announcement: "Announcement",
   bulletin: "Bulletin",
 };
+
+export const contentAdminSections = [
+  {
+    id: "pages",
+    label: "Website pages",
+    description: "About and other website details",
+    contentTypes: ["page"],
+  },
+  {
+    id: "ministries",
+    label: "Ministries",
+    description: "Ministry details and leaders",
+    contentTypes: ["ministry"],
+  },
+  {
+    id: "sermons",
+    label: "Sermons",
+    description: "Messages, series, and speakers",
+    contentTypes: ["sermon", "series", "speaker"],
+  },
+  {
+    id: "activities",
+    label: "Daily activities",
+    description: "Calendar and recurring activities",
+    contentTypes: ["schedule"],
+  },
+  {
+    id: "announcements",
+    label: "Announcements",
+    description: "Church updates and notices",
+    contentTypes: ["announcement"],
+  },
+  {
+    id: "bulletins",
+    label: "Bulletins",
+    description: "Weekly bulletin posts and files",
+    contentTypes: ["bulletin"],
+  },
+] as const satisfies ReadonlyArray<{
+  id: string;
+  label: string;
+  description: string;
+  contentTypes: readonly ContentType[];
+}>;
+
+export type ContentAdminSection = (typeof contentAdminSections)[number];
 
 export const contentStatusLabels: Record<ContentStatus, string> = {
   draft: "Draft",
@@ -36,4 +82,16 @@ export function manageableContentTypes(permissions: string[]) {
   return allContentTypes.filter((type) =>
     permissions.includes(contentManagementPermissions[type]),
   );
+}
+
+export function manageableContentSections(permissions: string[]) {
+  const manageableTypes = manageableContentTypes(permissions);
+  return contentAdminSections
+    .map((section) => ({
+      ...section,
+      contentTypes: section.contentTypes.filter((type) =>
+        manageableTypes.includes(type),
+      ),
+    }))
+    .filter((section) => section.contentTypes.length > 0);
 }

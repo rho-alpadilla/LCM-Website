@@ -2,10 +2,10 @@
 
 ## Current Position
 
-The project uses Next.js on Cloudflare Workers, D1, R2, Access and Turnstile.
-Phases 1-4 are complete locally. Phase 5A/5B prayer work is complete locally
-and preserved. The abandoned Phase 5C finance ledger has been removed following
-the approved website/ChMS separation.
+The project uses Next.js on Cloudflare Workers, D1, R2, Access, password
+sessions and Turnstile. Phases 1–6 are implemented. Phase 5A/5B prayer work is
+preserved. The abandoned Phase 5C finance ledger has been removed following the
+approved website/ChMS separation.
 
 ## Completed Locally
 
@@ -23,13 +23,15 @@ the approved website/ChMS separation.
 
 ### Phase 3: Staff identity and administration
 
-- Cloudflare Access JWT verification;
-- staff invitations, activation, role mutation and suspension; and
+- Cloudflare Access JWT verification for the production mode;
+- website-managed password sessions for the preview mode;
+- role mutation, suspension, temporary-password expiry, recovery and audit;
+  and
 - protected admin dashboard.
 
-Preview Access is active on the temporary `workers.dev` hostname with an
-individual-email Allow policy. A separate production Access application still
-waits for the church-owned domain.
+The preview Worker uses password authentication and a reversible Access bypass
+on its temporary `workers.dev` hostname. Production remains Access-based and
+will receive its own policy only when the church-owned domain is ready.
 
 ### Phase 4: Content and public read layer
 
@@ -56,6 +58,14 @@ Production Turnstile keys and hostname validation wait for the domain.
 - obsolete Treasurer/finance ledger code and schema are removed;
 - the six-role website permission model is active; and
 - prayer functionality remains part of the website.
+
+## Current Checkpoint: Phase 6.5 Release Candidate
+
+- preview password authentication is deployed with an isolated D1/R2 setup;
+- manual role and recovery checks use synthetic accounts/data only;
+- public pages have the reviewed responsive light and dark themes; and
+- documentation, automated checks and one version-control checkpoint are the
+  remaining release-candidate tasks.
 
 ## Phase 6: Public Outreach Completion
 
@@ -91,7 +101,9 @@ receipts.
 ## Later Phase: Production Cutover
 
 - purchase and configure the church-owned domain;
-- create production Access and Turnstile applications;
+- confirm whether production remains Access-based or receives a separately
+  approved password-authentication cutover, then configure only that choice;
+- create the production Turnstile application;
 - provision production D1/R2 resources and secrets;
 - run migrations and full checks in preview;
 - test backup/export and recovery;

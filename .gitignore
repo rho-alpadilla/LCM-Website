@@ -8,6 +8,9 @@ out/
 # Cloudflare / OpenNext
 .open-next/
 .wrangler/
+.wrangler-config/
+.local-backups/
+.local-operator/
 cloudflare-env.d.ts
 
 # Test output
@@ -35,6 +38,7 @@ skills-lock.json
 *.log
 *.tsbuildinfo
 .pnpm-store/
+.tools/
 .DS_Store
 Thumbs.db
 

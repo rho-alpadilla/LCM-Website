@@ -63,6 +63,12 @@ enabled and the public forms begin accepting real submissions.
 
 ## Remaining Launch Work
 
+The Phase 6.5 release candidate includes the completed preview password-auth
+workflow in [ADR 0003](decisions/0003-staff-password-authentication.md). It is
+separate from public outreach scope: preview role testing uses synthetic data,
+while production remains Cloudflare Access-based. This does not authorize
+provider activation or reopen the completed public-page scope below.
+
 1. Confirm the public-inquiry retention period.
 2. Configure a church-owned domain in Cloudflare.
 3. Create a production Turnstile widget with the final hostname, store its

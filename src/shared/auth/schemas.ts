@@ -2,11 +2,8 @@ import { z } from "zod";
 
 const strongPassword = z
   .string()
-  .min(12, "Use at least 12 characters.")
-  .max(128, "Password is too long.")
-  .regex(/[a-z]/, "Include a lowercase letter.")
-  .regex(/[A-Z]/, "Include an uppercase letter.")
-  .regex(/[0-9]/, "Include a number.");
+  .min(15, "Use at least 15 characters.")
+  .max(128, "Password is too long.");
 
 export const loginSchema = z.object({
   email: z

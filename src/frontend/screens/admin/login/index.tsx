@@ -3,6 +3,7 @@ import type { Route } from "next";
 import { redirect } from "next/navigation";
 
 import { AuthCard } from "@/frontend/components/admin/auth-card";
+import { PasswordLoginForm } from "@/frontend/components/admin/password-login-form";
 import { getStaffAuthState } from "@/backend/auth/staff-context";
 
 export default async function LoginPage() {
@@ -15,6 +16,27 @@ export default async function LoginPage() {
     redirect("/admin/access-denied");
   }
   if (state.kind === "denied") redirect("/admin/access-denied");
+
+  if (
+    "authenticationMethod" in state &&
+    state.authenticationMethod === "password"
+  ) {
+    return (
+      <AuthCard
+        description="Use the username and password issued by your System Administrator. The public website never requires an account."
+        eyebrow="Staff access"
+        title="Sign in"
+      >
+        <PasswordLoginForm />
+        <Link
+          className="mt-6 inline-block font-semibold text-blue-800"
+          href="/"
+        >
+          Return to the public website
+        </Link>
+      </AuthCard>
+    );
+  }
 
   return (
     <AuthCard

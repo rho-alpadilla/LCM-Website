@@ -12,6 +12,15 @@
   -webkit-font-smoothing: antialiased;
 }
 
+html[data-theme="dark"] .public-site {
+  --public-paper: #101713;
+  --public-ink: #f2f6f0;
+  --public-muted: #bdc8be;
+  --public-line: #35433b;
+  --public-accent: #9dc7ac;
+  color-scheme: dark;
+}
+
 .public-container {
   width: min(100% - 3rem, 75rem);
   margin-inline: auto;
@@ -108,6 +117,9 @@
   display: none;
 }
 .public-nav-link {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
   padding: 0.8rem;
   border-radius: 0.5rem;
 }
@@ -119,7 +131,7 @@
   padding: 0.5rem;
   border: 1px solid var(--public-line);
   border-radius: 0.75rem;
-  background: white;
+  background: var(--public-paper);
   box-shadow: 0 12px 30px #20272212;
 }
 .public-dropdown a {
@@ -150,6 +162,10 @@
   background: var(--public-ink);
   color: #fff;
 }
+html[data-theme="dark"] .public-button-dark {
+  background: #2e5c45;
+  color: #fff;
+}
 .public-button-light {
   background: #fff;
   color: #202722;
@@ -159,11 +175,43 @@
   color: white;
   border-color: #ffffff70;
 }
-.public-nav-give {
-  margin-left: 1rem;
-  min-height: 2.65rem;
-  padding: 0.6rem 1.5rem;
-  font-size: 0.75rem;
+.public-theme-toggle {
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  margin-left: 0.2rem;
+  flex: 0 0 auto;
+  cursor: pointer;
+  place-items: center;
+  border: 1px solid var(--public-line);
+  border-radius: 50%;
+  color: var(--public-ink);
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    transform 160ms var(--ease-out);
+}
+.public-theme-toggle:active {
+  transform: scale(0.96);
+}
+.public-theme-toggle svg {
+  grid-area: 1 / 1;
+  width: 1rem;
+  height: 1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+}
+.public-theme-moon {
+  display: none;
+}
+html[data-theme="dark"] .public-theme-sun {
+  display: none;
+}
+html[data-theme="dark"] .public-theme-moon {
+  display: block;
 }
 .public-mobile-nav {
   display: none;
@@ -178,7 +226,7 @@
   max-height: calc(100svh - 7rem);
   overflow-y: auto;
   padding: 1.5rem;
-  background: white;
+  background: var(--public-paper);
   border: 1px solid var(--public-line);
   border-radius: 1rem;
   box-shadow: 0 16px 40px #20272220;
@@ -206,6 +254,9 @@
 .public-intro {
   border-bottom: 1px solid var(--public-line);
   padding-block: 4.5rem;
+}
+.public-resources-section {
+  padding-block: 4rem 6rem;
 }
 .public-intro h1 {
   max-width: 55rem;
@@ -466,6 +517,10 @@
   .public-button-glass:hover {
     background: #14271fe6;
   }
+  .public-theme-toggle:hover {
+    background: #edf0e9;
+    border-color: #b9c8bb;
+  }
   .home-church-link:hover .home-link-arrow {
     background: #d5dfd0;
   }
@@ -474,6 +529,86 @@
   .public-mobile-panel a:hover {
     text-decoration: underline;
     text-underline-offset: 4px;
+  }
+}
+
+html[data-theme="dark"] .public-site .bg-white {
+  background-color: #18221d !important;
+}
+html[data-theme="dark"] .public-site .bg-slate-50 {
+  background-color: #121a16 !important;
+}
+html[data-theme="dark"] .public-site .bg-slate-100 {
+  background-color: #1d2922 !important;
+}
+html[data-theme="dark"] .public-site [class~="bg-[#edf0e9]"] {
+  background-color: #1d2922 !important;
+}
+html[data-theme="dark"] .public-site .text-slate-950,
+html[data-theme="dark"] .public-site .text-slate-900,
+html[data-theme="dark"] .public-site .text-slate-800 {
+  color: #f2f6f0 !important;
+}
+html[data-theme="dark"] .public-site .text-slate-700,
+html[data-theme="dark"] .public-site .text-slate-600,
+html[data-theme="dark"] .public-site .text-slate-500 {
+  color: #c6d1c7 !important;
+}
+html[data-theme="dark"] .public-site .border-slate-200,
+html[data-theme="dark"] .public-site .border-slate-300 {
+  border-color: #38473e !important;
+}
+html[data-theme="dark"] .public-site [class~="text-[#244d3d]"] {
+  color: #a9d5b9 !important;
+}
+html[data-theme="dark"] .public-site .bg-green-100 {
+  background-color: #203d2c !important;
+}
+html[data-theme="dark"] .public-site .text-green-900,
+html[data-theme="dark"] .public-site .text-green-700 {
+  color: #a9d5b9 !important;
+}
+html[data-theme="dark"] .public-site .bg-red-100 {
+  background-color: #4a2525 !important;
+}
+html[data-theme="dark"] .public-site .text-red-800 {
+  color: #fecaca !important;
+}
+html[data-theme="dark"] .public-site .bg-amber-50,
+html[data-theme="dark"] .public-site .bg-amber-100 {
+  background-color: #43301b !important;
+}
+html[data-theme="dark"] .public-site .text-amber-950 {
+  color: #fde7b1 !important;
+}
+html[data-theme="dark"] .public-site input,
+html[data-theme="dark"] .public-site select,
+html[data-theme="dark"] .public-site textarea {
+  color-scheme: dark;
+}
+html[data-theme="dark"] .public-empty,
+html[data-theme="dark"] .home-prayer {
+  background: #1d2922;
+}
+html[data-theme="dark"] .home-link-arrow {
+  background: #24352b;
+  color: #f2f6f0;
+}
+@media (hover: hover) and (pointer: fine) {
+  html[data-theme="dark"] .public-nav-group summary:hover,
+  html[data-theme="dark"] .public-nav-link:hover,
+  html[data-theme="dark"] .public-dropdown a:hover {
+    background: #24352b;
+  }
+  html[data-theme="dark"] .public-button-dark:hover {
+    background: #3d7658;
+  }
+  html[data-theme="dark"] .public-theme-toggle:hover {
+    background: #223127;
+    border-color: #526b59;
+  }
+  html[data-theme="dark"] .home-church-link:hover .home-link-arrow {
+    background: #314a3b;
   }
 }
 @media (max-width: 1100px) {

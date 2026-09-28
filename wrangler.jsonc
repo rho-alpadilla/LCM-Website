@@ -10,6 +10,7 @@
     "ACCESS_AUD": "",
     "CLOUDFLARE_ACCESS_ACCOUNT_ID": "",
     "CLOUDFLARE_ACCESS_POLICY_ID": "",
+    "STAFF_AUTH_MODE": "access",
     "TURNSTILE_HOSTNAMES": "localhost,127.0.0.1",
   },
   "assets": {
@@ -27,6 +28,20 @@
     {
       "binding": "WEBSITE_FILES",
       "bucket_name": "lifechangers-ministry-local-files",
+    },
+  ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "STAFF_AUTHENTICATION",
+        "class_name": "StaffAuthenticationCoordinator",
+      },
+    ],
+  },
+  "migrations": [
+    {
+      "tag": "staff-authentication-v1",
+      "new_sqlite_classes": ["StaffAuthenticationCoordinator"],
     },
   ],
   "ratelimits": [
@@ -56,10 +71,11 @@
       "name": "lcm-website",
       "vars": {
         "APP_ENVIRONMENT": "preview",
-        "ACCESS_TEAM_DOMAIN": "https://muddy-queen-9afb.cloudflareaccess.com",
-        "ACCESS_AUD": "e01d4ed2cef950a5e618cd93dbb8d5b68054c0c7c2fbba50a752bb5f57174dfe",
-        "CLOUDFLARE_ACCESS_ACCOUNT_ID": "52c15bd60a71661efb865aeafdd1c493",
-        "CLOUDFLARE_ACCESS_POLICY_ID": "15efabc5-cf0c-4207-aa54-dfe438e6e011",
+        "ACCESS_TEAM_DOMAIN": "",
+        "ACCESS_AUD": "",
+        "CLOUDFLARE_ACCESS_ACCOUNT_ID": "",
+        "CLOUDFLARE_ACCESS_POLICY_ID": "",
+        "STAFF_AUTH_MODE": "password",
         "TURNSTILE_HOSTNAMES": "",
       },
       "d1_databases": [
@@ -75,6 +91,14 @@
           "bucket_name": "lifechangers-ministry-preview-files",
         },
       ],
+      "durable_objects": {
+        "bindings": [
+          {
+            "name": "STAFF_AUTHENTICATION",
+            "class_name": "StaffAuthenticationCoordinator",
+          },
+        ],
+      },
       "ratelimits": [
         {
           "name": "PRAYER_SUBMISSION_RATE_LIMITER",
@@ -102,6 +126,7 @@
         "ACCESS_AUD": "",
         "CLOUDFLARE_ACCESS_ACCOUNT_ID": "",
         "CLOUDFLARE_ACCESS_POLICY_ID": "",
+        "STAFF_AUTH_MODE": "access",
         "TURNSTILE_HOSTNAMES": "",
       },
       "d1_databases": [
@@ -117,6 +142,14 @@
           "bucket_name": "lifechangers-ministry-production-files",
         },
       ],
+      "durable_objects": {
+        "bindings": [
+          {
+            "name": "STAFF_AUTHENTICATION",
+            "class_name": "StaffAuthenticationCoordinator",
+          },
+        ],
+      },
       "ratelimits": [
         {
           "name": "PRAYER_SUBMISSION_RATE_LIMITER",

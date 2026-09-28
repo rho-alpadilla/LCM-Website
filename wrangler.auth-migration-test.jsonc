@@ -1,0 +1,15 @@
+// Local-only, disposable schema verification. This Worker is never deployed.
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "lifechangers-auth-migration-test",
+  "main": "custom-worker.ts",
+  "compatibility_date": "2026-09-17",
+  "compatibility_flags": ["nodejs_compat"],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "lifechangers-auth-migration-test",
+      "migrations_dir": "migrations/d1",
+    },
+  ],
+}

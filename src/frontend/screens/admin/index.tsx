@@ -6,12 +6,18 @@ import { requireActiveStaffSession } from "@/backend/auth/staff-context";
 import { getAdminNotificationSummary } from "@/backend/queries/admin/notifications";
 import { manageableContentTypes } from "@/shared/content/options";
 import { roleLabel } from "@/shared/staff/roles";
+import { TemporaryPasswordReminder } from "@/frontend/components/admin/temporary-password-reminder";
 
 export default async function AdminPage() {
-  const [{ context }, notifications] = await Promise.all([
+  const [state, notifications] = await Promise.all([
     requireActiveStaffSession(),
     getAdminNotificationSummary(),
   ]);
+  const { context } = state;
+  const temporaryPasswordExpiresAt =
+    "temporaryPasswordExpiresAt" in state
+      ? state.temporaryPasswordExpiresAt
+      : null;
   const contentTypes = manageableContentTypes(context.permissions);
   const roleNames = context.roles.map((role) => roleLabel.get(role) ?? role);
   const workSummary = getWorkSummary(context.permissions);
@@ -19,6 +25,9 @@ export default async function AdminPage() {
   return (
     <div className="min-h-screen bg-slate-100 lg:pl-72">
       <AdminHeader context={context} notifications={notifications} />
+      {temporaryPasswordExpiresAt ? (
+        <TemporaryPasswordReminder expiresAt={temporaryPasswordExpiresAt} />
+      ) : null}
       <main className="mx-auto max-w-6xl px-6 py-12">
         <p className="text-sm font-bold tracking-[0.2em] text-blue-800 uppercase">
           Administration

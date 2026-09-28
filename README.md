@@ -4,19 +4,24 @@ Zero-subscription-first, upgrade-ready church outreach platform built with Next.
 
 ## Current Status
 
-Phases 1 through 4 are complete in the local codebase. Admin pages use
-Cloudflare Access identity plus D1 staff provisioning, automatic first-sign-in
-activation, roles, suspension, and audit records. The public site reads only published content, expands
-upcoming activities, and delivers approved R2 files through protected routes.
-Phase 5 protected prayer workflows and the minimal PayMongo hosted-checkout
-flow are implemented locally. Cloudflare Access is active for the temporary
-`workers.dev` preview's admin route. PayMongo and Turnstile activation, plus
-all production-provider verification, await the final domain/launch stage.
-Phase 6 public outreach pages and workflows are implemented: About, Contact,
-Join a Ministry, a monthly activities planner, consistent public navigation,
-and protected staff inquiry handling. Contact and Ministry Interest submissions
-remain intentionally disabled until Turnstile is configured for the final
-church domain. See `docs/PHASE_6_PUBLIC_OUTREACH_PLAN.md`.
+Phases 1 through 6 are implemented in the codebase. The public site reads only
+published content, expands upcoming activities, and delivers approved R2 files
+through protected routes. It also includes the approved About, Contact, Join a
+Ministry, calendar and Resources experiences.
+
+The preview Worker uses the completed website-managed username/password sign-in
+flow. It has individual accounts, three-day temporary-password grace periods,
+manual administrator-assisted recovery, session revocation and audit records.
+The preview must use synthetic data for release testing. Production remains on
+Cloudflare Access until a separately approved production cutover. See
+[ADR 0003](docs/decisions/0003-staff-password-authentication.md) and the
+[staff operations guide](docs/ADMIN_OPERATIONS.md).
+
+Phase 5 prayer workflows and the minimal PayMongo hosted-checkout boundary are
+implemented. PayMongo and Turnstile are intentionally not activated until the
+church has its final domain and leadership completes the provider launch
+review. Contact and Ministry Interest submissions therefore remain disabled on
+the public preview. See `docs/PHASE_6_PUBLIC_OUTREACH_PLAN.md`.
 
 Local development opens `/admin` as one clearly labelled, synthetic System
 Administrator on `localhost` only. It uses local D1/R2, never replaces
@@ -53,8 +58,8 @@ For the safe first-administrator setup and normal staff onboarding flow, see
 1. Copy `.env.example` to `.env.local`.
 2. Leave provider values empty while working on public UI foundations.
 3. Install dependencies with `pnpm install`.
-4. Start the application with `pnpm dev`. Pending local D1 migrations are
-   applied automatically before Next.js starts.
+4. Apply local migrations deliberately when the schema has changed, then start
+   the application with `pnpm dev`.
 5. Open `http://localhost:3000` or `http://localhost:3000/admin`.
 
 If PowerShell cannot find `pnpm.cmd`, use `corepack.cmd pnpm` in place of
@@ -68,8 +73,7 @@ the binding types whenever `wrangler.jsonc` changes:
 pnpm cf:typegen
 ```
 
-D1 migrations live in `migrations/d1`. `pnpm dev` applies pending migrations to
-local Wrangler storage automatically. To inspect or apply them separately:
+D1 migrations live in `migrations/d1`. To inspect or apply them locally:
 
 ```text
 pnpm d1:migrations:list
@@ -83,8 +87,8 @@ During `pnpm dev`, `/admin` automatically uses one fixed
 the request is on `localhost` or `127.0.0.1`. A warning banner remains visible
 so local data cannot be mistaken for real church data. The helper requires both
 the local Worker environment and Next.js development mode; it does not run in
-a preview or production build. Cloudflare Access remains the only deployed
-staff sign-in method.
+a preview or production build. The deployed preview uses password sign-in;
+production currently uses Cloudflare Access.
 
 ## Verification
 
@@ -147,16 +151,15 @@ Preview and production use distinct Worker, D1, and R2 resource names. Deploymen
 scripts select the environment explicitly so local resources cannot be mistaken
 for production resources.
 
-D1 and R2 bindings are configured. Cloudflare Access protects the temporary
-`workers.dev` preview's `/admin*` route before the final domain exists. The
-preview policy uses individual approved email addresses; its non-secret team
-and audience values are versioned in `wrangler.jsonc`. See
-`docs/CLOUDFLARE_ACCESS_SETUP.md` for the policy, verification and staff
-onboarding process. The preview admin sign-in sends an email one-time code;
-staff do not need Cloudflare accounts.
+D1 and R2 bindings are configured. The deployed preview's `/admin` uses the
+website-managed password flow and has a reversible Cloudflare Access bypass;
+it does not send email codes. Production stays Access-based until a future,
+separately approved cutover. See `docs/CLOUDFLARE_ACCESS_SETUP.md` for the
+production/rollback Access runbook and `docs/ADMIN_OPERATIONS.md` for normal
+staff operations.
 
-On Windows, run the OpenNext Cloudflare build from WSL because its bundling
-stage creates symbolic links that ordinary Windows sessions commonly block.
+On Windows, use Docker or WSL for a local OpenNext Cloudflare bundle. Native
+Windows bundling is not reliable enough to be the documented release path.
 
 ## Documentation
 
@@ -167,5 +170,6 @@ stage creates symbolic links that ordinary Windows sessions commonly block.
 - `docs/PERMISSION_MATRIX.md`
 - `docs/CLOUDFLARE_MIGRATION_PLAN.md`
 - `docs/CLOUDFLARE_ACCESS_SETUP.md`
+- `docs/PHASE_6_5_RELEASE_CANDIDATE_CHECKLIST.md`
 - `docs/PHASE_6_PUBLIC_OUTREACH_PLAN.md`
 - `docs/decisions/0001-cloudflare-zero-subscription-platform.md`

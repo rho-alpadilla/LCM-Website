@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 
 import { requireActiveStaffSession } from "@/backend/auth/staff-context";
 import {
@@ -15,17 +16,117 @@ import { AccessControlRepository } from "@/backend/repositories/staff/access-con
 import { NotificationRepository } from "@/backend/repositories/admin/notification-repository";
 import { NotificationService } from "@/backend/services/admin/notification-service";
 import { AccessControlService } from "@/backend/services/staff/access-control-service";
+import { requireStaffPasswordCloudflareBindings } from "@/backend/cloudflare/bindings";
+import { getPasswordAuthenticationService } from "@/backend/auth/password-authentication";
 import {
   getStaffInvitationCancellationFailureCode,
   getStaffInvitationFailureCode,
   logStaffInvitationCancellationFailure,
   logStaffInvitationFailure,
 } from "./staff-invitation-feedback";
+import {
+  getPasswordStaffCreationFailureCode,
+  logPasswordStaffCreationFailure,
+} from "./staff-password-feedback";
 
 const values = (formData: FormData) => Object.fromEntries(formData.entries());
 
+function sourceIdentifier(requestHeaders: Headers) {
+  return requestHeaders.get("cf-connecting-ip") ?? "unknown";
+}
+
+export async function createPasswordStaffAction(formData: FormData) {
+  const state = await requireActiveStaffSession("staff.credentials.manage");
+  try {
+    const environment = await requireStaffPasswordCloudflareBindings();
+    await getPasswordAuthenticationService(environment).enrollStaff({
+      actorStaffId: state.context.id,
+      actorPassword: String(formData.get("adminPassword") ?? ""),
+      email: String(formData.get("email") ?? ""),
+      displayName: String(formData.get("displayName") ?? ""),
+      phone: String(formData.get("phone") ?? ""),
+      jobTitle: String(formData.get("jobTitle") ?? ""),
+      username: String(formData.get("username") ?? ""),
+      temporaryPassword: String(formData.get("temporaryPassword") ?? ""),
+      roleCode: String(formData.get("roleCode") ?? ""),
+      reason: String(formData.get("reason") ?? ""),
+      sourceIdentifier: sourceIdentifier(await headers()),
+    });
+  } catch (error) {
+    logPasswordStaffCreationFailure(error);
+    redirect(
+      `/admin/staff?error=${getPasswordStaffCreationFailureCode(error)}`,
+    );
+  }
+  redirect("/admin/staff?message=password_staff_created");
+}
+
+export async function resetStaffPasswordAction(formData: FormData) {
+  const state = await requireActiveStaffSession("staff.credentials.manage");
+  try {
+    const environment = await requireStaffPasswordCloudflareBindings();
+    await getPasswordAuthenticationService(environment).resetStaffPassword({
+      actorStaffId: state.context.id,
+      actorPassword: String(formData.get("adminPassword") ?? ""),
+      targetStaffId: String(formData.get("staffId") ?? ""),
+      temporaryPassword: String(formData.get("temporaryPassword") ?? ""),
+      reason: String(formData.get("reason") ?? ""),
+      sourceIdentifier: sourceIdentifier(await headers()),
+    });
+  } catch {
+    redirect("/admin/staff?error=password_reset_failed");
+  }
+  redirect("/admin/staff?message=password_reset_issued");
+}
+
+export async function reactivateTemporaryPasswordAction(formData: FormData) {
+  const state = await requireActiveStaffSession("staff.credentials.manage");
+  try {
+    const environment = await requireStaffPasswordCloudflareBindings();
+    await getPasswordAuthenticationService(
+      environment,
+    ).reactivateTemporaryPassword({
+      actorStaffId: state.context.id,
+      actorPassword: String(formData.get("adminPassword") ?? ""),
+      targetStaffId: String(formData.get("staffId") ?? ""),
+      temporaryPassword: String(formData.get("temporaryPassword") ?? ""),
+      reason: String(formData.get("reason") ?? ""),
+      sourceIdentifier: sourceIdentifier(await headers()),
+    });
+  } catch {
+    redirect("/admin/staff?error=password_reactivation_failed");
+  }
+  redirect("/admin/staff?message=password_reactivation_issued");
+}
+
+export async function revokeStaffPasswordSessionsAction(formData: FormData) {
+  const state = await requireActiveStaffSession("staff.credentials.manage");
+  try {
+    const environment = await requireStaffPasswordCloudflareBindings();
+    await getPasswordAuthenticationService(environment).revokeStaffSessions({
+      actorStaffId: state.context.id,
+      actorPassword: String(formData.get("adminPassword") ?? ""),
+      targetStaffId: String(formData.get("staffId") ?? ""),
+      reason: String(formData.get("reason") ?? ""),
+      sourceIdentifier: sourceIdentifier(await headers()),
+    });
+  } catch {
+    redirect("/admin/staff?error=password_session_revocation_failed");
+  }
+  redirect("/admin/staff?message=password_sessions_revoked");
+}
+
 function serviceFor(database: D1Database) {
   return new AccessControlService(new AccessControlRepository(database));
+}
+
+function requireCloudflareAccessIdentity(
+  state: Awaited<ReturnType<typeof requireActiveStaffSession>>,
+) {
+  if (!state.identity) {
+    redirect("/admin/staff?error=staff_password_setup_not_ready");
+  }
+  return state.identity;
 }
 
 async function notifyStaffProvisioning(
@@ -61,7 +162,10 @@ export async function inviteStaffAction(formData: FormData) {
   }
   const state = await requireActiveStaffSession("staff.invite");
   const service = serviceFor(state.environment.DB);
-  await service.requirePermission(state.identity, "staff.roles.manage");
+  await service.requirePermission(
+    requireCloudflareAccessIdentity(state),
+    "staff.roles.manage",
+  );
   let invitationId: string;
   try {
     ({ invitationId } = await service.createInvitation({
@@ -118,7 +222,10 @@ export async function retryStaffInvitationAccessAction(formData: FormData) {
 
   const state = await requireActiveStaffSession("staff.invite");
   const service = serviceFor(state.environment.DB);
-  await service.requirePermission(state.identity, "staff.roles.manage");
+  await service.requirePermission(
+    requireCloudflareAccessIdentity(state),
+    "staff.roles.manage",
+  );
   const invitation = await new AccessControlRepository(
     state.environment.DB,
   ).findPendingInvitationById(parsed.data.invitationId);
@@ -169,7 +276,10 @@ export async function cancelStaffInvitationAction(formData: FormData) {
 
   const state = await requireActiveStaffSession("staff.invite");
   const service = serviceFor(state.environment.DB);
-  await service.requirePermission(state.identity, "staff.roles.manage");
+  await service.requirePermission(
+    requireCloudflareAccessIdentity(state),
+    "staff.roles.manage",
+  );
   try {
     await service.cancelInvitation(
       {
@@ -232,16 +342,21 @@ export async function suspendStaffAction(formData: FormData) {
       actorStaffId: state.context.id,
       ...parsed.data,
     });
-    try {
-      await createStaffAccessDirectory(state.environment).removeEmail(
-        person.email,
-      );
-    } catch {
-      // A suspended D1 profile is denied by the website even if provider cleanup
-      // needs a later retry. Do not falsely report the suspension as failed.
-      console.error(
-        "Failed to remove a suspended staff email from Cloudflare Access.",
-      );
+    if (
+      (state.environment as { STAFF_AUTH_MODE?: unknown }).STAFF_AUTH_MODE !==
+      "password"
+    ) {
+      try {
+        await createStaffAccessDirectory(state.environment).removeEmail(
+          person.email,
+        );
+      } catch {
+        // A suspended D1 profile is denied by the website even if provider cleanup
+        // needs a later retry. Do not falsely report the suspension as failed.
+        console.error(
+          "Failed to remove a suspended staff email from Cloudflare Access.",
+        );
+      }
     }
   } catch {
     redirect("/admin/staff?error=suspension_failed");

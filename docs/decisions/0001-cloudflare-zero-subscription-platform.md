@@ -4,6 +4,12 @@
 - Date: 2026-09-10
 - Cloudflare migration verified: 2026-09-18
 
+The Access-only/no-application-password portion of this decision is superseded
+for the target design by [ADR 0003](0003-staff-password-authentication.md),
+approved on 2026-09-22. Preview now uses the verified password-authentication
+flow; production remains Access-based until an explicitly approved cutover.
+The platform and cost guardrails below remain.
+
 ## Context
 
 Lifechangers Ministry Incorporated requires the website to operate without a

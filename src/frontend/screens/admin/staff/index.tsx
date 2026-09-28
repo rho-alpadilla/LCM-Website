@@ -12,6 +12,8 @@ import {
   suspendStaffAction,
 } from "@/backend/actions/staff";
 import { roleOptions } from "@/shared/staff/roles";
+import { getStaffAuthState } from "@/backend/auth/staff-context";
+import { PasswordStaffWorkspace } from "./password-workspace";
 
 const messages: Record<string, string> = {
   account_suspended: "The account was suspended.",
@@ -63,6 +65,13 @@ type Props = {
 };
 
 export default async function StaffPage({ searchParams }: Props) {
+  const authState = await getStaffAuthState();
+  if (
+    "authenticationMethod" in authState &&
+    authState.authenticationMethod === "password"
+  ) {
+    return <PasswordStaffWorkspace searchParams={searchParams} />;
+  }
   const [state, parameters, notifications] = await Promise.all([
     getStaffWorkspace(),
     searchParams,

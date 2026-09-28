@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Route } from "next";
 
 import { logoutAction } from "@/backend/actions/auth";
-import { manageableContentTypes } from "@/shared/content/options";
+import { manageableContentSections } from "@/shared/content/options";
 import type { AdminNotificationSummary } from "@/shared/admin/notifications";
 import type { StaffContext } from "@/shared/staff/types";
 import { NotificationBell } from "./notification-bell";
@@ -11,6 +11,11 @@ type NavigationItem = {
   href: Route;
   label: string;
   description: string;
+};
+
+type NavigationGroup = {
+  label: string;
+  items: NavigationItem[];
 };
 
 export function AdminHeader({
@@ -34,7 +39,7 @@ export function AdminHeader({
                 Menu
               </summary>
               <div className="absolute right-0 z-30 mt-3 w-72 rounded-2xl border border-slate-200 bg-white p-2 shadow-xl">
-                <Navigation items={navigation} />
+                <Navigation groups={navigation} />
                 <div className="mt-2 border-t border-slate-100 pt-2">
                   <AccountMenu context={context} />
                 </div>
@@ -50,7 +55,7 @@ export function AdminHeader({
           <NotificationBell {...notifications} />
         </div>
         <nav aria-label="Administration" className="mt-10 space-y-1">
-          <Navigation items={navigation} />
+          <Navigation groups={navigation} />
         </nav>
         <div className="mt-auto border-t border-slate-100 pt-4">
           <AccountMenu context={context} />
@@ -81,23 +86,32 @@ function Brand({ compact = false }: { compact?: boolean }) {
   );
 }
 
-function Navigation({ items }: { items: NavigationItem[] }) {
+function Navigation({ groups }: { groups: NavigationGroup[] }) {
   return (
     <>
-      {items.map((item) => (
-        <Link
-          className="group flex items-start gap-3 rounded-xl px-3 py-3 transition hover:bg-blue-50 focus-visible:outline-offset-[-2px]"
-          href={item.href}
-          key={item.href}
-        >
-          <span className="mt-1 size-2 shrink-0 rounded-full bg-blue-700 transition group-hover:scale-125" />
-          <span>
-            <span className="block font-bold text-slate-900">{item.label}</span>
-            <span className="mt-0.5 block text-xs leading-5 text-slate-500">
-              {item.description}
-            </span>
-          </span>
-        </Link>
+      {groups.map((group) => (
+        <section className="space-y-1" key={group.label}>
+          <p className="px-3 pt-4 text-[0.68rem] font-black tracking-[0.16em] text-slate-400 uppercase first:pt-0">
+            {group.label}
+          </p>
+          {group.items.map((item) => (
+            <Link
+              className="group flex items-start gap-3 rounded-xl px-3 py-3 transition hover:bg-blue-50 focus-visible:outline-offset-[-2px]"
+              href={item.href}
+              key={item.href}
+            >
+              <span className="mt-1 size-2 shrink-0 rounded-full bg-blue-700 transition group-hover:scale-125" />
+              <span>
+                <span className="block font-bold text-slate-900">
+                  {item.label}
+                </span>
+                <span className="mt-0.5 block text-xs leading-5 text-slate-500">
+                  {item.description}
+                </span>
+              </span>
+            </Link>
+          ))}
+        </section>
       ))}
     </>
   );
@@ -142,31 +156,54 @@ function AccountMenu({ context }: { context: StaffContext }) {
   );
 }
 
-function getNavigation(context: StaffContext): NavigationItem[] {
-  const items: NavigationItem[] = [
+function getNavigation(context: StaffContext): NavigationGroup[] {
+  const groups: NavigationGroup[] = [
     {
-      href: "/admin",
-      label: "Dashboard",
-      description: "Your role and current work",
+      label: "Overview",
+      items: [
+        {
+          href: "/admin",
+          label: "Dashboard",
+          description: "Your role and current work",
+        },
+      ],
     },
   ];
 
-  if (manageableContentTypes(context.permissions).length) {
-    items.push({
-      href: "/admin/content",
-      label: "Content",
-      description: "Draft, review, and publish",
+  const contentSections = manageableContentSections(context.permissions);
+  if (contentSections.length) {
+    groups.push({
+      label: "Update the website",
+      items: [
+        {
+          href: "/admin/content",
+          label: "All content",
+          description: "Drafts, reviews, and publishing",
+        },
+        ...contentSections.map((section) => ({
+          href: `/admin/content?section=${section.id}` as Route,
+          label: section.label,
+          description: section.description,
+        })),
+      ],
     });
   }
+
+  const resourceItems: NavigationItem[] = [];
   if (context.permissions.includes("content.media.manage")) {
-    items.push({
+    resourceItems.push({
       href: "/admin/media",
-      label: "Media library",
+      label: "Website files",
       description: "Images and bulletin files",
     });
   }
+  if (resourceItems.length) {
+    groups.push({ label: "Resources", items: resourceItems });
+  }
+
+  const careItems: NavigationItem[] = [];
   if (context.permissions.includes("prayer.read_team")) {
-    items.push({
+    careItems.push({
       href: "/admin/prayer",
       label: "Prayer care",
       description: "Approved prayer requests only",
@@ -176,18 +213,27 @@ function getNavigation(context: StaffContext): NavigationItem[] {
     context.permissions.includes("contact.read") ||
     context.permissions.includes("ministry_interest.read")
   ) {
-    items.push({
+    careItems.push({
       href: "/admin/inquiries",
       label: "Inquiries",
       description: "Contact and ministry interest",
     });
   }
+  if (careItems.length) {
+    groups.push({ label: "Care and follow-up", items: careItems });
+  }
+
   if (context.permissions.includes("staff.read")) {
-    items.push({
-      href: "/admin/staff",
-      label: "Staff & access",
-      description: "People, roles, and sign-in setup",
+    groups.push({
+      label: "Administration",
+      items: [
+        {
+          href: "/admin/staff",
+          label: "Staff & access",
+          description: "People, roles, and sign-in setup",
+        },
+      ],
     });
   }
-  return items;
+  return groups;
 }

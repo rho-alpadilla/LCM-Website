@@ -113,6 +113,7 @@ export interface AccessControlRepositoryPort {
   findStaffContextByAccessSubject(
     accessSubject: string,
   ): Promise<StaffContext | null>;
+  findStaffContextByStaffId(staffId: string): Promise<StaffContext | null>;
   activeStaffHasPermission(
     accessSubject: string,
     email: string,
@@ -275,6 +276,23 @@ export class AccessControlRepository implements AccessControlRepositoryPort {
       .first<StaffProfileRow>();
     if (!profile) return null;
 
+    return this.toStaffContext(profile);
+  }
+
+  async findStaffContextByStaffId(staffId: string) {
+    const profile = await this.database
+      .prepare(
+        `SELECT id, email, display_name, phone, job_title, account_status
+       FROM staff_profiles WHERE id = ?1`,
+      )
+      .bind(staffId)
+      .first<StaffProfileRow>();
+    if (!profile) return null;
+
+    return this.toStaffContext(profile);
+  }
+
+  private async toStaffContext(profile: StaffProfileRow) {
     const [roleResult, permissionResult] = await this.database.batch<CodeRow>([
       this.database
         .prepare(

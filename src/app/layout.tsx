@@ -3,8 +3,17 @@ import type { ReactNode } from "react";
 
 import { siteConfig } from "@/shared/config/site";
 
-import { allura, montserrat } from "./fonts";
 import "./globals.css";
+
+const themeInitializationScript = `(() => {
+  try {
+    const savedTheme = localStorage.getItem("lcm-theme");
+    const prefersDarkTheme = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    document.documentElement.dataset.theme = savedTheme ?? (prefersDarkTheme ? "dark" : "light");
+  } catch {
+    document.documentElement.dataset.theme = "light";
+  }
+})();`;
 
 export const metadata: Metadata = {
   title: {
@@ -20,7 +29,12 @@ type RootLayoutProps = Readonly<{
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
-    <html className={`${montserrat.variable} ${allura.variable}`} lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{ __html: themeInitializationScript }}
+        />
+      </head>
       <body>{children}</body>
     </html>
   );

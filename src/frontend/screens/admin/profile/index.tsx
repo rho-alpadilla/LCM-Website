@@ -2,12 +2,21 @@ import { requireActiveStaffSession } from "@/backend/auth/staff-context";
 import { getAdminNotificationSummary } from "@/backend/queries/admin/notifications";
 import { AdminHeader } from "@/frontend/components/admin/admin-header";
 import { roleLabel } from "@/shared/staff/roles";
+import { PasswordChangeForm } from "@/frontend/components/admin/password-change-form";
 
 export default async function ProfilePage() {
-  const [{ context }, notifications] = await Promise.all([
+  const [state, notifications] = await Promise.all([
     requireActiveStaffSession(),
     getAdminNotificationSummary(),
   ]);
+  const { context } = state;
+  const usesPassword =
+    "authenticationMethod" in state &&
+    state.authenticationMethod === "password";
+  const temporaryPasswordExpiresAt =
+    "temporaryPasswordExpiresAt" in state
+      ? state.temporaryPasswordExpiresAt
+      : null;
 
   return (
     <div className="min-h-screen bg-slate-100 lg:pl-72">
@@ -20,8 +29,9 @@ export default async function ProfilePage() {
           My account
         </h1>
         <p className="mt-3 max-w-2xl leading-7 text-slate-600">
-          Your identity is secured by Cloudflare Access. Your email sign-in code
-          is never stored by this website.
+          {usesPassword
+            ? "Your password is stored only as a salted hash. Password changes end other website sessions."
+            : "Your identity is secured by Cloudflare Access. Your email sign-in code is never stored by this website."}
         </p>
         <section className="mt-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
           <dl className="grid gap-6 sm:grid-cols-2">
@@ -63,6 +73,11 @@ export default async function ProfilePage() {
               </dd>
             </div>
           </dl>
+          {usesPassword ? (
+            <PasswordChangeForm
+              temporaryPasswordExpiresAt={temporaryPasswordExpiresAt}
+            />
+          ) : null}
         </section>
       </main>
     </div>

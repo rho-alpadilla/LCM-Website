@@ -15,7 +15,7 @@ import { ScheduleSubtypeForm } from "./schedule-subtype-form";
 import type { ContentSubtypeFormData } from "./subtype-form-helpers";
 
 export function ContentSubtypeEditor(data: ContentSubtypeFormData) {
-  const { content, mediaAssets } = data;
+  const { content } = data;
 
   if (content.contentType === "page") {
     return (

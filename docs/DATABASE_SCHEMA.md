@@ -17,13 +17,21 @@ Core tables:
 
 - `roles` and `permissions`: the approved six roles and granular capabilities.
 - `role_permissions`: reviewed permission grants.
-- `staff_profiles`: one profile per verified Cloudflare Access identity.
+- `staff_profiles`: staff profile records. `access_subject` remains populated
+  and unique for Cloudflare Access identities. Approved password-only
+  enrollments use the internal, non-Cloudflare value `password:<staff-id>` so
+  existing foreign keys and Access mappings are preserved.
 - `staff_roles`: append-oriented assignments and reasoned revocations.
-- `staff_invitations`: exact-email staff onboarding, recoverable Access setup
-  state, and first-sign-in activation. System Administrator and Core Leader
-  records require a documented reason. Only an `access_provisioning_status` of
-  `ready` may be accepted.
+- `staff_invitations`: retained history for the earlier Access onboarding flow.
+  New preview password accounts use guarded password enrollment instead.
 - `system_bootstrap`: one-time first-administrator state.
+- `staff_password_enrollments`: append-oriented, temporary setup records for
+  password-only accounts. A database guard requires one before an invited
+  password-only profile can exist.
+- `staff_password_credentials`: salted/versioned scrypt credential records.
+  No plaintext, temporary password, or recovery password is stored.
+- `staff_sessions`: inactive opaque-session token digests with idle/absolute
+  expiry and immutable revocation history. Raw browser tokens are never stored.
 - `audit_logs`: metadata for security, publishing and prayer operations. Prayer
   text is never copied into the audit log.
 - `admin_notifications`: short, staff-scoped dashboard alerts with a mutable
@@ -37,6 +45,11 @@ Pastor distinctions belong in `staff_profiles.job_title`.
 Database triggers require reasons for elevated role assignments, keep role
 history immutable, and prevent removal or suspension of the final active System
 Administrator.
+
+Migrations `0026`–`0029` add password credentials, sessions, guarded
+enrollment and the three-day temporary-password grace period. Preview uses
+`STAFF_AUTH_MODE=password`; production remains `access` until a separately
+approved cutover.
 
 ## Public Content
 

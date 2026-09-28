@@ -1,3 +1,5 @@
+@import "@fontsource/montserrat/latin.css";
+@import "@fontsource/allura/latin.css";
 @import "tailwindcss";
 @import "../frontend/styles/public.css";
 
@@ -7,6 +9,8 @@
 }
 
 :root {
+  --font-montserrat: "Montserrat";
+  --font-allura: "Allura";
   --background: #f7f4ed;
   --foreground: #08111f;
   --surface: #fffdf8;

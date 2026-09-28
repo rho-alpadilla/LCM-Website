@@ -19,6 +19,7 @@ function createRepositoryStub(
     isBootstrapAvailable: vi.fn().mockResolvedValue(true),
     bootstrapFirstSystemAdministrator: vi.fn().mockResolvedValue(undefined),
     findStaffContextByAccessSubject: vi.fn().mockResolvedValue(null),
+    findStaffContextByStaffId: vi.fn().mockResolvedValue(null),
     activeStaffHasPermission: vi.fn().mockResolvedValue(false),
     emailHasStaffProfile: vi.fn().mockResolvedValue(false),
     findPendingInvitationByEmail: vi.fn().mockResolvedValue(null),

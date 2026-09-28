@@ -6,6 +6,16 @@ Cloudflare-first architecture approved. The website/ChMS separation was
 accepted on 2026-09-17 in
 `docs/decisions/0002-separate-website-and-chms-boundaries.md`.
 
+The approved authentication design is individual staff passwords with
+administrator-assisted recovery. Its D1/session/Durable Object foundation,
+staff enrollment, first-password setup, reset and session-revocation workflow
+are deployed to the separate preview Worker. The preview Access application is
+reversibly bypassed so the website password screen can be tested directly.
+Production still uses Cloudflare Access.
+[ADR 0003](decisions/0003-staff-password-authentication.md) defines the
+free-tier feasibility gate, security controls and staged migration. D1 roles
+and the website/ChMS separation do not change.
+
 This repository is the public outreach website plus its protected content,
 prayer, contact, and staff-operations dashboard. It is not the church's member
 management or bookkeeping system.
@@ -35,7 +45,11 @@ authenticated API or controlled export/import contract.
 - Next.js App Router, React, strict TypeScript and Tailwind CSS
 - Cloudflare Workers through OpenNext
 - D1 for website relational data and R2 for approved private files
-- Cloudflare Access for staff identity; D1 roles for application authorization
+- Password sessions in preview and Cloudflare Access identities in production;
+  D1 roles provide application authorization in both modes
+- Native scrypt in internal SQLite Durable Object shards; D1 stores only
+  credential and session digests. The preview supports enrollment,
+  first-password setup, password changes, recovery and session revocation.
 - Turnstile plus rate limits for public prayer submissions
 - Vitest/Testing Library for unit and component tests; Playwright for E2E
 - PayMongo Hosted Checkout for one-time giving, with secrets stored as Worker
@@ -105,8 +119,10 @@ Core principles:
 
 ## Local Development Administrator
 
-`pnpm dev` applies pending migrations to local D1 before Next.js starts. On a
-loopback hostname, the normal `/admin` route then uses one fixed synthetic
+`pnpm dev` starts Next.js without changing the database. Apply migrations
+explicitly after reviewing them; use `pnpm d1:migrations:test` for the
+disposable local schema test. On a loopback hostname, the normal `/admin` route
+uses one fixed synthetic
 System Administrator identity from local D1. There is no local login, role
 switcher, `/admin/sandbox` route, shared password, or secret configuration.
 
@@ -114,8 +130,8 @@ The helper requires both the Worker binding `APP_ENVIRONMENT=local` and the
 Next.js `development` runtime. It rejects network, preview, and production
 requests even if a loopback Host header is supplied. A permanent banner marks
 the local state, and PayMongo is blocked until its separate, deliberate
-test-mode configuration. Cloudflare Access remains the only authentication
-path in preview and production.
+test-mode configuration. Preview uses password sessions; production remains
+Access-based.
 
 ## Prayer Privacy
 

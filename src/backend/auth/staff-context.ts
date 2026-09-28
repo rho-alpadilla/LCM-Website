@@ -8,11 +8,16 @@ import { ApplicationError } from "@/shared/errors/application-error";
 import { verifyCloudflareAccessHeaders } from "@/backend/auth/cloudflare-access";
 import { requireCloudflareBindings } from "@/backend/cloudflare/bindings";
 import {
+  staffAuthenticationMode,
+  type StaffPasswordCloudflareBindings,
+} from "@/backend/cloudflare/bindings";
+import {
   AccessControlRepository,
   type StaffContext,
 } from "@/backend/repositories/staff/access-control-repository";
 import { AccessControlService } from "@/backend/services/staff/access-control-service";
 import { localDevelopmentAdministrator } from "@/backend/development/local-administrator";
+import { findPasswordStaffContext } from "@/backend/auth/password-authentication";
 
 export type { StaffContext };
 
@@ -33,6 +38,31 @@ export async function getStaffAuthState() {
       pendingInvitation: null,
     };
   }
+  const passwordEnvironment = environment as StaffPasswordCloudflareBindings;
+  if (staffAuthenticationMode(passwordEnvironment) === "password") {
+    if (
+      !passwordEnvironment.STAFF_AUTHENTICATION ||
+      !passwordEnvironment.STAFF_AUTH_RATE_LIMIT_SECRET
+    ) {
+      return { kind: "unconfigured" as const };
+    }
+    const authenticatedStaff = await findPasswordStaffContext(
+      requestHeaders,
+      passwordEnvironment,
+    );
+    const context = authenticatedStaff?.context ?? null;
+    return {
+      kind: context ? ("verified" as const) : ("anonymous" as const),
+      environment,
+      identity: null,
+      context,
+      bootstrapAvailable: false,
+      pendingInvitation: null,
+      authenticationMethod: "password" as const,
+      temporaryPasswordExpiresAt:
+        authenticatedStaff?.temporaryPasswordExpiresAt ?? null,
+    };
+  }
   if (
     !environment.ACCESS_TEAM_DOMAIN.trim() ||
     !environment.ACCESS_AUD.trim()
@@ -48,7 +78,10 @@ export async function getStaffAuthState() {
       error instanceof ApplicationError &&
       error.code === "AUTHENTICATION_REQUIRED"
     ) {
-      return { kind: "anonymous" as const };
+      return {
+        kind: "anonymous" as const,
+        authenticationMethod: "access" as const,
+      };
     }
     throw error;
   }
@@ -58,7 +91,11 @@ export async function getStaffAuthState() {
     identity.accessSubject,
   );
   if (context && context.email.toLowerCase() !== identity.email) {
-    return { kind: "denied" as const, identity };
+    return {
+      kind: "denied" as const,
+      identity,
+      authenticationMethod: "access" as const,
+    };
   }
 
   let pendingInvitation = await repository.findPendingInvitationByEmail(
@@ -88,6 +125,7 @@ export async function getStaffAuthState() {
     context,
     bootstrapAvailable: await repository.isBootstrapAvailable(),
     pendingInvitation,
+    authenticationMethod: "access" as const,
   };
 }
 
