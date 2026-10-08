@@ -54,6 +54,7 @@ export default async function ContentPage({ searchParams }: Props) {
     : [];
   const errorCode =
     typeof parameters.error === "string" ? parameters.error : "";
+  const isActivitiesWorkspace = selectedSection?.id === "activities";
 
   return (
     <div className="min-h-screen bg-slate-100 lg:pl-72">
@@ -77,7 +78,7 @@ export default async function ContentPage({ searchParams }: Props) {
             className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-center font-bold text-slate-800"
             href="#new-draft"
           >
-            Create a draft
+            {isActivitiesWorkspace ? "Add activity" : "Create a draft"}
           </a>
         </div>
 
@@ -188,12 +189,14 @@ export default async function ContentPage({ searchParams }: Props) {
           id="new-draft"
         >
           <h2 className="text-2xl font-black text-slate-950">
-            Create{" "}
-            {selectedSection ? selectedSection.label.toLowerCase() : "a draft"}
+            {isActivitiesWorkspace
+              ? "Add activity"
+              : `Create ${selectedSection ? selectedSection.label.toLowerCase() : "a draft"}`}
           </h2>
           <p className="mt-2 text-sm leading-6 text-slate-600">
-            Start with the title and web address. You’ll add the specific
-            sermon, schedule, ministry, or bulletin details on the next screen.
+            {isActivitiesWorkspace
+              ? "Start with a name and web address. On the next screen, choose the date, time, and a simple repeat pattern."
+              : "Start with the title and web address. You’ll add the specific sermon, schedule, ministry, or bulletin details on the next screen."}
           </p>
           {creationTypes.length ? (
             <form

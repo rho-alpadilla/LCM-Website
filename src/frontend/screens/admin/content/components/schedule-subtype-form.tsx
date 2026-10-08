@@ -1,5 +1,9 @@
 import type { ContentSubtypeFormData } from "./subtype-form-helpers";
 import {
+  scheduleRecurrencePreset,
+  scheduleRecurrencePresets,
+} from "@/shared/content/schedule-recurrence";
+import {
   formInputClass,
   FormField,
   manilaLocalDateTime,
@@ -15,6 +19,8 @@ export function ScheduleSubtypeForm({
   const ministries = references.filter(
     (item) => item.contentType === "ministry" && item.status !== "archived",
   );
+  const recurrenceRule = subtypeValue(subtype, "recurrenceRule");
+  const recurrencePreset = scheduleRecurrencePreset(recurrenceRule);
 
   return (
     <SubtypeForm content={content}>
@@ -69,15 +75,20 @@ export function ScheduleSubtypeForm({
         />
       </FormField>
       <FormField
-        label="Repeat rule (optional)"
-        hint="Examples: FREQ=DAILY or FREQ=WEEKLY;BYDAY=SU"
+        label="Repeats"
+        hint="Choose a normal pattern. Use Custom only when the activity needs a different schedule."
       >
-        <input
+        <select
           className={formInputClass}
-          defaultValue={subtypeValue(subtype, "recurrenceRule")}
-          maxLength={1000}
-          name="recurrenceRule"
-        />
+          defaultValue={recurrencePreset}
+          name="recurrencePreset"
+        >
+          {scheduleRecurrencePresets.map((preset) => (
+            <option key={preset.value} value={preset.value}>
+              {preset.label}
+            </option>
+          ))}
+        </select>
       </FormField>
       <FormField label="Repeat until (optional)">
         <input
@@ -87,6 +98,29 @@ export function ScheduleSubtypeForm({
           type="date"
         />
       </FormField>
+      <details
+        className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 sm:col-span-2"
+        open={recurrencePreset === "advanced"}
+      >
+        <summary className="cursor-pointer font-semibold text-slate-800">
+          Custom repeat pattern
+        </summary>
+        <p className="mt-2 text-sm leading-6 text-slate-600">
+          Leave this blank unless you selected Custom repeat pattern above.
+          Existing custom schedules are kept here so they can be edited safely.
+        </p>
+        <FormField
+          label="Advanced repeat rule"
+          hint="For example: FREQ=WEEKLY;BYDAY=MO,WE,FR"
+        >
+          <input
+            className={formInputClass}
+            defaultValue={recurrenceRule}
+            maxLength={1000}
+            name="recurrenceRule"
+          />
+        </FormField>
+      </details>
       <FormField
         label="Location name (optional)"
         hint="For area-only visibility, enter only a safe general area such as the barangay or city."

@@ -14,6 +14,7 @@ import { ContentRepository } from "@/backend/repositories/content/repository";
 import { ContentSubtypeRepository } from "@/backend/repositories/content/subtype-repository";
 import { ContentSubtypeService } from "@/backend/services/content/subtype-service";
 import { ContentWorkflowService } from "@/backend/services/content/workflow-service";
+import { recurrenceRuleForPreset } from "@/shared/content/schedule-recurrence";
 
 const contentIdSchema = z.uuid();
 const contentTypeSchema = z.enum([
@@ -178,7 +179,10 @@ export async function saveContentSubtypeAction(formData: FormData) {
           startsAt: manilaDateTime(formData, "startsAt"),
           endsAt: manilaDateTime(formData, "endsAt"),
           timezone: "Asia/Manila",
-          recurrenceRule: nullableText(formData, "recurrenceRule"),
+          recurrenceRule: recurrenceRuleForPreset(
+            text(formData, "recurrencePreset"),
+            nullableText(formData, "recurrenceRule"),
+          ),
           recurrenceUntil: nullableText(formData, "recurrenceUntil"),
           locationName: nullableText(formData, "locationName"),
           locationAddress: nullableText(formData, "locationAddress"),
