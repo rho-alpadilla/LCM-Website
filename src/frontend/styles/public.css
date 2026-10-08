@@ -283,6 +283,36 @@ html[data-theme="dark"] .public-theme-moon {
   text-align: center;
   line-height: 1.8;
 }
+.public-live-service {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: 3rem;
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  border: 1px solid var(--public-line);
+  border-radius: 1rem;
+  background: #edf0e9;
+}
+.public-live-service h2,
+.public-content-list-heading {
+  margin-top: 0.7rem;
+  color: var(--public-ink);
+  font-size: clamp(1.65rem, 3vw, 2.25rem);
+  font-weight: 650;
+  letter-spacing: -0.05em;
+  line-height: 1.15;
+}
+.public-live-service p:not(.public-eyebrow) {
+  max-width: 37rem;
+  margin-top: 0.8rem;
+  color: var(--public-muted);
+  font-size: 0.875rem;
+  line-height: 1.75;
+}
+.public-live-service .public-button {
+  flex-shrink: 0;
+}
 .home-hero {
   position: relative;
   isolation: isolate;
@@ -587,7 +617,8 @@ html[data-theme="dark"] .public-site textarea {
   color-scheme: dark;
 }
 html[data-theme="dark"] .public-empty,
-html[data-theme="dark"] .home-prayer {
+html[data-theme="dark"] .home-prayer,
+html[data-theme="dark"] .public-live-service {
   background: #1d2922;
 }
 html[data-theme="dark"] .home-link-arrow {
@@ -694,6 +725,12 @@ html[data-theme="dark"] .home-link-arrow {
   }
   .public-intro {
     padding-block: 3rem;
+  }
+  .public-live-service {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
   }
   .public-footer-grid {
     gap: 2.5rem 1.5rem;

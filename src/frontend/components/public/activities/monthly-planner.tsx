@@ -22,7 +22,7 @@ type PlannerOccurrence = {
   };
 };
 
-const weekdayLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+export const weekdayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 export function MonthlyActivityPlanner({
   occurrences,
@@ -235,11 +235,11 @@ function buildMonths(initialMonth: string, dates: string[]) {
   return months;
 }
 
-function monthDays(month: string) {
+export function monthDays(month: string) {
   const [year, value] = month.split("-").map(Number);
   const monthIndex = (value ?? 1) - 1;
   const firstWeekday = new Date(Date.UTC(year, monthIndex, 1)).getUTCDay();
-  const leadingEmptyDays = (firstWeekday + 6) % 7;
+  const leadingEmptyDays = firstWeekday;
   const dayCount = new Date(Date.UTC(year, monthIndex + 1, 0)).getUTCDate();
   const days = Array.from(
     { length: leadingEmptyDays },

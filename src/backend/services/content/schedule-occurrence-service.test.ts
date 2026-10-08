@@ -2,7 +2,10 @@ import { describe, expect, it } from "vitest";
 
 import type { PublicActivity } from "@/backend/repositories/content/public-repository";
 
-import { expandUpcomingOccurrences } from "./schedule-occurrence-service";
+import {
+  expandUpcomingOccurrences,
+  getUpcomingActivityHighlights,
+} from "./schedule-occurrence-service";
 
 function activity(overrides: Partial<PublicActivity> = {}): PublicActivity {
   return {
@@ -120,5 +123,74 @@ describe("expandUpcomingOccurrences", () => {
     );
     expect(result).toHaveLength(1);
     expect(result[0].status).toBe("scheduled");
+  });
+});
+
+describe("getUpcomingActivityHighlights", () => {
+  it("shows one next active occurrence per activity and excludes cancellations", () => {
+    const recurring = activity({ id: "recurring", title: "Sunday Worship" });
+    const oneTime = activity({
+      id: "one-time",
+      title: "Community Outreach",
+      recurrenceRule: null,
+    });
+
+    const result = getUpcomingActivityHighlights([
+      {
+        activity: recurring,
+        occurrenceDate: "2026-09-16",
+        startsAt: "2026-09-16T18:00:00+08:00",
+        endsAt: "2026-09-16T19:00:00+08:00",
+        status: "cancelled",
+        publicNote: "Cancelled for weather.",
+      },
+      {
+        activity: recurring,
+        occurrenceDate: "2026-09-18",
+        startsAt: "2026-09-18T18:00:00+08:00",
+        endsAt: "2026-09-18T19:00:00+08:00",
+        status: "scheduled",
+        publicNote: null,
+      },
+      {
+        activity: recurring,
+        occurrenceDate: "2026-09-21",
+        startsAt: "2026-09-21T18:00:00+08:00",
+        endsAt: "2026-09-21T19:00:00+08:00",
+        status: "scheduled",
+        publicNote: null,
+      },
+      {
+        activity: oneTime,
+        occurrenceDate: "2026-09-22",
+        startsAt: "2026-09-22T18:00:00+08:00",
+        endsAt: "2026-09-22T19:00:00+08:00",
+        status: "scheduled",
+        publicNote: null,
+      },
+    ]);
+
+    expect(result.map((occurrence) => occurrence.occurrenceDate)).toEqual([
+      "2026-09-18",
+      "2026-09-22",
+    ]);
+  });
+
+  it("keeps every distinct activity available for the paged public overview", () => {
+    const occurrences = Array.from({ length: 9 }, (_, index) => ({
+      activity: activity({
+        id: `activity-${index}`,
+        title: `Activity ${index}`,
+      }),
+      occurrenceDate: `2026-10-${String(index + 1).padStart(2, "0")}`,
+      startsAt: `2026-10-${String(index + 1).padStart(2, "0")}T18:00:00+08:00`,
+      endsAt: `2026-10-${String(index + 1).padStart(2, "0")}T19:00:00+08:00`,
+      status: "scheduled" as const,
+      publicNote: null,
+    }));
+
+    const result = getUpcomingActivityHighlights(occurrences);
+
+    expect(result).toHaveLength(9);
   });
 });

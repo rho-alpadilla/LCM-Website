@@ -89,7 +89,9 @@ const cachedBulletins = unstable_cache(
 
 const cachedActivities = unstable_cache(
   async () => (await repository()).listActivities(),
-  ["public-activities-v1"],
+  // v2 deliberately starts a fresh cache after the initial Sunday service was
+  // loaded through the audited preview-data operation rather than a server action.
+  ["public-activities-v2"],
   {
     tags: [publicContentTags.activities],
     revalidate: cacheRevalidateSeconds,

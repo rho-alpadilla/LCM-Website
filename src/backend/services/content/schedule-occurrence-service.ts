@@ -49,6 +49,30 @@ export function expandUpcomingOccurrences(
     .slice(0, limit);
 }
 
+/**
+ * Keeps the calendar comprehensive while making the companion card list
+ * scannable. Recurring activities contribute only their next active occurrence.
+ */
+export function getUpcomingActivityHighlights(
+  occurrences: PublicActivityOccurrence[],
+): PublicActivityOccurrence[] {
+  const seenActivityIds = new Set<string>();
+  const distinctOccurrences: PublicActivityOccurrence[] = [];
+
+  for (const occurrence of occurrences) {
+    if (
+      occurrence.status === "cancelled" ||
+      seenActivityIds.has(occurrence.activity.id)
+    ) {
+      continue;
+    }
+    seenActivityIds.add(occurrence.activity.id);
+    distinctOccurrences.push(occurrence);
+  }
+
+  return distinctOccurrences;
+}
+
 function expandActivity(
   activity: PublicActivity,
   windowStartDate: string,

@@ -9,6 +9,7 @@ import {
 } from "@/frontend/components/public/public-page";
 import { getPublicSermons } from "@/backend/queries/content/public-cache";
 import { formatDuration, formatPublicDate } from "@/frontend/lib/public-format";
+import { siteConfig } from "@/shared/config/site";
 
 export default async function SermonsPage() {
   const sermons = await getPublicSermons();
@@ -20,42 +21,70 @@ export default async function SermonsPage() {
         title="Sermons"
       />
       <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-        {sermons.length ? (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {sermons.map((sermon) => (
-              <article
-                className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
-                key={sermon.id}
-              >
-                <ContentCover image={sermon.coverImage} />
-                <div className="p-5">
-                  <p className="text-sm font-bold text-[#244d3d]">
-                    {formatPublicDate(sermon.preachedAt)}
-                  </p>
-                  <h2 className="mt-2 text-xl font-semibold text-slate-950">
-                    <Link href={`/sermons/${sermon.slug}` as Route}>
-                      {sermon.title}
-                    </Link>
-                  </h2>
-                  {sermon.summary ? (
-                    <p className="mt-3 line-clamp-3 leading-7 text-slate-600">
-                      {sermon.summary}
-                    </p>
-                  ) : null}
-                  <p className="mt-4 text-sm text-slate-500">
-                    {[
-                      sermon.speakerName,
-                      formatDuration(sermon.durationSeconds),
-                    ]
-                      .filter(Boolean)
-                      .join(" · ")}
-                  </p>
-                </div>
-              </article>
-            ))}
+        <aside
+          className="public-live-service"
+          aria-labelledby="live-service-title"
+        >
+          <div>
+            <p className="public-eyebrow">Join us on Sundays</p>
+            <h2 id="live-service-title">Watch the service live on Facebook.</h2>
+            <p>
+              Sunday worship is streamed through the official Lifechangers
+              Ministry Facebook page.
+            </p>
           </div>
+          <a
+            className="public-button public-button-dark"
+            href={siteConfig.contact.facebookUrl}
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            Open Facebook Live <span aria-hidden="true">↗</span>
+            <span className="sr-only"> (opens in a new tab)</span>
+          </a>
+        </aside>
+        {sermons.length ? (
+          <>
+            <h2 className="public-content-list-heading">Latest sermons</h2>
+            <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {sermons.map((sermon) => (
+                <article
+                  className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
+                  key={sermon.id}
+                >
+                  <ContentCover image={sermon.coverImage} />
+                  <div className="p-5">
+                    <p className="text-sm font-bold text-[#244d3d]">
+                      {formatPublicDate(sermon.preachedAt)}
+                    </p>
+                    <h2 className="mt-2 text-xl font-semibold text-slate-950">
+                      <Link href={`/sermons/${sermon.slug}` as Route}>
+                        {sermon.title}
+                      </Link>
+                    </h2>
+                    {sermon.summary ? (
+                      <p className="mt-3 line-clamp-3 leading-7 text-slate-600">
+                        {sermon.summary}
+                      </p>
+                    ) : null}
+                    <p className="mt-4 text-sm text-slate-500">
+                      {[
+                        sermon.speakerName,
+                        formatDuration(sermon.durationSeconds),
+                      ]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </p>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </>
         ) : (
-          <EmptyContent>No published sermons are available yet.</EmptyContent>
+          <EmptyContent>
+            Recorded sermons will appear here after the multimedia team
+            publishes them.
+          </EmptyContent>
         )}
       </section>
     </PublicPage>
