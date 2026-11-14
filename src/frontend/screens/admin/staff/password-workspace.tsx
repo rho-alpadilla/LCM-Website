@@ -7,12 +7,13 @@ import {
   assignRoleAction,
   createPasswordStaffAction,
   revokeRoleAction,
-  resetStaffPasswordAction,
   reactivateTemporaryPasswordAction,
   revokeStaffPasswordSessionsAction,
   suspendStaffAction,
 } from "@/backend/actions/staff";
 import { roleOptions } from "@/shared/staff/roles";
+
+import { StaffPasswordRecoveryForm } from "./components/staff-password-recovery-form";
 
 const messages: Record<string, string> = {
   password_staff_created:
@@ -264,80 +265,51 @@ export async function PasswordStaffWorkspace({
               {canManageCredentials &&
               person.username &&
               person.accountStatus === "active" ? (
-                <div className="mt-6 grid gap-5 border-t border-slate-200 pt-6 lg:grid-cols-2">
-                  <form
-                    action={resetStaffPasswordAction}
-                    className="grid gap-3"
-                  >
-                    <input name="staffId" type="hidden" value={person.id} />
-                    <h4 className="font-black text-slate-950">
-                      Issue replacement temporary password
-                    </h4>
-                    <input
-                      autoComplete="new-password"
-                      className={inputClass}
-                      minLength={15}
-                      name="temporaryPassword"
-                      placeholder="New temporary password"
-                      required
-                      type="password"
-                    />
-                    <input
-                      className={inputClass}
-                      maxLength={500}
-                      minLength={10}
-                      name="reason"
-                      placeholder="Verified handover reason"
-                      required
-                    />
-                    <input
-                      autoComplete="current-password"
-                      className={inputClass}
-                      minLength={15}
-                      name="adminPassword"
-                      placeholder="Your password"
-                      required
-                      type="password"
-                    />
-                    <button
-                      className="rounded-xl border border-blue-800 px-4 py-3 font-bold text-blue-800"
-                      type="submit"
+                <div className="mt-6 border-t border-slate-200 pt-6">
+                  <StaffPasswordRecoveryForm
+                    staffId={person.id}
+                    username={person.username}
+                  />
+                  <details className="mt-5 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+                    <summary className="cursor-pointer font-semibold text-slate-800">
+                      Sign out on all devices without changing the password
+                    </summary>
+                    <p className="mt-2 text-sm leading-6 text-slate-600">
+                      Use this only when the password is still valid. Resetting
+                      access above already signs the account out everywhere.
+                    </p>
+                    <form
+                      action={revokeStaffPasswordSessionsAction}
+                      className="mt-4 grid gap-3"
                     >
-                      Issue reset
-                    </button>
-                  </form>
-                  <form
-                    action={revokeStaffPasswordSessionsAction}
-                    className="grid gap-3"
-                  >
-                    <input name="staffId" type="hidden" value={person.id} />
-                    <h4 className="font-black text-slate-950">
-                      Sign out on all devices
-                    </h4>
-                    <input
-                      className={inputClass}
-                      maxLength={500}
-                      minLength={10}
-                      name="reason"
-                      placeholder="Security reason"
-                      required
-                    />
-                    <input
-                      autoComplete="current-password"
-                      className={inputClass}
-                      minLength={15}
-                      name="adminPassword"
-                      placeholder="Your password"
-                      required
-                      type="password"
-                    />
-                    <button
-                      className="rounded-xl border border-red-300 px-4 py-3 font-bold text-red-800"
-                      type="submit"
-                    >
-                      Revoke sessions
-                    </button>
-                  </form>
+                      <input name="staffId" type="hidden" value={person.id} />
+                      <Field label="Security reason">
+                        <input
+                          className={inputClass}
+                          maxLength={500}
+                          minLength={10}
+                          name="reason"
+                          required
+                        />
+                      </Field>
+                      <Field label="Confirm with your administrator password">
+                        <input
+                          autoComplete="current-password"
+                          className={inputClass}
+                          minLength={15}
+                          name="adminPassword"
+                          required
+                          type="password"
+                        />
+                      </Field>
+                      <button
+                        className="rounded-xl border border-red-300 px-4 py-3 font-bold text-red-800"
+                        type="submit"
+                      >
+                        Sign out on all devices
+                      </button>
+                    </form>
+                  </details>
                 </div>
               ) : null}
               {canManageCredentials &&
