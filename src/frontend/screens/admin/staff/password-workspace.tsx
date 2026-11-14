@@ -1,19 +1,16 @@
-import type { ReactNode } from "react";
+import Link from "next/link";
 
 import { AdminHeader } from "@/frontend/components/admin/admin-header";
 import { getAdminNotificationSummary } from "@/backend/queries/admin/notifications";
 import { getPasswordStaffWorkspace } from "@/backend/queries/staff/password-directory";
-import {
-  assignRoleAction,
-  createPasswordStaffAction,
-  revokeRoleAction,
-  reactivateTemporaryPasswordAction,
-  revokeStaffPasswordSessionsAction,
-  suspendStaffAction,
-} from "@/backend/actions/staff";
-import { roleOptions } from "@/shared/staff/roles";
+import { roleOptions, type RoleCode } from "@/shared/staff/roles";
+import type { PasswordStaffDirectoryFilters } from "@/shared/staff/password-directory";
+import type { StaffAccountStatus } from "@/shared/staff/types";
 
-import { StaffPasswordRecoveryForm } from "./components/staff-password-recovery-form";
+import { StaffAccountCreateDialog } from "./components/staff-account-create-dialog";
+import { StaffAccountManagementPanel } from "./components/staff-account-management-panel";
+
+const pageSize = 20;
 
 const messages: Record<string, string> = {
   password_staff_created:
@@ -55,23 +52,28 @@ const errors: Record<string, string> = {
   role_revocation_failed:
     "The role could not be removed. Check the account and reason, then retry.",
   suspension_failed:
-    "The account could not be suspended. Check the reason, then retry.",
+    "The account could not be suspended. Check the account and reason, then retry.",
 };
+
+type SearchParameters = Record<string, string | string[] | undefined>;
 
 export async function PasswordStaffWorkspace({
   searchParams,
 }: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
+  searchParams: Promise<SearchParameters>;
 }) {
-  const [workspace, notifications, parameters] = await Promise.all([
-    getPasswordStaffWorkspace(),
+  const parameters = await searchParams;
+  const filters = readDirectoryFilters(parameters);
+  const [workspace, notifications] = await Promise.all([
+    getPasswordStaffWorkspace(filters),
     getAdminNotificationSummary(),
-    searchParams,
   ]);
-  const messageCode =
-    typeof parameters.message === "string" ? parameters.message : "";
-  const errorCode =
-    typeof parameters.error === "string" ? parameters.error : "";
+  const messageCode = valueFor(parameters, "message");
+  const errorCode = valueFor(parameters, "error");
+  const selectedStaffId = valueFor(parameters, "selected");
+  const selectedStaff = workspace.staff.entries.find(
+    (person) => person.id === selectedStaffId,
+  );
   const canManageCredentials = workspace.context.permissions.includes(
     "staff.credentials.manage",
   );
@@ -79,23 +81,39 @@ export async function PasswordStaffWorkspace({
     workspace.context.permissions.includes("staff.roles.manage");
   const canSuspendStaff =
     workspace.context.permissions.includes("staff.suspend");
+  const activeFilters = { ...filters, page: workspace.staff.page };
+  const totalPages = Math.max(1, Math.ceil(workspace.staff.total / pageSize));
+  const hasPreviousPage = activeFilters.page > 1;
+  const hasNextPage = activeFilters.page < totalPages;
+  const resultStart = workspace.staff.total
+    ? (activeFilters.page - 1) * pageSize + 1
+    : 0;
+  const resultEnd = Math.min(
+    activeFilters.page * pageSize,
+    workspace.staff.total,
+  );
+  const baseHref = staffDirectoryHref(activeFilters);
 
   return (
     <div className="min-h-screen bg-slate-100 lg:pl-72">
       <AdminHeader context={workspace.context} notifications={notifications} />
-      <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-        <p className="text-sm font-bold tracking-[0.2em] text-blue-800 uppercase">
-          System administration
-        </p>
-        <h1 className="mt-3 text-3xl font-black text-slate-950 sm:text-4xl">
-          Staff and access
-        </h1>
-        <p className="mt-4 max-w-3xl leading-7 text-slate-600">
-          Create a private username and one-time temporary password for each
-          person. The temporary password is never saved in readable form, and
-          staff can use it for up to three days while a clear dashboard reminder
-          asks them to choose a personal password.
-        </p>
+      <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
+        <div className="flex flex-wrap items-end justify-between gap-5">
+          <div>
+            <p className="text-sm font-bold tracking-[0.2em] text-blue-800 uppercase">
+              System administration
+            </p>
+            <h1 className="mt-3 text-3xl font-black text-slate-950 sm:text-4xl">
+              Staff and access
+            </h1>
+            <p className="mt-4 max-w-3xl leading-7 text-slate-600">
+              Create and manage private staff accounts. Temporary passwords are
+              never stored in readable form and expire after three days unless
+              the person chooses a personal password.
+            </p>
+          </div>
+          {canManageCredentials ? <StaffAccountCreateDialog /> : null}
+        </div>
 
         {messageCode ? (
           <p
@@ -115,344 +133,302 @@ export async function PasswordStaffWorkspace({
           </p>
         ) : null}
 
-        {canManageCredentials ? (
-          <section className="mt-10 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8">
-            <h2 className="text-2xl font-black text-slate-950">
-              Add staff account
-            </h2>
-            <p className="mt-2 text-sm leading-6 text-amber-900">
-              Share the temporary password only through a verified private
-              conversation. Do not put it in group chats, email, screenshots, or
-              notes.
-            </p>
-            <form
-              action={createPasswordStaffAction}
-              className="mt-6 grid gap-5 sm:grid-cols-2"
-            >
-              <Field label="Display name">
-                <input
-                  className={inputClass}
-                  maxLength={120}
-                  minLength={2}
-                  name="displayName"
-                  required
-                />
-              </Field>
-              <Field label="Contact email">
-                <input
-                  className={inputClass}
-                  maxLength={254}
-                  name="email"
-                  required
-                  type="email"
-                />
-              </Field>
-              <Field label="Username">
-                <input
-                  autoCapitalize="none"
-                  className={inputClass}
-                  maxLength={64}
-                  minLength={3}
-                  name="username"
-                  required
-                />
-              </Field>
-              <Field label="Temporary password">
-                <input
-                  autoComplete="new-password"
-                  className={inputClass}
-                  minLength={15}
-                  name="temporaryPassword"
-                  required
-                  type="password"
-                />
-              </Field>
-              <Field label="Church role or title (optional)">
-                <input className={inputClass} maxLength={120} name="jobTitle" />
-              </Field>
-              <Field label="Phone (optional)">
-                <input
-                  className={inputClass}
-                  maxLength={40}
-                  name="phone"
-                  type="tel"
-                />
-              </Field>
-              <Field label="Access role">
-                <select className={inputClass} name="roleCode" required>
-                  {roleOptions.map(([code, label]) => (
-                    <option key={code} value={code}>
-                      {label}
-                    </option>
-                  ))}
-                </select>
-              </Field>
-              <Field label="Assignment reason">
-                <input
-                  className={inputClass}
-                  maxLength={500}
-                  name="reason"
-                  placeholder="Required for System Administrator or Core Leader"
-                />
-              </Field>
-              <Field label="Confirm with your password">
-                <input
-                  autoComplete="current-password"
-                  className={inputClass}
-                  minLength={15}
-                  name="adminPassword"
-                  required
-                  type="password"
-                />
-              </Field>
-              <p className="self-end text-sm leading-6 text-slate-600">
-                This confirmation protects staff creation if an administrator’s
-                device is left unattended.
+        <section className="mt-10" id="staff-directory">
+          <div className="flex flex-wrap items-baseline justify-between gap-3">
+            <div>
+              <h2 className="text-2xl font-black text-slate-950">
+                Staff accounts
+              </h2>
+              <p className="mt-1 text-sm text-slate-600">
+                Search by name, email, or username. Account controls stay out of
+                the list until you select a person to manage.
               </p>
-              <button
-                className="rounded-xl bg-blue-800 px-5 py-3 font-bold text-white sm:col-span-2"
-                type="submit"
-              >
-                Create staff account
-              </button>
-            </form>
-          </section>
-        ) : null}
+            </div>
+            <p className="text-sm font-semibold text-slate-600">
+              {workspace.staff.total} account
+              {workspace.staff.total === 1 ? "" : "s"}
+            </p>
+          </div>
 
-        <section
-          className="mt-10 space-y-5"
-          aria-label="Staff password accounts"
-        >
-          <h2 className="text-2xl font-black text-slate-950">Staff accounts</h2>
-          {workspace.staff.map((person) => (
-            <article
-              className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6"
-              key={person.id}
+          <form className="mt-5 grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm lg:grid-cols-[minmax(0,1fr)_12rem_14rem_auto_auto]">
+            <label className="sr-only" htmlFor="staff-search">
+              Search staff accounts
+            </label>
+            <input
+              className={filterInputClass}
+              defaultValue={filters.search}
+              id="staff-search"
+              maxLength={100}
+              name="search"
+              placeholder="Search name, email, or username"
+              type="search"
+            />
+            <label className="sr-only" htmlFor="staff-status">
+              Filter by account status
+            </label>
+            <select
+              className={filterInputClass}
+              defaultValue={filters.accountStatus}
+              id="staff-status"
+              name="status"
             >
-              <div className="flex flex-wrap justify-between gap-3">
-                <div className="min-w-0">
-                  <h3 className="text-xl font-black text-slate-950">
-                    {person.displayName}
-                  </h3>
-                  <p className="text-sm break-all text-slate-600">
-                    {person.email}
-                  </p>
-                  <p className="mt-1 text-sm font-semibold text-blue-900">
-                    {person.username
-                      ? `@${person.username}`
-                      : "No password username"}
-                  </p>
-                </div>
-                <span className="h-fit rounded-full bg-slate-100 px-3 py-1 text-sm font-bold text-slate-700 capitalize">
-                  {person.accountStatus === "disabled" &&
-                  person.temporaryPasswordPending
-                    ? "temporary password expired"
-                    : person.temporaryPasswordPending
-                      ? "password change due"
-                      : person.accountStatus}
-                </span>
-              </div>
-              <div className="mt-4 flex flex-wrap gap-2">
-                {person.roles.map((role) => (
-                  <span
-                    className="rounded-full bg-blue-50 px-3 py-1 text-sm font-semibold text-blue-900"
-                    key={role.assignmentId}
+              <option value="all">All statuses</option>
+              <option value="active">Active</option>
+              <option value="disabled">Disabled</option>
+              <option value="suspended">Suspended</option>
+              <option value="invited">Invited</option>
+            </select>
+            <label className="sr-only" htmlFor="staff-role">
+              Filter by access role
+            </label>
+            <select
+              className={filterInputClass}
+              defaultValue={filters.roleCode}
+              id="staff-role"
+              name="role"
+            >
+              <option value="all">All roles</option>
+              {roleOptions.map(([code, label]) => (
+                <option key={code} value={code}>
+                  {label}
+                </option>
+              ))}
+            </select>
+            <button
+              className="rounded-xl bg-slate-950 px-5 py-3 font-bold text-white transition-transform duration-150 ease-out active:scale-[0.97]"
+              type="submit"
+            >
+              Apply
+            </button>
+            <Link
+              className="rounded-xl px-4 py-3 text-center font-bold text-slate-700 transition-colors hover:bg-slate-100"
+              href="/admin/staff#staff-directory"
+            >
+              Clear
+            </Link>
+          </form>
+
+          <div className="mt-5 overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <table className="w-full min-w-[850px] border-collapse text-left">
+              <caption className="sr-only">
+                Staff accounts and access roles
+              </caption>
+              <thead className="border-b border-slate-200 bg-slate-50 text-sm text-slate-700">
+                <tr>
+                  <th className="px-5 py-4 font-bold" scope="col">
+                    Staff member
+                  </th>
+                  <th className="px-5 py-4 font-bold" scope="col">
+                    Username
+                  </th>
+                  <th className="px-5 py-4 font-bold" scope="col">
+                    Access roles
+                  </th>
+                  <th className="px-5 py-4 font-bold" scope="col">
+                    Status
+                  </th>
+                  <th className="px-5 py-4 text-right font-bold" scope="col">
+                    <span className="sr-only">Account actions</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {workspace.staff.entries.map((person) => (
+                  <tr
+                    className="border-b border-slate-100 last:border-0"
+                    key={person.id}
                   >
-                    {role.name}
-                  </span>
+                    <td className="max-w-xs px-5 py-4 align-top">
+                      <p className="font-bold text-slate-950">
+                        {person.displayName}
+                      </p>
+                      <p className="mt-1 text-sm break-all text-slate-600">
+                        {person.email}
+                      </p>
+                    </td>
+                    <td className="px-5 py-4 align-top font-semibold text-blue-900">
+                      {person.username ? `@${person.username}` : "—"}
+                    </td>
+                    <td className="max-w-sm px-5 py-4 align-top">
+                      <div className="flex flex-wrap gap-2">
+                        {person.roles.length ? (
+                          person.roles.map((role) => (
+                            <span
+                              className="rounded-full bg-blue-50 px-3 py-1 text-sm font-semibold text-blue-900"
+                              key={role.assignmentId}
+                            >
+                              {role.name}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-sm text-slate-500">
+                            No active role
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-5 py-4 align-top">
+                      <span className={statusClass(person.accountStatus)}>
+                        {statusLabel(
+                          person.accountStatus,
+                          person.temporaryPasswordPending,
+                        )}
+                      </span>
+                    </td>
+                    <td className="px-5 py-4 text-right align-top">
+                      <a
+                        className="inline-flex rounded-xl border border-blue-800 px-4 py-2 font-bold text-blue-800 transition-transform duration-150 ease-out active:scale-[0.97]"
+                        href={staffDirectoryHref(
+                          activeFilters,
+                          person.id,
+                          "staff-management",
+                        )}
+                      >
+                        Manage
+                      </a>
+                    </td>
+                  </tr>
                 ))}
-              </div>
-              {canManageCredentials &&
-              person.username &&
-              person.accountStatus === "active" ? (
-                <div className="mt-6 border-t border-slate-200 pt-6">
-                  <StaffPasswordRecoveryForm
-                    staffId={person.id}
-                    username={person.username}
-                  />
-                  <details className="mt-5 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
-                    <summary className="cursor-pointer font-semibold text-slate-800">
-                      Sign out on all devices without changing the password
-                    </summary>
-                    <p className="mt-2 text-sm leading-6 text-slate-600">
-                      Use this only when the password is still valid. Resetting
-                      access above already signs the account out everywhere.
-                    </p>
-                    <form
-                      action={revokeStaffPasswordSessionsAction}
-                      className="mt-4 grid gap-3"
+                {!workspace.staff.entries.length ? (
+                  <tr>
+                    <td
+                      className="px-5 py-12 text-center text-slate-600"
+                      colSpan={5}
                     >
-                      <input name="staffId" type="hidden" value={person.id} />
-                      <Field label="Security reason">
-                        <input
-                          className={inputClass}
-                          maxLength={500}
-                          minLength={10}
-                          name="reason"
-                          required
-                        />
-                      </Field>
-                      <Field label="Confirm with your administrator password">
-                        <input
-                          autoComplete="current-password"
-                          className={inputClass}
-                          minLength={15}
-                          name="adminPassword"
-                          required
-                          type="password"
-                        />
-                      </Field>
-                      <button
-                        className="rounded-xl border border-red-300 px-4 py-3 font-bold text-red-800"
-                        type="submit"
-                      >
-                        Sign out on all devices
-                      </button>
-                    </form>
-                  </details>
-                </div>
-              ) : null}
-              {canManageCredentials &&
-              person.username &&
-              person.accountStatus === "disabled" &&
-              person.temporaryPasswordPending ? (
-                <form
-                  action={reactivateTemporaryPasswordAction}
-                  className="mt-6 grid gap-3 border-t border-amber-200 pt-6"
+                      No staff accounts match these filters.
+                    </td>
+                  </tr>
+                ) : null}
+              </tbody>
+            </table>
+          </div>
+          <p className="mt-3 text-sm text-slate-600">
+            On a smaller screen, swipe the table sideways to see every column.
+          </p>
+
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-4">
+            <p className="text-sm font-semibold text-slate-600">
+              {workspace.staff.total
+                ? `Showing ${resultStart}–${resultEnd} of ${workspace.staff.total}`
+                : "Showing 0 accounts"}
+            </p>
+            <nav aria-label="Staff account pages" className="flex gap-2">
+              {hasPreviousPage ? (
+                <a
+                  className="rounded-xl border border-slate-300 px-4 py-2 font-bold text-slate-800 transition-colors hover:bg-white"
+                  href={staffDirectoryHref({
+                    ...activeFilters,
+                    page: activeFilters.page - 1,
+                  })}
                 >
-                  <input name="staffId" type="hidden" value={person.id} />
-                  <h4 className="font-black text-slate-950">
-                    Reactivate password setup
-                  </h4>
-                  <p className="text-sm leading-6 text-slate-600">
-                    Verify the person&apos;s identity privately, then issue a
-                    new temporary password. It gives them three days to choose a
-                    personal password.
-                  </p>
-                  <input
-                    autoComplete="new-password"
-                    className={inputClass}
-                    minLength={15}
-                    name="temporaryPassword"
-                    placeholder="New temporary password"
-                    required
-                    type="password"
-                  />
-                  <input
-                    className={inputClass}
-                    maxLength={500}
-                    minLength={10}
-                    name="reason"
-                    placeholder="Verified reactivation reason"
-                    required
-                  />
-                  <input
-                    autoComplete="current-password"
-                    className={inputClass}
-                    minLength={15}
-                    name="adminPassword"
-                    placeholder="Your password"
-                    required
-                    type="password"
-                  />
-                  <button
-                    className="rounded-xl border border-amber-500 px-4 py-3 font-bold text-amber-900"
-                    type="submit"
-                  >
-                    Reactivate account
-                  </button>
-                </form>
-              ) : null}
-              {canManageRoles && person.accountStatus === "active" ? (
-                <div className="mt-6 grid gap-5 border-t border-slate-200 pt-6 lg:grid-cols-2">
-                  <form action={assignRoleAction} className="grid gap-3">
-                    <input name="staffId" type="hidden" value={person.id} />
-                    <h4 className="font-black text-slate-950">Add role</h4>
-                    <select className={inputClass} name="roleCode">
-                      {roleOptions.map(([code, label]) => (
-                        <option key={code} value={code}>
-                          {label}
-                        </option>
-                      ))}
-                    </select>
-                    <input
-                      className={inputClass}
-                      maxLength={500}
-                      name="reason"
-                      placeholder="Reason (required for System Administrator or Core Leader)"
-                    />
-                    <button
-                      className="rounded-xl border border-blue-800 px-4 py-3 font-bold text-blue-800"
-                      type="submit"
-                    >
-                      Assign role
-                    </button>
-                  </form>
-                  {person.roles.length ? (
-                    <form action={revokeRoleAction} className="grid gap-3">
-                      <input name="staffId" type="hidden" value={person.id} />
-                      <h4 className="font-black text-slate-950">Remove role</h4>
-                      <select className={inputClass} name="roleCode">
-                        {person.roles.map((role) => (
-                          <option key={role.assignmentId} value={role.code}>
-                            {role.name}
-                          </option>
-                        ))}
-                      </select>
-                      <input
-                        className={inputClass}
-                        maxLength={500}
-                        minLength={10}
-                        name="reason"
-                        placeholder="Required reason (at least 10 characters)"
-                        required
-                      />
-                      <button
-                        className="rounded-xl border border-red-300 px-4 py-3 font-bold text-red-800"
-                        type="submit"
-                      >
-                        Remove role
-                      </button>
-                    </form>
-                  ) : null}
-                </div>
-              ) : null}
-              {canSuspendStaff && person.accountStatus === "active" ? (
-                <form
-                  action={suspendStaffAction}
-                  className="mt-6 flex flex-col gap-3 border-t border-slate-200 pt-6 sm:flex-row"
+                  Previous
+                </a>
+              ) : (
+                <span className="rounded-xl border border-slate-200 px-4 py-2 font-bold text-slate-400">
+                  Previous
+                </span>
+              )}
+              <span className="rounded-xl bg-white px-4 py-2 font-bold text-slate-800 shadow-sm">
+                Page {activeFilters.page} of {totalPages}
+              </span>
+              {hasNextPage ? (
+                <a
+                  className="rounded-xl border border-slate-300 px-4 py-2 font-bold text-slate-800 transition-colors hover:bg-white"
+                  href={staffDirectoryHref({
+                    ...activeFilters,
+                    page: activeFilters.page + 1,
+                  })}
                 >
-                  <input name="staffId" type="hidden" value={person.id} />
-                  <input
-                    className={`${inputClass} min-w-0 flex-1`}
-                    maxLength={500}
-                    minLength={10}
-                    name="reason"
-                    placeholder="Suspension reason (at least 10 characters)"
-                    required
-                  />
-                  <button
-                    className="rounded-xl bg-red-800 px-5 py-3 font-bold text-white"
-                    type="submit"
-                  >
-                    Suspend account
-                  </button>
-                </form>
-              ) : null}
-            </article>
-          ))}
+                  Next
+                </a>
+              ) : (
+                <span className="rounded-xl border border-slate-200 px-4 py-2 font-bold text-slate-400">
+                  Next
+                </span>
+              )}
+            </nav>
+          </div>
         </section>
+
+        {selectedStaff ? (
+          <StaffAccountManagementPanel
+            canManageCredentials={canManageCredentials}
+            canManageRoles={canManageRoles}
+            canSuspendStaff={canSuspendStaff}
+            person={selectedStaff}
+            returnHref={`${baseHref}#staff-directory`}
+          />
+        ) : null}
       </main>
     </div>
   );
 }
 
-const inputClass = "mt-2 w-full rounded-xl border border-slate-300 px-4 py-3";
-function Field({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <label className="block font-semibold">
-      {label}
-      {children}
-    </label>
-  );
+const filterInputClass =
+  "w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-950 outline-none focus:border-blue-700 focus:ring-4 focus:ring-blue-100";
+
+function readDirectoryFilters(
+  parameters: SearchParameters,
+): PasswordStaffDirectoryFilters {
+  const status = valueFor(parameters, "status");
+  const role = valueFor(parameters, "role");
+  const page = Number.parseInt(valueFor(parameters, "page"), 10);
+  return {
+    search: valueFor(parameters, "search").trim().slice(0, 100),
+    accountStatus: isAccountStatus(status) ? status : "all",
+    roleCode: isRoleCode(role) ? role : "all",
+    page: Number.isSafeInteger(page) && page > 0 ? page : 1,
+    pageSize,
+  };
+}
+
+function valueFor(parameters: SearchParameters, key: string) {
+  const value = parameters[key];
+  return typeof value === "string" ? value : "";
+}
+
+function isAccountStatus(value: string): value is StaffAccountStatus {
+  return ["invited", "active", "suspended", "disabled"].includes(value);
+}
+
+function isRoleCode(value: string): value is RoleCode {
+  return roleOptions.some(([code]) => code === value);
+}
+
+function staffDirectoryHref(
+  filters: PasswordStaffDirectoryFilters,
+  selectedStaffId?: string,
+  anchor?: string,
+) {
+  const parameters = new URLSearchParams();
+  if (filters.search) parameters.set("search", filters.search);
+  if (filters.accountStatus !== "all") {
+    parameters.set("status", filters.accountStatus);
+  }
+  if (filters.roleCode !== "all") parameters.set("role", filters.roleCode);
+  if (filters.page > 1) parameters.set("page", String(filters.page));
+  if (selectedStaffId) parameters.set("selected", selectedStaffId);
+  const query = parameters.size ? `?${parameters.toString()}` : "";
+  return `/admin/staff${query}${anchor ? `#${anchor}` : ""}`;
+}
+
+function statusLabel(
+  status: StaffAccountStatus,
+  temporaryPasswordPending: boolean,
+) {
+  if (status === "disabled" && temporaryPasswordPending) {
+    return "Temporary password expired";
+  }
+  if (temporaryPasswordPending) return "Password change due";
+  return status;
+}
+
+function statusClass(status: StaffAccountStatus) {
+  if (status === "active") {
+    return "rounded-full bg-green-50 px-3 py-1 text-sm font-bold text-green-800";
+  }
+  if (status === "suspended" || status === "disabled") {
+    return "rounded-full bg-red-50 px-3 py-1 text-sm font-bold text-red-800";
+  }
+  return "rounded-full bg-amber-50 px-3 py-1 text-sm font-bold text-amber-900";
 }

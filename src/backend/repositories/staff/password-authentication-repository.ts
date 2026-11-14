@@ -1,4 +1,9 @@
 import type { StaffPasswordCredential } from "@/shared/auth/password-authentication";
+import type {
+  PasswordStaffDirectoryEntry,
+  PasswordStaffDirectoryFilters,
+  PasswordStaffDirectoryPage,
+} from "@/shared/staff/password-directory";
 import type { StaffAccountStatus } from "@/shared/staff/types";
 
 export type PasswordSessionRecord = {
@@ -21,18 +26,11 @@ export type ActivePasswordSession = {
   passwordExpiresAt: string | null;
 };
 
-export type PasswordStaffDirectoryEntry = {
-  id: string;
-  email: string;
-  displayName: string;
-  phone: string | null;
-  jobTitle: string | null;
-  accountStatus: StaffAccountStatus;
-  username: string | null;
-  temporaryPasswordPending: boolean;
-  temporaryPasswordExpiresAt: string | null;
-  roles: { assignmentId: string; code: string; name: string }[];
-};
+export type {
+  PasswordStaffDirectoryEntry,
+  PasswordStaffDirectoryFilters,
+  PasswordStaffDirectoryPage,
+} from "@/shared/staff/password-directory";
 
 export type CreatePasswordEnrollmentRecord = {
   staffId: string;
@@ -192,6 +190,14 @@ type RoleRow = {
   name: string;
 };
 type ExistsRow = { exists_value: number };
+type CountRow = { total: number };
+
+function escapeLike(value: string) {
+  return value
+    .replaceAll("^", "^^")
+    .replaceAll("%", "^%")
+    .replaceAll("_", "^_");
+}
 
 export class PasswordAuthenticationRepository implements PasswordAuthenticationRepositoryPort {
   constructor(private readonly database: D1Database) {}
@@ -314,30 +320,98 @@ export class PasswordAuthenticationRepository implements PasswordAuthenticationR
   }
 
   async listPasswordStaffDirectory() {
-    const [profiles, roles] = await this.database.batch<DirectoryRow | RoleRow>(
-      [
-        this.database.prepare(
-          `SELECT profile.id, profile.email, profile.display_name, profile.phone,
+    const directory = await this.listPasswordStaffDirectoryPage({
+      search: "",
+      accountStatus: "all",
+      roleCode: "all",
+      page: 1,
+      pageSize: 100,
+    });
+    return directory.entries;
+  }
+
+  async listPasswordStaffDirectoryPage(
+    filters: PasswordStaffDirectoryFilters,
+  ): Promise<PasswordStaffDirectoryPage> {
+    const clauses = ["credential.staff_id IS NOT NULL"];
+    const bindings: Array<string | number> = [];
+    const search = filters.search.trim();
+
+    if (search) {
+      const term = `%${escapeLike(search)}%`;
+      clauses.push(`(
+        profile.display_name LIKE ? ESCAPE '^'
+        OR profile.email LIKE ? ESCAPE '^'
+        OR credential.username LIKE ? ESCAPE '^'
+      )`);
+      bindings.push(term, term, term);
+    }
+    if (filters.accountStatus !== "all") {
+      clauses.push("profile.account_status = ?");
+      bindings.push(filters.accountStatus);
+    }
+    if (filters.roleCode !== "all") {
+      clauses.push(`EXISTS (
+        SELECT 1
+        FROM staff_roles AS filter_role
+        WHERE filter_role.staff_id = profile.id
+          AND filter_role.role_code = ?
+          AND filter_role.revoked_at IS NULL
+      )`);
+      bindings.push(filters.roleCode);
+    }
+
+    const whereClause = clauses.join(" AND ");
+    const count = await this.database
+      .prepare(
+        `SELECT COUNT(*) AS total
+         FROM staff_profiles AS profile
+         LEFT JOIN staff_password_credentials AS credential
+           ON credential.staff_id = profile.id
+         WHERE ${whereClause}`,
+      )
+      .bind(...bindings)
+      .first<CountRow>();
+    const total = count?.total ?? 0;
+    const pageSize = Math.min(Math.max(filters.pageSize, 1), 100);
+    const totalPages = Math.max(1, Math.ceil(total / pageSize));
+    const page = Math.min(Math.max(filters.page, 1), totalPages);
+    const offset = (page - 1) * pageSize;
+    const profileResult = await this.database
+      .prepare(
+        `SELECT profile.id, profile.email, profile.display_name, profile.phone,
                 profile.job_title, profile.account_status, credential.username,
                 coalesce(credential.must_change_password, 0) AS temporary_password_pending,
                 credential.password_expires_at AS temporary_password_expires_at
          FROM staff_profiles AS profile
-         LEFT JOIN staff_password_credentials AS credential ON credential.staff_id = profile.id
-         WHERE credential.staff_id IS NOT NULL
-         ORDER BY profile.display_name COLLATE NOCASE LIMIT 100`,
-        ),
-        this.database.prepare(
-          `SELECT assignment.staff_id, assignment.id AS assignment_id, role.code, role.name
-         FROM staff_roles AS assignment JOIN roles AS role ON role.code = assignment.role_code
-         WHERE assignment.revoked_at IS NULL ORDER BY role.name COLLATE NOCASE`,
-        ),
-      ],
-    );
+         LEFT JOIN staff_password_credentials AS credential
+           ON credential.staff_id = profile.id
+         WHERE ${whereClause}
+         ORDER BY profile.display_name COLLATE NOCASE
+         LIMIT ? OFFSET ?`,
+      )
+      .bind(...bindings, pageSize, offset)
+      .all<DirectoryRow>();
+    const profiles = profileResult.results as DirectoryRow[];
+    const staffIds = profiles.map((profile) => profile.id);
+    const roles = staffIds.length
+      ? await this.database
+          .prepare(
+            `SELECT assignment.staff_id, assignment.id AS assignment_id, role.code, role.name
+             FROM staff_roles AS assignment
+             JOIN roles AS role ON role.code = assignment.role_code
+             WHERE assignment.revoked_at IS NULL
+               AND assignment.staff_id IN (${staffIds.map(() => "?").join(", ")})
+             ORDER BY role.name COLLATE NOCASE`,
+          )
+          .bind(...staffIds)
+          .all<RoleRow>()
+      : { results: [] as RoleRow[] };
     const rolesByStaff = new Map<
       string,
       PasswordStaffDirectoryEntry["roles"]
     >();
-    for (const row of roles.results as RoleRow[]) {
+    for (const row of roles.results) {
       const roleList = rolesByStaff.get(row.staff_id) ?? [];
       roleList.push({
         assignmentId: row.assignment_id,
@@ -346,18 +420,22 @@ export class PasswordAuthenticationRepository implements PasswordAuthenticationR
       });
       rolesByStaff.set(row.staff_id, roleList);
     }
-    return (profiles.results as DirectoryRow[]).map((profile) => ({
-      id: profile.id,
-      email: profile.email,
-      displayName: profile.display_name,
-      phone: profile.phone,
-      jobTitle: profile.job_title,
-      accountStatus: profile.account_status,
-      username: profile.username,
-      temporaryPasswordPending: profile.temporary_password_pending === 1,
-      temporaryPasswordExpiresAt: profile.temporary_password_expires_at,
-      roles: rolesByStaff.get(profile.id) ?? [],
-    }));
+    return {
+      entries: profiles.map((profile) => ({
+        id: profile.id,
+        email: profile.email,
+        displayName: profile.display_name,
+        phone: profile.phone,
+        jobTitle: profile.job_title,
+        accountStatus: profile.account_status,
+        username: profile.username,
+        temporaryPasswordPending: profile.temporary_password_pending === 1,
+        temporaryPasswordExpiresAt: profile.temporary_password_expires_at,
+        roles: rolesByStaff.get(profile.id) ?? [],
+      })),
+      total,
+      page,
+    };
   }
 
   async createSession(record: PasswordSessionRecord) {
