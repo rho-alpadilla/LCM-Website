@@ -77,6 +77,12 @@ export type CompleteTemporaryPasswordInput = {
   sourceIdentifier: string;
 };
 
+export type CompleteTemporaryPasswordSessionInput = {
+  staffId: string;
+  passwordVersion: number;
+  newPassword: string;
+};
+
 export type ChangeOwnPasswordInput = {
   staffId: string;
   currentPassword: string;
@@ -201,6 +207,46 @@ export class PasswordAuthenticationService {
     }
     const newPassword = personalPasswordSchema.parse(input.newPassword);
     const hash = await this.coordinator.createPasswordHash(newPassword);
+    const session = await this.newSessionRecord(
+      credential.staffId,
+      credential.passwordVersion + 1,
+      now,
+    );
+    await this.repository.completeTemporaryPasswordSetup({
+      staffId: credential.staffId,
+      previousPasswordVersion: credential.passwordVersion,
+      passwordHash: hash.passwordHash,
+      passwordSalt: hash.passwordSalt,
+      changedAt: now.toISOString(),
+      session,
+      auditLogId: this.createId(),
+      correlationId: this.createId(),
+      action: "staff.password_temporary_setup_completed",
+    });
+    return {
+      sessionToken: this.sessionTokenFromRecord(session),
+      expiresAt: new Date(session.absoluteExpiresAt),
+    };
+  }
+
+  async completeTemporaryPasswordFromSession(
+    input: CompleteTemporaryPasswordSessionInput,
+  ): Promise<PasswordLoginResult> {
+    const credential = await this.repository.findCredentialByStaffId(
+      input.staffId,
+    );
+    const now = this.now();
+    if (
+      !credential ||
+      !credential.mustChangePassword ||
+      credential.passwordVersion !== input.passwordVersion ||
+      !this.isEligibleCredential(credential, now)
+    ) {
+      throw invalidCredentials();
+    }
+    const hash = await this.coordinator.createPasswordHash(
+      personalPasswordSchema.parse(input.newPassword),
+    );
     const session = await this.newSessionRecord(
       credential.staffId,
       credential.passwordVersion + 1,

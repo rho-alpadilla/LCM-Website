@@ -11,6 +11,7 @@ export function PasswordChangeForm({
   const router = useRouter();
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const isTemporaryPasswordSetup = Boolean(temporaryPasswordExpiresAt);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -21,15 +22,22 @@ export function PasswordChangeForm({
     }
     setSubmitting(true);
     setMessage("");
-    const response = await fetch("/api/admin/auth/password/change", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "same-origin",
-      body: JSON.stringify({
-        currentPassword: form.get("currentPassword"),
-        newPassword: form.get("newPassword"),
-      }),
-    });
+    const response = await fetch(
+      isTemporaryPasswordSetup
+        ? "/api/admin/auth/password/temporary-session-setup"
+        : "/api/admin/auth/password/change",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({
+          ...(isTemporaryPasswordSetup
+            ? {}
+            : { currentPassword: form.get("currentPassword") }),
+          newPassword: form.get("newPassword"),
+        }),
+      },
+    );
     if (response.ok) {
       setMessage(
         "Your password was changed and other website sessions were signed out.",
@@ -41,7 +49,9 @@ export function PasswordChangeForm({
     }
     setSubmitting(false);
     setMessage(
-      "We could not change your password. Check your current password and try again.",
+      isTemporaryPasswordSetup
+        ? "We could not complete password setup. Sign in again with your temporary password and retry."
+        : "We could not change your password. Check your current password and try again.",
     );
   }
 
@@ -57,8 +67,8 @@ export function PasswordChangeForm({
           : "Change password"}
       </h2>
       <p className="mt-2 text-sm leading-6 text-slate-600">
-        {temporaryPasswordExpiresAt
-          ? "Use your temporary password as the current password. Your temporary access ends after its three-day setup period."
+        {isTemporaryPasswordSetup
+          ? "Choose and confirm a personal password. Your verified temporary-password session is used securely; you do not need to enter the temporary password again."
           : "Use at least 15 characters. Your password is never visible to administrators."}
       </p>
       {message ? (
@@ -70,11 +80,13 @@ export function PasswordChangeForm({
         </p>
       ) : null}
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
-        <Field
-          autoComplete="current-password"
-          label="Current password"
-          name="currentPassword"
-        />
+        {!isTemporaryPasswordSetup ? (
+          <Field
+            autoComplete="current-password"
+            label="Current password"
+            name="currentPassword"
+          />
+        ) : null}
         <Field
           autoComplete="new-password"
           label="New password"

@@ -292,6 +292,57 @@ describe("PasswordAuthenticationService", () => {
     );
   });
 
+  it("completes temporary-password setup from a verified temporary session", async () => {
+    const completeTemporaryPasswordSetup = vi.fn().mockResolvedValue(undefined);
+    const coordinator = createCoordinator();
+    const service = createService(
+      createRepositoryStub({
+        findCredentialByStaffId: vi.fn().mockResolvedValue({
+          ...activeCredential,
+          accountStatus: "active",
+          mustChangePassword: true,
+          passwordExpiresAt: "2026-09-23T10:00:00.000Z",
+        }),
+        completeTemporaryPasswordSetup,
+      }),
+      coordinator,
+    );
+
+    await expect(
+      service.completeTemporaryPasswordFromSession({
+        staffId: "staff-1",
+        passwordVersion: 1,
+        newPassword: "a synthetic personal password",
+      }),
+    ).resolves.toMatchObject({ sessionToken: "a".repeat(43) });
+
+    expect(coordinator.verifyPassword).not.toHaveBeenCalled();
+    expect(completeTemporaryPasswordSetup).toHaveBeenCalledWith(
+      expect.objectContaining({
+        staffId: "staff-1",
+        previousPasswordVersion: 1,
+        action: "staff.password_temporary_setup_completed",
+      }),
+    );
+  });
+
+  it("does not complete temporary-password setup from a regular session", async () => {
+    const completeTemporaryPasswordSetup = vi.fn().mockResolvedValue(undefined);
+    const service = createService(
+      createRepositoryStub({ completeTemporaryPasswordSetup }),
+      createCoordinator(),
+    );
+
+    await expect(
+      service.completeTemporaryPasswordFromSession({
+        staffId: "staff-1",
+        passwordVersion: 1,
+        newPassword: "a synthetic personal password",
+      }),
+    ).rejects.toMatchObject({ code: "AUTHENTICATION_REQUIRED" });
+    expect(completeTemporaryPasswordSetup).not.toHaveBeenCalled();
+  });
+
   it("processes a bounded batch of overdue temporary-password accounts", async () => {
     const disableExpiredTemporaryPassword = vi
       .fn()
